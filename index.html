@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#f0f6ff">
+<title>Tuxana Mola — Empréstimos Digital</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f0f6ff;--bg2:#ffffff;--card:#ffffff;--card2:#f8fbff;
+  --line:rgba(37,99,235,.14);--line2:rgba(37,99,235,.08);
+  --primary:#2563eb;--primary2:#1d4ed8;--primary3:#3b82f6;
+  --accent:#60a5fa;--light:#dbeafe;--light2:#eff6ff;
+  --green:#10b981;--danger:#ef4444;--warn:#f59e0b;
+  --txt:#0f172a;--muted:#64748b;--muted2:#94a3b8;
+  --shadow-sm:0 2px 8px rgba(37,99,235,.08);
+  --shadow-md:0 10px 28px rgba(37,99,235,.14);
+  --shadow-lg:0 24px 60px rgba(37,99,235,.22);
+  --shadow-xl:0 30px 80px rgba(37,99,235,.30);
+}
+html,body{height:100%}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(900px 500px at 50% -10%, #dbeafe 0%, transparent 60%),
+    radial-gradient(700px 400px at 100% 100%, #e0ecff 0%, transparent 55%),
+    linear-gradient(180deg, #f0f6ff 0%, #ffffff 100%);
+  background-attachment:fixed;color:var(--txt);min-height:100vh;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+.hidden{display:none!important}
+button,input,select,textarea{font-family:inherit;font-size:15px;outline:none;border:none}
+
+/* ============================================================
+   🔄 PROCESSADOR DE LOADING GLOBAL (aparece em qualquer clique)
+   ============================================================ */
+#clickLoader{
+  position:fixed;top:0;left:0;right:0;height:3px;z-index:99999;
+  pointer-events:none;opacity:0;transition:opacity .2s ease;
+}
+#clickLoader.on{opacity:1}
+#clickLoader i{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--primary3),var(--primary),var(--primary2));
+  box-shadow:0 0 14px rgba(59,130,246,.85);
+  border-radius:0 3px 3px 0;
+  transition:width .35s cubic-bezier(.4,0,.2,1);
+}
+/* ============================================================ */
+
+#loader{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+}
+#spin{position:relative;width:110px;height:110px;animation:spinRot 2.6s linear infinite}
+#spin::after{
+  content:"";position:absolute;left:50%;top:50%;
+  width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  background:radial-gradient(circle, rgba(59,130,246,.35), transparent 70%);
+  animation:centerGlow 1.6s ease-in-out infinite;
+}
+#spin span{
+  position:absolute;left:50%;top:50%;
+  width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;
+  background:linear-gradient(135deg, var(--accent), var(--primary));
+  box-shadow:0 0 16px rgba(59,130,246,.75), 0 0 4px rgba(37,99,235,.5) inset;
+  transform:rotate(var(--rot,0deg)) translateY(-42px);
+  animation:dotPulse 1.6s ease-in-out infinite;
+}
+#spin span:nth-child(3n+1){background:linear-gradient(135deg,#93c5fd,var(--primary3))}
+#spin span:nth-child(3n+2){background:linear-gradient(135deg,#bfdbfe,var(--accent))}
+@keyframes spinRot{to{transform:rotate(360deg)}}
+@keyframes dotPulse{0%,100%{opacity:.12;box-shadow:0 0 6px rgba(59,130,246,.2)}
+  50%{opacity:1;box-shadow:0 0 20px rgba(59,130,246,.9)}}
+@keyframes centerGlow{0%,100%{transform:scale(.85);opacity:.5}50%{transform:scale(1.15);opacity:1}}
+#loader p{color:var(--muted);letter-spacing:2.5px;font-size:12px;text-transform:uppercase;font-weight:600}
+#loader b{font-size:22px;letter-spacing:4px;font-weight:900;
+  background:linear-gradient(135deg,var(--primary),var(--primary3));
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+
+.modal-bg{
+  position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.55);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;padding:18px;
+  animation:fade .25s ease;
+}
+.modal{
+  width:100%;max-width:430px;background:#fff;
+  border:1px solid var(--line);border-radius:24px;
+  padding:24px 20px;box-shadow:var(--shadow-xl);
+  animation:pop .3s cubic-bezier(.2,.9,.3,1.3);
+  max-height:92vh;overflow-y:auto;
+}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.modal h3{font-size:17px;margin-bottom:16px;text-align:center;
+  color:var(--primary);letter-spacing:.3px;font-weight:800;}
+.modal textarea{
+  width:100%;padding:13px;border-radius:14px;
+  background:var(--light2);border:1px solid var(--line);
+  color:var(--txt);resize:vertical;font-family:inherit;transition:.2s;
+}
+.modal textarea:focus{border-color:var(--primary3);background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+#modalActions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+#otpInput{
+  text-align:center;font-size:26px;letter-spacing:12px;font-weight:800;
+  padding:16px;padding-left:28px;background:var(--light2);
+  border:1px solid var(--line);border-radius:14px;color:var(--txt);
+  transition:.2s;width:100%;
+}
+#otpInput:focus{border-color:var(--primary3);background:#fff;box-shadow:0 0 0 4px rgba(59,130,246,.18)}
+
+.screen{min-height:100vh;padding:26px 18px 40px;max-width:520px;margin:0 auto;animation:fade .4s ease}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.logo{text-align:center;margin-bottom:24px}
+.logo .mark{
+  width:92px;height:92px;margin:0 auto 14px;border-radius:26px;overflow:hidden;
+  border:3px solid #fff;
+  box-shadow:0 14px 34px rgba(37,99,235,.28), 0 0 0 1px rgba(37,99,235,.15);
+  background:var(--light);
+}
+.logo .mark img{width:100%;height:100%;object-fit:cover;display:block}
+.logo h1{font-size:26px;letter-spacing:.5px;font-weight:900;color:var(--txt)}
+.logo h1 span{background:linear-gradient(135deg,var(--primary),var(--primary3));
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.logo p{color:var(--muted);font-size:13px;margin-top:6px;font-weight:500}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:22px;
+  padding:22px 18px;box-shadow:var(--shadow-sm);}
+
+/* ============================================================
+   📝 CAMPOS COM ÍCONES PROFISSIONAIS
+   ============================================================ */
+.field{margin-bottom:15px;position:relative}
+.field label{display:block;font-size:12.5px;color:var(--muted);
+  margin-bottom:7px;font-weight:600;letter-spacing:.2px;}
+
+.field .input-box{position:relative}
+.field .input-box .fi{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+  color:var(--primary3);pointer-events:none;transition:.22s;z-index:2;
+}
+.field .input-box .fi svg{
+  width:100%;height:100%;stroke:currentColor;fill:none;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
+}
+.field .input-box:focus-within .fi{
+  color:var(--primary);
+  transform:translateY(-50%) scale(1.08);
+}
+.field .input-box input,
+.field .input-box select{
+  width:100%;padding:14px;padding-left:46px;border-radius:13px;
+  background:var(--light2);border:1px solid var(--line);color:var(--txt);
+  transition:.2s;font-weight:500;
+}
+.field .input-box input:focus,
+.field .input-box select:focus{
+  border-color:var(--primary3);background:#fff;
+  box-shadow:0 0 0 3px rgba(59,130,246,.15);
+}
+.field .input-box input::placeholder{color:var(--muted2);font-weight:400}
+
+/* Select — a seta fica à direita, ícone à esquerda */
+.field .input-box select{
+  appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--primary) 50%),
+                   linear-gradient(135deg,var(--primary) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;
+  background-size:6px 6px,6px 6px;background-repeat:no-repeat;
+  padding-right:44px;
+}
+.field .input-box select:disabled{opacity:.5}
+/* ============================================================ */
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.hint{margin-top:9px;padding:12px 14px;border-radius:12px;
+  font-size:12.5px;line-height:1.55;
+  background:linear-gradient(135deg,#eff6ff,#dbeafe);
+  border:1px solid rgba(37,99,235,.25);color:#1e40af;
+  animation:fade .3s ease;font-weight:500;}
+.hint::before{content:"💡  "}
+
+.btn{width:100%;padding:16px;border-radius:15px;font-weight:800;
+  font-size:15px;letter-spacing:.4px;
+  background:linear-gradient(135deg,var(--primary3),var(--primary2));
+  color:#fff;cursor:pointer;transition:.22s;
+  box-shadow:0 10px 26px rgba(37,99,235,.35), inset 0 1px 0 rgba(255,255,255,.25);}
+.btn:hover{filter:brightness(1.05)}
+.btn:active{transform:translateY(1px) scale(.985);box-shadow:0 6px 16px rgba(37,99,235,.28)}
+.btn.alt{background:linear-gradient(135deg,#3b82f6,#1d4ed8);
+  box-shadow:0 10px 26px rgba(37,99,235,.35), inset 0 1px 0 rgba(255,255,255,.25);}
+.btn.ghost{background:#fff;border:1.5px solid var(--line);color:var(--txt);box-shadow:var(--shadow-sm);}
+.btn.ghost:hover{background:var(--light2);border-color:var(--primary3)}
+.btn.danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;
+  box-shadow:0 10px 26px rgba(239,68,68,.35), inset 0 1px 0 rgba(255,255,255,.25);}
+
+#app{padding:0 0 40px;max-width:520px;margin:0 auto}
+.topbar{position:sticky;top:0;z-index:60;display:flex;align-items:center;
+  gap:12px;padding:13px 16px;
+  background:linear-gradient(90deg, rgba(219,234,254,.92) 0%, rgba(255,255,255,.95) 100%);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);box-shadow:0 4px 20px rgba(37,99,235,.06);}
+.topbar .mini{width:44px;height:44px;border-radius:14px;overflow:hidden;flex-shrink:0;
+  border:2px solid #fff;
+  box-shadow:0 6px 16px rgba(37,99,235,.25), 0 0 0 1px rgba(37,99,235,.12);
+  background:var(--light);}
+.topbar .mini img{width:100%;height:100%;object-fit:cover;display:block}
+.topbar .tt{flex:1;min-width:0}
+.topbar .tt h2{font-size:15.5px;letter-spacing:1px;font-weight:800;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  background:linear-gradient(135deg,var(--primary),var(--primary3));
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.menubtn{width:42px;height:42px;border-radius:13px;background:#fff;
+  border:1px solid var(--line);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;cursor:pointer;
+  flex-shrink:0;transition:.2s;box-shadow:var(--shadow-sm);}
+.menubtn:hover{background:var(--light2)}
+.menubtn i{display:block;width:18px;height:2px;background:var(--primary);
+  border-radius:2px;transition:.25s;}
+.menubtn.open i:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.menubtn.open i:nth-child(2){opacity:0}
+.menubtn.open i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+.dropdown{position:fixed;top:74px;right:14px;width:min(290px,88vw);z-index:80;
+  background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px;
+  box-shadow:var(--shadow-lg);transform-origin:top right;
+  opacity:0;transform:scale(.9) translateY(-8px);pointer-events:none;
+  transition:.22s cubic-bezier(.2,.9,.3,1.3);}
+.dropdown.open{opacity:1;transform:none;pointer-events:auto}
+.dropdown button{width:100%;display:flex;align-items:center;gap:12px;
+  padding:13px 12px;border-radius:13px;background:transparent;color:var(--txt);
+  font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:.2s;}
+.dropdown button:hover,.dropdown button.on{
+  background:linear-gradient(135deg,var(--light2),var(--light));color:var(--primary);}
+.dropdown button .ic{width:36px;height:36px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--light2);color:var(--primary3);flex-shrink:0;transition:.2s;}
+.dropdown button.on .ic,.dropdown button:hover .ic{
+  background:linear-gradient(135deg,var(--primary3),var(--primary));
+  color:#fff;box-shadow:0 4px 12px rgba(37,99,235,.3);}
+.dropdown button .ic svg{width:18px;height:18px;stroke:currentColor;fill:none;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+
+.wrap{padding:16px}
+.view{animation:fade .32s ease}
+
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;
+  padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm);transition:.2s;}
+.card:hover{box-shadow:var(--shadow-md)}
+.card h3{font-size:12.5px;color:var(--muted);font-weight:700;
+  margin-bottom:14px;letter-spacing:1px;text-transform:uppercase;}
+.big{font-size:clamp(24px,7.5vw,34px);font-weight:900;
+  letter-spacing:-1px;line-height:1.15;word-break:break-word;
+  background:linear-gradient(135deg,var(--primary),var(--primary3));
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.big small{font-size:.48em;color:var(--muted);font-weight:600;
+  letter-spacing:0;-webkit-text-fill-color:var(--muted);}
+
+.kv{display:flex;justify-content:space-between;padding:11px 0;
+  border-bottom:1px dashed var(--line2);font-size:13.5px;gap:12px;}
+.kv:last-child{border-bottom:none}
+.kv span:first-child{color:var(--muted);font-weight:500}
+.kv span:last-child{font-weight:700;text-align:right;word-break:break-word;color:var(--txt)}
+
+.bar{height:10px;border-radius:10px;background:var(--light2);overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;
+  background:linear-gradient(90deg,var(--primary3),var(--primary));
+  border-radius:10px;transition:width .6s ease;
+  box-shadow:0 0 12px rgba(59,130,246,.4);}
+
+.badge{display:inline-block;padding:5px 12px;border-radius:20px;
+  font-size:11px;font-weight:800;letter-spacing:.4px;}
+.badge.ok{background:#d1fae5;color:#047857}
+.badge.warn{background:#fef3c7;color:#b45309}
+.badge.bad{background:#fee2e2;color:#b91c1c}
+
+.banner{position:relative;width:100%;max-width:420px;margin:0 auto 16px;
+  aspect-ratio:736/1104;border-radius:22px;overflow:hidden;
+  border:1px solid var(--line);box-shadow:var(--shadow-md);}
+.banner a{position:absolute;inset:0;display:block}
+.banner img{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;opacity:0;transition:opacity 1s ease;}
+.banner img.on{opacity:1}
+.bdots{position:absolute;bottom:14px;left:0;right:0;
+  display:flex;justify-content:center;gap:7px;z-index:3;}
+.bdots i{width:7px;height:7px;border-radius:50%;
+  background:rgba(255,255,255,.55);transition:.3s;
+  box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.bdots i.on{background:#fff;width:22px;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+
+/* ============================================================
+   💳 CARTÃO VIRTUAL — AZUL/BRANCO + CHIP EMV REALISTA
+   ============================================================ */
+.paidy{
+  width:100%;max-width:440px;margin:0 auto 18px;
+  border-radius:18px;padding:26px 24px 22px;
+  background:linear-gradient(135deg,#1e40af 0%,#2563eb 55%,#3b82f6 100%);
+  color:#fff;position:relative;overflow:hidden;
+  box-shadow:0 22px 44px rgba(37,99,235,.42), 0 4px 10px rgba(37,99,235,.28);
+  min-height:290px;display:flex;flex-direction:column;justify-content:space-between;
+}
+.paidy::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 100% 0%, rgba(255,255,255,.14), transparent 60%);
+}
+.paidy .ph{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2}
+.paidy .brand{font-size:26px;font-weight:900;letter-spacing:-.8px;line-height:1;color:#fff}
+.paidy .brand em{font-style:normal;font-weight:400;color:#bfdbfe}
+.paidy .brand small{display:block;font-size:8.5px;letter-spacing:3.5px;
+  color:rgba(255,255,255,.72);font-weight:600;margin-top:5px;}
+
+/* Chip realista (EMV 6 contactos) */
+.paidy .chip{
+  width:48px;height:36px;border-radius:6px;position:relative;
+  background:linear-gradient(135deg,#f9e9b8 0%,#d9b64a 20%,#b8860b 45%,#f9e9b8 55%,#d9b64a 80%,#8b6508 100%);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.75),
+    inset 0 -1px 2px rgba(0,0,0,.35),
+    inset 1px 0 1px rgba(255,255,255,.45),
+    inset -1px 0 2px rgba(0,0,0,.22),
+    0 1px 3px rgba(0,0,0,.28);
+}
+.paidy .chip::before{
+  content:"";position:absolute;inset:4px;border-radius:3px;
+  border:1px solid rgba(80,60,20,.55);
+  background:
+    linear-gradient(to right,transparent 31%,rgba(80,60,20,.55) 31%,rgba(80,60,20,.55) 34%,transparent 34%),
+    linear-gradient(to right,transparent 65%,rgba(80,60,20,.55) 65%,rgba(80,60,20,.55) 68%,transparent 68%),
+    linear-gradient(to bottom,transparent 47%,rgba(80,60,20,.55) 47%,rgba(80,60,20,.55) 53%,transparent 53%);
+}
+.paidy .chip::after{
+  content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;
+  background:linear-gradient(to bottom,transparent 0%,rgba(80,60,20,.35) 40%,rgba(80,60,20,.35) 60%,transparent 100%);
+  transform:translateX(-50%);opacity:.4;
+}
+
+.paidy .num{font-family:'Courier New',monospace;font-size:19px;letter-spacing:2.5px;
+  margin:22px 0 4px;position:relative;z-index:2;color:#fff;font-weight:700;
+  text-shadow:0 1px 2px rgba(0,0,0,.25);}
+.paidy .debt{position:relative;z-index:2;margin:16px 0 6px;
+  padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.22);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+.paidy .debt label{font-size:10px;letter-spacing:2.4px;color:rgba(255,255,255,.88);
+  font-weight:700;text-transform:uppercase;}
+.paidy .debt .v{font-size:clamp(28px,8.5vw,42px);font-weight:900;line-height:1.05;
+  letter-spacing:-1.2px;color:#fff;margin-top:4px;word-break:break-word;}
+.paidy .debt .v small{font-size:.42em;color:#bfdbfe;font-weight:700}
+.paidy .debt .sub{font-size:11px;color:rgba(255,255,255,.82);margin-top:5px;font-weight:500}
+.paidy .foot{display:flex;justify-content:space-between;align-items:flex-end;
+  position:relative;z-index:2;margin-top:14px;gap:12px;}
+.paidy .foot .lbl{font-size:8.5px;letter-spacing:2.2px;color:rgba(255,255,255,.7);
+  font-weight:700;margin-bottom:3px;text-transform:uppercase;}
+.paidy .foot .val{font-size:13px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.6px;color:#fff;}
+
+.hist{display:flex;gap:13px;align-items:center;padding:14px 0;
+  border-bottom:1px dashed var(--line2);}
+.hist:last-child{border-bottom:none}
+.hist .ic{width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--light2);flex-shrink:0;color:var(--primary3);}
+.hist .ic svg{width:20px;height:20px;stroke:currentColor;fill:none;
+  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.hist .ic.g{color:#047857;background:#d1fae5}
+.hist .ic.p{color:#b91c1c;background:#fee2e2}
+.hist .tx{flex:1;min-width:0}
+.hist .tx b{display:block;font-size:13.5px;margin-bottom:4px;font-weight:700;color:var(--txt)}
+.hist .tx small{color:var(--muted);font-size:11.5px;line-height:1.4}
+.hist .amt{font-weight:800;font-size:14px;white-space:nowrap}
+.hist .amt.p{color:var(--danger)}
+.hist .amt.g{color:var(--green)}
+
+.empty{text-align:center;padding:36px 14px;color:var(--muted);
+  font-size:13.5px;line-height:1.7;}
+.empty .e{display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;width:56px;height:56px;border-radius:18px;
+  background:linear-gradient(135deg,var(--light2),var(--light));color:var(--primary3);}
+.empty .e svg{width:28px;height:28px;stroke:currentColor;fill:none;
+  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+
+.note{font-size:12.5px;line-height:1.65;color:var(--muted);
+  background:linear-gradient(135deg,var(--light2),#fff);
+  border-left:3px solid var(--primary3);padding:12px 14px;
+  border-radius:10px;margin-top:14px;font-weight:500;}
+.note.bad{border-left-color:var(--danger);background:linear-gradient(135deg,#fef2f2,#fff);color:#991b1b}
+.note.ok{border-left-color:var(--green);background:linear-gradient(135deg,#ecfdf5,#fff);color:#047857}
+
+.fab{position:fixed;bottom:22px;right:22px;z-index:990;
+  width:62px;height:62px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary3),var(--primary2));
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:.25s;color:#fff;
+  box-shadow:0 16px 36px rgba(37,99,235,.5), 0 0 0 0 rgba(59,130,246,.55),
+    inset 0 1px 0 rgba(255,255,255,.3);
+  animation:pulse 2.6s infinite;}
+@keyframes pulse{
+  0%{box-shadow:0 16px 36px rgba(37,99,235,.5), 0 0 0 0 rgba(59,130,246,.55), inset 0 1px 0 rgba(255,255,255,.3)}
+  70%{box-shadow:0 16px 36px rgba(37,99,235,.5), 0 0 0 20px rgba(59,130,246,0), inset 0 1px 0 rgba(255,255,255,.3)}
+  100%{box-shadow:0 16px 36px rgba(37,99,235,.5), 0 0 0 0 rgba(59,130,246,0), inset 0 1px 0 rgba(255,255,255,.3)}}
+.fab:hover{transform:scale(1.08)}
+.fab:active{transform:scale(.95)}
+.fab svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;}
+.fab .i-close{display:none}
+.fab.open{animation:none}
+.fab.open .i-chat{display:none}
+.fab.open .i-close{display:block}
+
+.chat{position:fixed;bottom:96px;right:22px;z-index:989;
+  width:min(370px,calc(100vw - 32px));max-height:74vh;
+  background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;
+  display:flex;flex-direction:column;box-shadow:var(--shadow-xl);
+  opacity:0;transform:scale(.92) translateY(20px);pointer-events:none;
+  transition:.28s cubic-bezier(.2,.9,.3,1.2);transform-origin:bottom right;}
+.chat.open{opacity:1;transform:none;pointer-events:auto}
+.chat-head{display:flex;align-items:center;gap:12px;padding:15px 17px;
+  background:linear-gradient(135deg,var(--primary),var(--primary2));
+  border-bottom:1px solid rgba(0,0,0,.05);flex-shrink:0;}
+.chat-head .avatar{width:42px;height:42px;border-radius:13px;overflow:hidden;
+  flex-shrink:0;border:2px solid rgba(255,255,255,.5);background:var(--light);}
+.chat-head .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.chat-head .info{flex:1;min-width:0}
+.chat-head .info b{display:block;font-size:14px;letter-spacing:.3px;color:#fff;font-weight:700}
+.chat-head .info small{font-size:11px;color:rgba(255,255,255,.85);
+  display:flex;align-items:center;gap:6px;margin-top:3px;font-weight:600;}
+.chat-head .info small::before{content:"";width:7px;height:7px;border-radius:50%;
+  background:#4ade80;box-shadow:0 0 8px #4ade80;animation:dotPulse 1.6s infinite;}
+.chat-body{padding:15px;overflow-y:auto;flex:1;display:flex;flex-direction:column;
+  gap:11px;scrollbar-width:thin;scrollbar-color:var(--line2) transparent;
+  background:linear-gradient(180deg,#fafcff,#ffffff);}
+.chat-body::-webkit-scrollbar{width:5px}
+.chat-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px}
+
+.chat-msg{padding:12px 15px;border-radius:15px;font-size:13.5px;
+  line-height:1.55;max-width:90%;animation:fade .3s ease;
+  word-wrap:break-word;white-space:pre-line;}
+.chat-msg.bot{background:#fff;border:1px solid var(--line);color:var(--txt);
+  border-bottom-left-radius:5px;align-self:flex-start;box-shadow:var(--shadow-sm);}
+.chat-msg.user{background:linear-gradient(135deg,var(--primary3),var(--primary2));
+  color:#fff;font-weight:600;border-bottom-right-radius:5px;align-self:flex-end;
+  box-shadow:0 6px 16px rgba(37,99,235,.25);}
+
+.chat-typing{display:flex;align-items:center;gap:6px;padding:14px 16px;
+  background:#fff;border:1px solid var(--line);border-radius:15px;
+  border-bottom-left-radius:5px;align-self:flex-start;animation:fade .3s ease;
+  max-width:90%;box-shadow:var(--shadow-sm);}
+.chat-typing .d{width:8px;height:8px;border-radius:50%;background:var(--primary3);
+  animation:typeBounce 1.2s ease-in-out infinite;}
+.chat-typing .d:nth-child(2){animation-delay:.15s;background:var(--primary)}
+.chat-typing .d:nth-child(3){animation-delay:.3s;background:var(--primary2)}
+.chat-typing .lbl{margin-left:8px;font-size:11.5px;color:var(--muted);
+  font-weight:600;letter-spacing:.3px;}
+@keyframes typeBounce{
+  0%,60%,100%{transform:translateY(0);opacity:.35}
+  30%{transform:translateY(-6px);opacity:1}}
+
+.chat-quick{display:flex;flex-direction:column;gap:8px;margin-top:2px}
+.chat-quick button{width:100%;text-align:left;padding:13px 15px;border-radius:13px;
+  background:#fff;border:1px solid var(--line);color:var(--txt);font-size:13px;
+  font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;
+  gap:11px;box-shadow:var(--shadow-sm);}
+.chat-quick button::before{content:"";width:7px;height:7px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary3),var(--primary));
+  flex-shrink:0;box-shadow:0 0 6px rgba(59,130,246,.5);}
+.chat-quick button:hover{background:linear-gradient(135deg,var(--light2),var(--light));
+  border-color:var(--primary3);color:var(--primary);}
+.chat-quick button:active{transform:scale(.98)}
+
+.agent{display:flex;align-items:center;gap:12px;padding:13px;border-radius:15px;
+  background:#fff;border:1px solid var(--line);animation:fade .3s ease;
+  box-shadow:var(--shadow-sm);}
+.agent-avatar{width:46px;height:46px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--primary3),var(--primary));color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:900;
+  font-size:18px;box-shadow:0 6px 14px rgba(37,99,235,.3);}
+.agent-info{flex:1;min-width:0}
+.agent-info b{display:block;font-size:14px;margin-bottom:3px;color:var(--txt)}
+.agent-info small{color:#047857;font-size:11px;font-weight:700;letter-spacing:.3px}
+.agent-actions{display:flex;gap:6px;flex-shrink:0}
+.agent-actions a{width:38px;height:38px;border-radius:12px;display:flex;
+  align-items:center;justify-content:center;transition:.2s;text-decoration:none;}
+.agent-actions a svg{width:18px;height:18px;stroke:currentColor;fill:none;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.agent-actions a.wa{background:#dcfce7;color:#15803d}
+.agent-actions a.wa svg{fill:currentColor;stroke:none}
+.agent-actions a.call{background:#dbeafe;color:#1d4ed8}
+.agent-actions a.sms{background:#fef3c7;color:#b45309}
+.agent-actions a:hover{transform:scale(1.08)}
+.agent-actions a:active{transform:scale(.94)}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,26px);
+  z-index:9998;background:#fff;border:1px solid var(--line);color:var(--txt);
+  padding:14px 22px;border-radius:15px;font-size:13.5px;font-weight:600;
+  box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.3s;
+  max-width:88vw;text-align:center;}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<!-- 🔄 Barra de loading global -->
+<div id="clickLoader"><i></i></div>
+
+<div id="loader" class="hidden">
+  <b>TUXANA MOLA</b>
+  <div id="spin"></div>
+  <p>A processar…</p>
+</div>
+
+<div id="modal" class="modal-bg hidden">
+  <div class="modal">
+    <h3 id="modalTitle">Verificação</h3>
+    <div id="modalBody"></div>
+    <div id="modalActions"></div>
+  </div>
+</div>
+
+<div id="auth" class="screen">
+  <div class="logo">
+    <div class="mark"><img id="logoAuth" src="" alt="Tuxana Mola"></div>
+    <h1>Tuxana <span>Mola</span></h1>
+    <p>Empréstimo rápido e seguro • Moçambique</p>
+  </div>
+
+  <div id="formReg" class="panel">
+    <div class="field">
+      <label>Nome do bilhete de identidade </label>
+      <div class="input-box">
+        <span class="fi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/></svg></span>
+        <input id="f_nome" type="text" placeholder="Inserir o nome" autocomplete="name">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Número do bilhete de identidade </label>
+      <div class="input-box">
+        <span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c0-1.5 1.3-2.5 3-2.5s3 1 3 2.5"/><path d="M15 10h4M15 13h4"/></svg></span>
+        <input id="f_bi" type="text" placeholder="Inserir número de documento" autocomplete="off">
+      </div>
+    </div>
+
+    <div class="field" id="telField">
+      <label>Número do telemóvel </label>
+      <div class="input-box">
+        <span class="fi"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></span>
+        <input id="f_tel" type="tel" placeholder="84 000 0000" autocomplete="tel">
+      </div>
+      <div class="hint hidden" id="telHint">O usuário será aprovado se inserir o número registado em seu documento de identificação.</div>
+    </div>
+
+    <div class="field">
+      <label>Província </label>
+      <div class="input-box">
+        <span class="fi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 4 5.7 4 9s-1.5 6-4 9M12 3c-2.5 3-4 5.7-4 9s1.5 6 4 9"/></svg></span>
+        <select id="f_prov" onchange="carregarDistritos()"><option value="">— Selecionar província —</option></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Distrito </label>
+      <div class="input-box">
+        <span class="fi"><svg viewBox="0 0 24 24"><path d="M20 10c0 7-8 12-8 12s-8-5-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+        <select id="f_dist" disabled><option value="">— Selecionar distrito —</option></select>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Género </label>
+        <div class="input-box">
+          <span class="fi"><svg viewBox="0 0 24 24"><circle cx="10" cy="13" r="5"/><path d="M14 9l7-7M15 2h6v6"/></svg></span>
+          <select id="f_gen"><option value="">— Selecionar —</option><option>Masculino</option><option>Feminino</option></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Ocupação *</label>
+        <div class="input-box">
+          <span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg></span>
+          <select id="f_ocu"><option value="">— Selecionar —</option><option>Desempregado</option><option>Comerciante</option><option>Trabalhador</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Quanto recebe (MT) *</label>
+      <div class="input-box">
+        <span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="17" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
+        <input id="f_rend" type="number" min="0" step="50" placeholder="inserir o valor">
+      </div>
+    </div>
+
+    <button class="btn" onclick="registar()">CRIAR CONTA</button>
+    <div class="note">Ao registar-se, os seus dados são usados para avaliação de crédito.</div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <div class="topbar">
+    <div class="mini"><img id="logoTop" src="" alt="Tuxana Mola"></div>
+    <div class="tt"><h2>TUXANA MOLA</h2></div>
+    <div class="menubtn" id="menubtn" onclick="toggleMenu(event)"><i></i><i></i><i></i></div>
+  </div>
+
+  <div class="dropdown" id="dropdown">
+    <button data-v="painel" onclick="irPara('painel')">
+      <span class="ic"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></span>
+      Painel principal
+    </button>
+    <button data-v="historico" onclick="irPara('historico')">
+      <span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v16l-3-2-2 2-3-2-3 2-2-2-3 2z"/><path d="M8 9h8M8 13h6"/></svg></span>
+      Histórico de operações
+    </button>
+    <button data-v="cartao" onclick="irPara('cartao')">
+      <span class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h3"/></svg></span>
+      Cartão virtual de dívida
+    </button>
+  </div>
+
+  <div class="wrap">
+    <div id="view-painel" class="view"></div>
+    <div id="view-historico" class="view hidden"></div>
+    <div id="view-cartao" class="view hidden"></div>
+  </div>
+</div>
+
+<div class="fab" id="fab" onclick="toggleChat()" title="Assistência Virtual">
+  <svg class="i-chat" viewBox="0 0 24 24"><path d="M21 12c0 4.4-4 8-9 8-1.2 0-2.4-.2-3.4-.6L3 21l1.5-4.5C3.6 15.2 3 13.6 3 12c0-4.4 4-8 9-8s9 3.6 9 8z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></svg>
+  <svg class="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+</div>
+
+<div class="chat" id="chat">
+  <div class="chat-head">
+    <div class="avatar"><img id="logoChat" src="" alt="Tuxana Mola"></div>
+    <div class="info"><b>Assistência Tuxana Mola</b><small>Online agora</small></div>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   ⚙️ CONFIGURAÇÕES
+   ========================================================= */
+const LOGO_URL = "https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/3dd7ccb8-2bd4-4d6e-9f30-4932f934277c.png";
+const WHATSAPP_NUMBER = "258845193471";
+const PAY_ID_PREFIX = "DIE";
+const TX_PREFIX = "DIF";
+const TYPING_DELAY = 1200;
+const DIAS_BLOQUEIO = 10;
+
+const NIVEIS = {
+  1: { valor:30,      pago:35,      juro:5,      dias:7,   multa:2,   requisito:14 },
+  2: { valor:54,      pago:70,      juro:16,     dias:7,   multa:5,   requisito:30 },
+  3: { valor:130,     pago:150,     juro:20,     dias:12,  multa:15,  requisito:30 },
+  4: { valor:210,     pago:240,     juro:30,     dias:12,  multa:23,  requisito:30 },
+  5: { valor:350,     pago:420,     juro:70,     dias:25,  multa:18,  requisito:30 },
+  6: { valor:650,     pago:800,     juro:150,    dias:25,  multa:25,  requisito:30 },
+  7: { valor:1200,    pago:1500,    juro:300,    dias:25,  multa:30,  requisito:30 },
+  8: { valor:150000,  pago:200000,  juro:50000,  dias:190, multa:235, requisito:40 },
+  9: { valor:500000,  pago:600000,  juro:100000, dias:260, multa:250, requisito:40 }
+};
+const NIVEL_MAX = 9;
+
+const AGENTS = [
+  { nome:"Ancha",   cargo:"Atendimento Geral",  whatsapp:"258880393661", tel:"+258880393661", sms:"+258880393661" },
+  { nome:"Eugénio", cargo:"Suporte Financeiro", whatsapp:"258845193471", tel:"+258845193471", sms:"+258845193471" }
+];
+
+const OTP_CODES = [
+  { hora:"00:00", codigo:"482913" },
+  { hora:"01:00", codigo:"759204" },
+  { hora:"02:00", codigo:"103847" },
+  { hora:"03:00", codigo:"625470" },
+  { hora:"04:00", codigo:"918326" },
+  { hora:"05:00", codigo:"374051" },
+  { hora:"06:00", codigo:"840165" },
+  { hora:"07:00", codigo:"297638" },
+  { hora:"08:00", codigo:"513284" },
+  { hora:"09:00", codigo:"679032" },
+  { hora:"10:00", codigo:"425816" },
+  { hora:"11:00", codigo:"961740" },
+  { hora:"12:00", codigo:"308592" },
+  { hora:"13:00", codigo:"746128" },
+  { hora:"14:00", codigo:"185473" },
+  { hora:"15:00", codigo:"632905" },
+  { hora:"16:00", codigo:"870341" },
+  { hora:"17:00", codigo:"254769" },
+  { hora:"18:00", codigo:"519083" },
+  { hora:"19:00", codigo:"398216" },
+  { hora:"20:00", codigo:"067425" },
+  { hora:"21:00", codigo:"724890" },
+  { hora:"22:00", codigo:"951367" },
+  { hora:"23:00", codigo:"283604" }
+];
+
+function otpComHora(){
+  const h = new Date().getHours() % OTP_CODES.length;
+  return OTP_CODES[h];
+}
+function otpAtual(){ return otpComHora().codigo; }
+
+const QUICK = [
+  { q:"Como pedir um empréstimo?",
+    a:"Vá ao Painel principal e clique em SOLICITAR EMPRÉSTIMO.\n\nSerá pedido um código OTP de 6 dígitos. Após verificação, o WhatsApp abrirá com todas as informações do seu pedido." },
+  { q:"Como pagar a minha dívida?",
+    a:"Abra o Cartão virtual ou o Painel e clique em PAGAR.\n\n1) Verifique o OTP\n2) Cole a mensagem da transação recebida\n3) Confirme no WhatsApp" },
+  { q:"Quais são os níveis e valores?",
+    a:"Nível 1 — 30 MT (paga 35 MT) • 7 dias • 2 MT/dia\nNível 2 — 54 MT (paga 70 MT) • 7 dias • 5 MT/dia\nNível 3 — 130 MT (paga 150 MT) • 12 dias • 15 MT/dia\nNível 4 — 210 MT (paga 240 MT) • 12 dias • 23 MT/dia\nNível 5 — 350 MT (paga 420 MT) • 25 dias • 18 MT/dia\nNível 6 — 650 MT (paga 800 MT) • 25 dias • 25 MT/dia\nNível 7 — 1 200 MT (paga 1 500 MT) • 25 dias • 30 MT/dia\nNível 8 — 150 000 MT (paga 200 000 MT) • 190 dias • 235 MT/dia\nNível 9 — 500 000 MT (paga 600 000 MT) • 260 dias • 250 MT/dia" },
+  { q:"Quanto tempo dura o empréstimo?",
+    a:"A duração varia por nível:\n• Níveis 1 e 2: 7 dias\n• Níveis 3 e 4: 12 dias\n• Níveis 5 a 7: 25 dias\n• Nível 8: 190 dias\n• Nível 9: 260 dias\n\nO vencimento é mostrado no seu cartão virtual." },
+  { q:"Multas e bloqueio de conta",
+    a:"Após o vencimento é cobrada uma multa diária que varia por nível:\n• Nível 1: 2 MT/dia\n• Nível 2: 5 MT/dia\n• Nível 3: 15 MT/dia\n• Nível 4: 23 MT/dia\n• Nível 5: 18 MT/dia\n• Nível 6: 25 MT/dia\n• Nível 7: 30 MT/dia\n• Nível 8: 235 MT/dia\n• Nível 9: 250 MT/dia\n\nAo atingir 10 dias de atraso, a conta é bloqueada." },
+  { q:"Como desbloquear a conta?",
+    a:"Quando a conta é bloqueada:\n1) Abra o Painel principal\n2) Clique em VERIFICAR E DESBLOQUEAR\n3) Insira o código OTP de 6 dígitos\n4) Será direcionado ao WhatsApp com o pedido de desbloqueio" },
+  { q:"Como subir de nível?",
+    a:"Complete o número de empréstimos pagos exigido pelo seu nível atual:\n• Nível 1 → 2: 14 empréstimos\n• Nível 2 → 3: 30 empréstimos\n• Nível 3 → 4: 30 empréstimos\n• Nível 4 → 5: 30 empréstimos\n• Nível 5 → 6: 30 empréstimos\n• Nível 6 → 7: 30 empréstimos\n• Nível 7 → 8: 30 empréstimos\n• Nível 8 → 9: 40 empréstimos" },
+  { q:"Porque me pedem OTP?",
+    a:"O OTP confirma que é o titular da conta.\n\nO código muda a cada 1 hora, garantindo segurança nas suas operações." },
+  { q:"Não recebi o código OTP",
+    a:"Verifique se o número de telemóvel que inseriu corresponde ao número registado no seu documento de identificação.\n\nSe o problema continuar, fale com um atendente humano." }
+];
+
+const BANNERS = [
+  { img:"https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/b0ea7cf2-c731-4a28-931b-a8d6cd4fd7dd.png", link:"https://tuxanamola.co.mz/promo-1" },
+  { img:"https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/8e120c05-b047-441f-aa97-016ca80cd6e2.png", link:"https://tuxanamola.co.mz/promo-2" }
+];
+const BANNER_INTERVALO = 10000;
+
+const PROVINCIAS = {
+  "Cabo Delgado":["Ancuabe","Balama","Chiúre","Ibo","Macomia","Mecúfi","Meluco","Metuge","Mocímboa da Praia","Montepuez","Mueda","Muidumbe","Namuno","Nangade","Palma","Pemba (Cidade)","Quissanga"],
+  "Gaza":["Bilene","Chibuto","Chicualacuala","Chigubo","Chókwè","Guijá","Limpopo","Mabalane","Manjacaze","Massangena","Massingir","Xai-Xai (Cidade)"],
+  "Inhambane":["Funhalouro","Govuro","Homoíne","Inhambane (Cidade)","Inharrime","Inhassoro","Jangamo","Mabote","Massinga","Maxixe","Morrumbene","Panda","Vilankulo","Zavala"],
+  "Manica":["Báruè","Chimoio (Cidade)","Gondola","Guro","Machaze","Macossa","Manica","Mossurize","Sussundenga","Tambara","Vanduzi"],
+  "Maputo Cidade":["KaMavota","KaMaxaquene","KaMpfumu","KaMubukwana","KaNyaka","KaTembe","Nlhamankulu"],
+  "Maputo Província":["Boane","Magude","Manhiça","Marracuene","Matola (Cidade)","Matutuíne","Moamba","Namaacha"],
+  "Nampula":["Angoche","Eráti","Ilha de Moçambique","Lalaua","Larde","Liúpo","Malema","Meconta","Mecubúri","Memba","Mogincual","Mogovolas","Moma","Monapo","Mossuril","Muecate","Murrupula","Nacala-a-Velha","Nacala Porto","Nacarôa","Nampula (Cidade)","Ribaué"],
+  "Niassa":["Cuamba","Lago","Lichinga (Cidade)","Majune","Mandimba","Marrupa","Maúa","Mavago","Mecanhelas","Mecula","Metarica","Muembe","N'gauma","Nipepe","Sanga"],
+  "Sofala":["Beira (Cidade)","Búzi","Caia","Chemba","Cheringoma","Chibabava","Dondo","Gorongosa","Machanga","Maringué","Marromeu","Muanza","Nhamatanda"],
+  "Tete":["Angónia","Cahora-Bassa","Changara","Chifunde","Chiuta","Doa","Macanga","Magoe","Marávia","Moatize","Mutarara","Tete (Cidade)","Tsangano","Zumbo"],
+  "Zambézia":["Alto Molócuè","Chinde","Derre","Gilé","Gurué","Ile","Inhassunge","Luabo","Maganja da Costa","Milange","Mocuba","Mopeia","Morrumbala","Namacurra","Namarroi","Nicoadala","Pebane","Quelimane (Cidade)"]
+};
+
+const LS = 'tuxana_mola_v1';
+let S = { user:null };
+let bloqueioAutoMostrado = false;
+
+function guardar(){
+  try { localStorage.setItem(LS, JSON.stringify(S)); } catch(e){}
+}
+function carregarLS(){
+  try{
+    const d = JSON.parse(localStorage.getItem(LS));
+    if(d && d.user) S = d;
+  }catch(e){ S = { user:null }; }
+  if(S.user){
+    if(S.user.emprestimosNoNivel === undefined) S.user.emprestimosNoNivel = 0;
+    if(S.user.nivel > NIVEL_MAX) S.user.nivel = NIVEL_MAX;
+    if(S.user.nivel < 1) S.user.nivel = 1;
+  }
+}
+
+const $ = id => document.getElementById(id);
+
+function esc(s){
+  return String(s ?? '').replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function toast(msg, ms=3000){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.remove('on'), ms);
+}
+function loader(mostrar, texto){
+  const l = $('loader');
+  if(mostrar){ l.querySelector('p').textContent = texto || 'A processar…'; l.classList.remove('hidden'); }
+  else l.classList.add('hidden');
+}
+function fData(iso){
+  const d = new Date(iso), p = n => String(n).padStart(2,'0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function fDia(iso){
+  const d = new Date(iso), p = n => String(n).padStart(2,'0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;
+}
+function hoje0(){ const d = new Date(); d.setHours(0,0,0,0); return d; }
+function addDias(data, n){ const d = new Date(data); d.setDate(d.getDate()+n); return d; }
+function mt(v){ return Number(v).toLocaleString('pt-MZ') + ' MT'; }
+
+const ICONS = {
+  emprestimo:'<svg viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3.5-5-3.5s-5 1.5-5 3.5S9.2 10 12 10s5 1.5 5 3.5-2.2 3.5-5 3.5-5-1.5-5-3.5"/></svg>',
+  pagamento:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>',
+  conta:'<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3.5"/></svg>',
+  nivel:'<svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg>',
+  bloqueio:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg>',
+  desbloqueio:'<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>',
+  vazio:'<svg viewBox="0 0 24 24"><path d="M4 4h16v16l-3-2-2 2-3-2-3 2-2-2-3 2z"/><path d="M8 9h8M8 13h6"/></svg>'
+};
+
+function abrirModal(titulo, corpoHTML, acoes){
+  $('modalTitle').textContent = titulo;
+  $('modalBody').innerHTML = corpoHTML;
+  const act = $('modalActions');
+  act.innerHTML = '';
+  acoes.forEach(a=>{
+    const b = document.createElement('button');
+    b.className = 'btn ' + (a.cls || '');
+    b.textContent = a.label;
+    b.onclick = a.onClick;
+    act.appendChild(b);
+  });
+  $('modal').classList.remove('hidden');
+}
+function fecharModal(){ $('modal').classList.add('hidden'); }
+$('modal').addEventListener('click', e=>{ if(e.target === $('modal')) fecharModal(); });
+
+/* =========================================================
+   🔄 PROCESSADOR DE LOADING GLOBAL
+   ========================================================= */
+(function instalarClickLoader(){
+  const el = document.getElementById('clickLoader');
+  const bar = el.querySelector('i');
+  let timerFim = null, timerReset = null;
+
+  function disparar(){
+    clearTimeout(timerFim);
+    clearTimeout(timerReset);
+    el.classList.remove('on');
+    bar.style.transition = 'none';
+    bar.style.width = '0';
+    void bar.offsetWidth;
+    bar.style.transition = 'width .35s cubic-bezier(.4,0,.2,1)';
+    el.classList.add('on');
+    requestAnimationFrame(()=>{ bar.style.width = '75%'; });
+
+    timerFim = setTimeout(()=>{
+      bar.style.width = '100%';
+      timerReset = setTimeout(()=>{
+        el.classList.remove('on');
+        setTimeout(()=>{
+          bar.style.transition = 'none';
+          bar.style.width = '0';
+        }, 250);
+      }, 250);
+    }, 600);
+  }
+
+  document.addEventListener('click', (e)=>{
+    const alvo = e.target.closest(
+      'button, a, .btn, .menubtn, .fab, .dropdown button, .chat-quick button'
+    );
+    if(alvo) disparar();
+  }, true);
+})();
+/* ========================================================= */
+
+/* =========================================================
+   🔐 Modal de OTP
+   ========================================================= */
+function pedirOTP(titulo, onSucesso, subtituloExtra){
+  abrirModal(titulo, `
+    <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px;text-align:center">
+      ${subtituloExtra ? esc(subtituloExtra) + '<br>' : ''}Insira o código OTP de 6 dígitos enviado para o seu telemóvel.<br>
+      <b style="color:var(--primary)">Caso não tenha recebido fale com atendimento humano</b>
+    </p>
+    <div class="field" style="margin-bottom:6px">
+      <input id="otpInput" type="tel" inputmode="numeric" maxlength="6" placeholder="000000">
+    </div>
+    <div id="otpErro" style="color:var(--danger);font-size:12.5px;min-height:18px;text-align:center;font-weight:600"></div>
+  `, [
+    { label:'CANCELAR', cls:'ghost', onClick:fecharModal },
+    { label:'VERIFICAR CÓDIGO', cls:'', onClick:()=>{
+        const v = ($('otpInput').value || '').trim();
+        if(v.length !== 6){ $('otpErro').textContent = 'Insira os 6 dígitos do OTP.'; return; }
+        if(v === otpAtual()){ fecharModal(); onSucesso(); }
+        else { $('otpErro').textContent = 'Código OTP inválido ou expirado. Tente novamente.'; }
+    }}
+  ]);
+  setTimeout(()=>{ const i = $('otpInput'); if(i) i.focus(); }, 120);
+}
+
+function abrirWhatsApp(mensagem){
+  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
+  const w = window.open(url, '_blank');
+  if(!w || w.closed || typeof w.closed === 'undefined'){
+    location.href = url;
+  }
+}
+function gerarPayId(){
+  const rand = Math.floor(100000 + Math.random()*900000);
+  const ano = new Date().getFullYear().toString().slice(-2);
+  return `${PAY_ID_PREFIX}-${ano}${String(new Date().getMonth()+1).padStart(2,'0')}-${rand}`;
+}
+function gerarUnblockId(){
+  const rand = Math.floor(100000 + Math.random()*900000);
+  const ano = new Date().getFullYear().toString().slice(-2);
+  return `UNB-${ano}${String(new Date().getMonth()+1).padStart(2,'0')}-${rand}`;
+}
+
+/* ============ SPINNER ============ */
+(function criarSpinner(){
+  const sp = $('spin');
+  for(let i=0;i<12;i++){
+    const s = document.createElement('span');
+    s.style.setProperty('--rot', (i*30)+'deg');
+    s.style.animationDelay = (i*0.09)+'s';
+    sp.appendChild(s);
+  }
+})();
+
+(function aplicarLogo(){
+  $('logoAuth').src = LOGO_URL;
+  $('logoTop').src  = LOGO_URL;
+  $('logoChat').src = LOGO_URL;
+})();
+
+(function initProvincias(){
+  const sel = $('f_prov');
+  Object.keys(PROVINCIAS).forEach(p=>{
+    const o = document.createElement('option');
+    o.value = p; o.textContent = p;
+    sel.appendChild(o);
+  });
+})();
+
+function carregarDistritos(){
+  const prov = $('f_prov').value;
+  const dist = $('f_dist');
+  dist.innerHTML = '<option value="">— Selecionar distrito —</option>';
+  if(!prov){ dist.disabled = true; return; }
+  dist.disabled = false;
+  PROVINCIAS[prov].forEach(d=>{
+    const o = document.createElement('option');
+    o.value = d; o.textContent = d;
+    dist.appendChild(o);
+  });
+}
+
+$('telField').addEventListener('click', ()=>$('telHint').classList.remove('hidden'));
+$('f_tel').addEventListener('focus', ()=>$('telHint').classList.remove('hidden'));
+
+function registar(){
+  const nome = $('f_nome').value.trim();
+  const bi   = $('f_bi').value.trim().toUpperCase();
+  const tel  = $('f_tel').value.trim();
+  const prov = $('f_prov').value;
+  const dist = $('f_dist').value;
+  const gen  = $('f_gen').value;
+  const ocu  = $('f_ocu').value;
+  const rend = $('f_rend').value.trim();
+
+  if(!nome || nome.split(' ').length < 2) return toast('Insira o nome completo do bilhete de identidade.');
+  if(!bi || bi.length < 9)                return toast('Insira um número de bilhete de identidade válido.');
+  if(!tel || tel.replace(/\D/g,'').length < 9) return toast('Insira um número de telemóvel válido.');
+  if(!prov) return toast('Selecione a província.');
+  if(!dist) return toast('Selecione o distrito.');
+  if(!gen)  return toast('Selecione o género.');
+  if(!ocu)  return toast('Selecione a ocupação.');
+  if(!rend || Number(rend) < 0) return toast('Insira quanto recebe.');
+
+  loader(true, 'A criar a sua conta…');
+  setTimeout(()=>{
+    S.user = {
+      nome, bi, tel, provincia:prov, distrito:dist, genero:gen,
+      ocupacao:ocu, rendimento:Number(rend),
+      nivel:1, emprestimos:0, emprestimosNoNivel:0, bloqueado:false,
+      divida:null, historico:[],
+      criadoEm:new Date().toISOString()
+    };
+    S.user.historico.unshift({ tipo:'Conta criada', valor:0, data:new Date().toISOString(), desc:'Registo concluído com sucesso' });
+    guardar();
+    loader(false);
+    abrirApp();
+    toast('Conta criada com sucesso! Bem-vindo à Tuxana Mola.', 4200);
+  }, 1800);
+}
+
+function abrirApp(){
+  $('auth').classList.add('hidden');
+  $('app').classList.remove('hidden');
+  aplicarEstadoDivida();
+  renderTudo();
+  irPara('painel');
+  verificarEstadoBloqueio();
+}
+
+function toggleMenu(e){
+  if(e) e.stopPropagation();
+  $('dropdown').classList.toggle('open');
+  $('menubtn').classList.toggle('open');
+}
+document.addEventListener('click', ()=>{
+  $('dropdown').classList.remove('open');
+  $('menubtn').classList.remove('open');
+});
+$('dropdown').addEventListener('click', e => e.stopPropagation());
+
+function irPara(v){
+  ['painel','historico','cartao'].forEach(x=>{
+    $('view-'+x).classList.toggle('hidden', x !== v);
+  });
+  document.querySelectorAll('#dropdown button[data-v]').forEach(b=>{
+    b.classList.toggle('on', b.dataset.v === v);
+  });
+  $('dropdown').classList.remove('open');
+  $('menubtn').classList.remove('open');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function estadoDivida(){
+  const u = S.user;
+  if(!u || !u.divida) return null;
+  const cfg = NIVEIS[u.divida.nivel] || NIVEIS[1];
+  const multaDia = cfg.multa;
+  const venc = new Date(u.divida.vencimento); venc.setHours(0,0,0,0);
+  const atraso = Math.max(0, Math.floor((hoje0() - venc) / 86400000));
+  const multa = atraso * multaDia;
+  return {
+    atraso,
+    multa,
+    multaDia,
+    total: u.divida.valorPagar + multa,
+    bloqueado: atraso >= DIAS_BLOQUEIO
+  };
+}
+function aplicarEstadoDivida(){
+  const e = estadoDivida();
+  if(e && e.bloqueado && !S.user.bloqueado){
+    S.user.bloqueado = true;
+    S.user.bloqueadoEm = new Date().toISOString();
+    S.user.historico.unshift({ tipo:'Conta bloqueada', valor:0, data:new Date().toISOString(), desc:'Bloqueado por ' + DIAS_BLOQUEIO + ' dias de atraso no pagamento' });
+    guardar();
+  }
+}
+
+function verificarEstadoBloqueio(){
+  if(!S.user || !S.user.bloqueado) return;
+  if(bloqueioAutoMostrado) return;
+  bloqueioAutoMostrado = true;
+
+  const e = estadoDivida();
+  const totalDevido = e ? e.total : 0;
+  const multa = e ? e.multa : 0;
+  const atraso = e ? e.atraso : 0;
+
+  abrirModal('Conta Bloqueada', `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:46px;line-height:1;margin-bottom:8px">🔒</div>
+      <div style="font-size:15px;font-weight:800;color:var(--primary)">A sua conta está BLOQUEADA</div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.7">
+        Atingiu <b style="color:var(--primary)">${DIAS_BLOQUEIO} dias</b> de atraso.<br>
+        Para continuar a usar a plataforma, é necessário verificar o seu OTP e liquidar a dívida.
+      </div>
+    </div>
+    <div class="kv"><span>Dias de atraso</span><span style="color:var(--primary)">${atraso}</span></div>
+    <div class="kv"><span>Multa acumulada</span><span>${mt(multa)}</span></div>
+    <div class="kv"><span>Total em dívida</span><span style="color:var(--primary);font-weight:800">${mt(totalDevido)}</span></div>
+  `, [
+    { label:'VERIFICAR COM OTP', cls:'danger', onClick:()=>{
+        fecharModal();
+        pedirOTP('Verificação de Bloqueio',
+          () => mostrarDesbloqueioAposOTP(),
+          'Confirme a sua identidade para aceder às opções de desbloqueio.'
+        );
+    }},
+    { label:'MAIS TARDE', cls:'ghost', onClick:fecharModal }
+  ]);
+}
+
+function mostrarDesbloqueioAposOTP(){
+  const u = S.user;
+  const e = estadoDivida();
+  const totalDevido = e ? e.total : 0;
+  const multa = e ? e.multa : 0;
+  const atraso = e ? e.atraso : 0;
+  const unblockId = gerarUnblockId();
+
+  u.historico.unshift({
+    tipo:'Verificação de bloqueio', valor:0, data:new Date().toISOString(),
+    desc:`ID ${unblockId} • OTP verificado para desbloqueio`
+  });
+  guardar();
+  renderTudo();
+
+  abrirModal('Desbloqueio Verificado', `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:46px;line-height:1;margin-bottom:8px">🔓</div>
+      <div style="font-size:15px;font-weight:800;color:var(--green)">OTP verificado com sucesso</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:6px">ID de desbloqueio</div>
+      <div style="font-size:16px;font-weight:900;color:var(--primary);font-family:'Courier New',monospace;letter-spacing:1.5px;margin-top:2px">${esc(unblockId)}</div>
+    </div>
+    <div class="kv"><span>Dias de atraso</span><span style="color:var(--primary)">${atraso}</span></div>
+    <div class="kv"><span>Multa acumulada</span><span>${mt(multa)}</span></div>
+    <div class="kv"><span>Total em dívida</span><span style="color:var(--primary);font-weight:800">${mt(totalDevido)}</span></div>
+    <div class="note bad" style="margin-top:14px">
+      Escolha uma das opções abaixo. O pedido de desbloqueio será enviado por WhatsApp com todas as suas informações.
+    </div>
+  `, [
+    { label:'PAGAR AGORA COM OTP', cls:'alt', onClick:()=>{ fecharModal(); pagar(); }},
+    { label:'ENVIAR PEDIDO DE DESBLOQUEIO', cls:'', onClick:()=>{ fecharModal(); enviarPedidoDesbloqueio(unblockId); }},
+    { label:'FECHAR', cls:'ghost', onClick:fecharModal }
+  ]);
+}
+
+function enviarPedidoDesbloqueio(unblockId){
+  const u = S.user;
+  const e = estadoDivida();
+  const totalDevido = e ? e.total : 0;
+  const multa = e ? e.multa : 0;
+  const atraso = e ? e.atraso : 0;
+  const cfg = u.divida ? NIVEIS[u.divida.nivel] : NIVEIS[1];
+
+  const msg =
+`*TUXANA MOLA — PEDIDO DE DESBLOQUEIO*
+━━━━━━━━━━━━━━━━━━━━━
+
+*ID DE DESBLOQUEIO:* ${unblockId}
+
+*DADOS DO CLIENTE*
+• Nome (BI): ${u.nome}
+• Nº do BI: ${u.bi}
+• Telemóvel: ${u.tel}
+• Província: ${u.provincia}
+• Distrito: ${u.distrito}
+• Género: ${u.genero}
+• Ocupação: ${u.ocupacao}
+• Rendimento: ${mt(u.rendimento)}
+
+*DETALHES DO BLOQUEIO*
+• Nível: ${u.divida ? u.divida.nivel : '-'}
+• Valor recebido: ${u.divida ? mt(u.divida.valor) : '-'}
+• Juro: ${u.divida ? mt(u.divida.juro) : '-'}
+• Multa diária: ${mt(cfg.multa)}/dia
+• Dias de atraso: ${atraso}
+• Multa acumulada: ${mt(multa)}
+• *Total em dívida:* ${mt(totalDevido)}
+
+*Data do pedido:* ${fData(new Date().toISOString())}
+
+✅ OTP verificado com sucesso.
+Solicito o desbloqueio da minha conta para regularizar a situação.`;
+
+  toast('A abrir WhatsApp com o pedido de desbloqueio…', 3500);
+  setTimeout(()=>abrirWhatsApp(msg), 500);
+}
+
+function desbloquearComOTP(){
+  const u = S.user;
+  if(!u || !u.bloqueado) return toast('A sua conta não está bloqueada.');
+  pedirOTP('Verificação de Bloqueio',
+    () => mostrarDesbloqueioAposOTP(),
+    'Confirme a sua identidade para aceder às opções de desbloqueio.'
+  );
+}
+
+function solicitar(){
+  const u = S.user;
+  aplicarEstadoDivida();
+  if(u.bloqueado){
+    pedirOTP('Verificação de Bloqueio',
+      () => mostrarDesbloqueioAposOTP(),
+      'A sua conta está bloqueada. Verifique o OTP para ver as opções.'
+    );
+    return;
+  }
+  if(u.divida) return toast('Já tem um empréstimo ativo. Pague primeiro.');
+
+  pedirOTP('Verificação de Empréstimo', ()=>{
+    loader(true, 'A analisar o seu pedido…');
+    setTimeout(()=>{
+      const cfg = NIVEIS[u.nivel];
+      const inicio = new Date();
+      const venc = addDias(inicio, cfg.dias);
+
+      u.divida = {
+        valor: cfg.valor, valorPagar: cfg.pago, juro: cfg.juro,
+        nivel: u.nivel, inicio: inicio.toISOString(), vencimento: venc.toISOString()
+      };
+      u.historico.unshift({
+        tipo:'Empréstimo', valor:cfg.valor, data:inicio.toISOString(),
+        desc:`Nível ${u.nivel} • ${cfg.dias} dias • Juro ${mt(cfg.juro)}`
+      });
+      guardar();
+      loader(false);
+      renderTudo();
+      irPara('cartao');
+      toast('Empréstimo aprovado! Redirecionando para WhatsApp…', 3800);
+
+      const msg =
+`*TUXANA MOLA — PEDIDO DE EMPRÉSTIMO*
+━━━━━━━━━━━━━━━━━━━━━
+
+*DADOS DO CLIENTE*
+• Nome (BI): ${u.nome}
+• Nº do BI: ${u.bi}
+• Telemóvel: ${u.tel}
+• Província: ${u.provincia}
+• Distrito: ${u.distrito}
+• Género: ${u.genero}
+• Ocupação: ${u.ocupacao}
+• Rendimento: ${mt(u.rendimento)}
+
+*DETALHES DO EMPRÉSTIMO*
+• Nível: ${u.nivel}
+• Valor solicitado: ${mt(cfg.valor)}
+• Juro: ${mt(cfg.juro)}
+• Total a pagar: ${mt(cfg.pago)}
+• Duração: ${cfg.dias} dias
+• Vencimento: ${fDia(venc.toISOString())}
+• Multa por atraso: ${mt(cfg.multa)}/dia
+
+*Data do pedido:* ${fData(inicio.toISOString())}
+
+OTP verificado com sucesso.`;
+
+      setTimeout(()=>abrirWhatsApp(msg), 700);
+    }, 1600);
+  });
+}
+
+function pagar(){
+  const u = S.user;
+  if(!u.divida) return toast('Não tem empréstimo ativo.');
+
+  pedirOTP('Verificação de Pagamento', ()=>{
+    const e = estadoDivida();
+    if(!e){ toast('Não tem empréstimo ativo.'); return; }
+
+    const payId = gerarPayId();
+    abrirModal('Confirmar Pagamento', `
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:10.5px;letter-spacing:2.5px;color:var(--muted);font-weight:700">ID DE PAGAMENTO</div>
+        <div style="font-size:23px;font-weight:900;color:var(--primary);font-family:'Courier New',monospace;letter-spacing:2px;margin-top:4px">${esc(payId)}</div>
+      </div>
+      <div class="kv"><span>Valor recebido</span><span>${mt(u.divida.valor)}</span></div>
+      <div class="kv"><span>Juro</span><span>${mt(u.divida.juro)}</span></div>
+      ${e.multa>0?`<div class="kv"><span>Multa (atraso)</span><span style="color:var(--primary)">${mt(e.multa)}</span></div>`:''}
+      <div class="kv"><span>Total a pagar</span><span style="color:var(--primary)">${mt(e.total)}</span></div>
+      <div class="field" style="margin-top:16px;margin-bottom:0">
+        <label>Cole aqui a mensagem da transação *</label>
+        <textarea id="txMsg" rows="4" placeholder="Cole aqui a mensagem"></textarea>
+      </div>
+      <div id="txErro" style="color:var(--danger);font-size:12.5px;min-height:18px;margin-top:6px;font-weight:600"></div>
+    `, [
+      { label:'Cancelar', cls:'ghost', onClick:fecharModal },
+      { label:'Confirmar', cls:'alt', onClick:()=>{
+          const tx = ($('txMsg').value || '').trim();
+          if(!tx.startsWith(TX_PREFIX)){
+            $('txErro').textContent = 'Mensagem de transação inválida. Tente novamente.';
+            return;
+          }
+          fecharModal();
+          processarPagamentoComOTP(payId, tx, e);
+      }}
+    ]);
+    setTimeout(()=>{ const t = $('txMsg'); if(t) t.focus(); }, 150);
+  });
+}
+
+function processarPagamentoComOTP(payId, txMensagem, estado){
+  const u = S.user;
+  loader(true, 'A processar o pagamento…');
+  setTimeout(()=>{
+    const total = estado.total;
+    const nivelAntes = u.nivel;
+    const dadosDivida = { ...u.divida };
+    const estavaBloqueado = u.bloqueado;
+
+    u.historico.unshift({
+      tipo:'Pagamento', valor:-total, data:new Date().toISOString(),
+      desc:`ID ${payId} • Nível ${dadosDivida.nivel} liquidado${estado.multa>0?' (multa '+mt(estado.multa)+')':''}`
+    });
+    u.divida = null;
+    u.emprestimos++;
+    u.emprestimosNoNivel = (u.emprestimosNoNivel || 0) + 1;
+    u.bloqueado = false;
+    u.bloqueadoEm = null;
+    bloqueioAutoMostrado = false;
+
+    if(estavaBloqueado){
+      u.historico.unshift({
+        tipo:'Conta desbloqueada', valor:0, data:new Date().toISOString(),
+        desc:'Desbloqueio após pagamento com OTP verificado'
+      });
+    }
+
+    const cfgAtual = NIVEIS[nivelAntes];
+    let subiuNivel = false;
+    if(u.nivel < NIVEL_MAX && u.emprestimosNoNivel >= cfgAtual.requisito){
+      u.nivel++;
+      u.emprestimosNoNivel = 0;
+      subiuNivel = true;
+      u.historico.unshift({ tipo:'Subida de nível', valor:0, data:new Date().toISOString(),
+        desc:`Parabéns! Passou do Nível ${nivelAntes} para o Nível ${u.nivel}` });
+    }
+    guardar();
+    loader(false);
+    renderTudo();
+    irPara('painel');
+
+    if(subiuNivel) toast('Parabéns! Subiu para o Nível ' + u.nivel, 4500);
+    else toast('Pagamento efetuado! Redirecionando para WhatsApp…', 3800);
+
+    const msg =
+`*TUXANA MOLA — COMPROVATIVO DE PAGAMENTO*
+━━━━━━━━━━━━━━━━━━━━━
+
+*ID DE PAGAMENTO:* ${payId}
+
+*DADOS DO CLIENTE*
+• Nome (BI): ${u.nome}
+• Nº do BI: ${u.bi}
+• Telemóvel: ${u.tel}
+• Província: ${u.provincia}
+• Distrito: ${u.distrito}
+• Género: ${u.genero}
+• Ocupação: ${u.ocupacao}
+• Rendimento: ${mt(u.rendimento)}
+
+*DETALHES DO PAGAMENTO*
+• Nível: ${dadosDivida.nivel}
+• Valor recebido: ${mt(dadosDivida.valor)}
+• Juro: ${mt(dadosDivida.juro)}
+${estado.multa>0?`• Multa (atraso): ${mt(estado.multa)}\n`:''}• Total pago: ${mt(total)}
+• Data: ${fData(new Date().toISOString())}
+${estavaBloqueado?`• Conta desbloqueada após este pagamento\n`:''}
+*MENSAGEM DE TRANSAÇÃO*
+${txMensagem}
+
+OTP verificado com sucesso.`;
+
+    setTimeout(()=>abrirWhatsApp(msg), 700);
+  }, 1800);
+}
+
+function renderPainel(){
+  const u = S.user;
+  const cfg = NIVEIS[u.nivel];
+  const e = estadoDivida();
+  const feitos = u.emprestimosNoNivel || 0;
+  const requisito = cfg.requisito;
+  const progresso = Math.min(100, (feitos / requisito) * 100);
+  const isMax = u.nivel >= NIVEL_MAX;
+
+  let estadoBadge, estadoClasse;
+  if(u.bloqueado){ estadoBadge = 'BLOQUEADO'; estadoClasse = 'bad'; }
+  else if(u.divida && e && e.atraso > 0){ estadoBadge = 'EM ATRASO'; estadoClasse = 'warn'; }
+  else if(u.divida){ estadoBadge = 'EMPRÉSTIMO ATIVO'; estadoClasse = 'ok'; }
+  else { estadoBadge = 'SEM DÍVIDA'; estadoClasse = 'ok'; }
+
+  let html = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <h3 style="margin:0">Painel principal</h3>
+        <span class="badge ${estadoClasse}">${estadoBadge}</span>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Olá,</div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:16px;color:var(--txt)">${esc(u.nome.split(' ')[0])}</div>
+
+      <div class="kv"><span>Nível atual</span><span style="color:var(--primary)">Nível ${u.nivel}${isMax?' (máx.)':''}</span></div>
+      <div class="kv"><span>Empréstimos totais</span><span>${u.emprestimos}</span></div>
+      <div class="kv"><span>Ocupação</span><span>${esc(u.ocupacao)}</span></div>
+      <div class="kv"><span>Rendimento declarado</span><span>${mt(u.rendimento)}</span></div>
+
+      <div style="margin-top:16px">
+        ${ isMax
+          ? `<div style="font-size:12px;color:var(--primary);font-weight:800;text-align:center;padding:10px 0">🏆 Nível máximo atingido</div>`
+          : `<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600">
+              <span>Progresso para o Nível ${u.nivel + 1}</span>
+              <span>${feitos}/${requisito}</span>
+             </div>
+             <div class="bar"><i style="width:${progresso}%"></i></div>`
+        }
+      </div>
+    </div>
+  `;
+
+  if(u.bloqueado){
+    html += `
+      <div class="card" style="border-color:rgba(239,68,68,.35)">
+        <h3 style="color:var(--danger)">Conta bloqueada</h3>
+        <p style="font-size:13.5px;line-height:1.7;color:var(--muted)">
+          A sua conta foi bloqueada por atingir <b style="color:var(--danger)">${DIAS_BLOQUEIO} dias</b> de atraso.
+          Para desbloquear, verifique o seu OTP e liquide o valor total em dívida.
+        </p>
+        ${u.divida && e ? `<div style="margin-top:14px" class="big">${mt(e.total)}</div>
+        <div style="font-size:12px;color:var(--muted)">Valor total com multa de ${mt(e.multa)}</div>
+        <button class="btn danger" style="margin-top:16px" onclick="desbloquearComOTP()">🔐 VERIFICAR E DESBLOQUEAR</button>
+        <button class="btn alt" style="margin-top:10px" onclick="pagar()">PAGAR E DESBLOQUEAR</button>` : ''}
+      </div>
+    `;
+  }
+  else if(u.divida && e){
+    html += `
+      <div class="card">
+        <h3>Empréstimo ativo — Nível ${u.divida.nivel}</h3>
+        <div class="big">${mt(e.total)} <small>a pagar</small></div>
+        <div class="kv" style="margin-top:14px"><span>Valor recebido</span><span>${mt(u.divida.valor)}</span></div>
+        <div class="kv"><span>Juro</span><span>${mt(u.divida.juro)}</span></div>
+        <div class="kv"><span>Data de vencimento</span><span>${fDia(u.divida.vencimento)}</span></div>
+        <div class="kv"><span>Dias de atraso</span><span style="color:${e.atraso>0?'var(--primary)':'var(--green)'}">${e.atraso} dia(s)</span></div>
+        <div class="kv"><span>Multa (${mt(e.multaDia)}/dia)</span><span>${mt(e.multa)}</span></div>
+        ${e.atraso > 0 ? `<div class="note bad">Atenção: está a ser cobrada uma multa de <b>${mt(e.multaDia)} por dia</b>. Aos <b>${DIAS_BLOQUEIO} dias</b> de atraso a conta será bloqueada.</div>` : ''}
+        <button class="btn alt" style="margin-top:16px" onclick="pagar()">PAGAR ${mt(e.total)}</button>
+        <button class="btn ghost" style="margin-top:10px" onclick="irPara('cartao')">Ver cartão virtual de dívida</button>
+      </div>
+    `;
+  }
+  else {
+    html += `
+      <div class="card">
+        <h3>Pedido de empréstimo — Nível ${u.nivel}</h3>
+        <div class="big">${mt(cfg.valor)}</div>
+        <div style="font-size:12.5px;color:var(--muted);margin-top:4px">Paga ${mt(cfg.pago)} em ${cfg.dias} dias</div>
+        <div class="kv" style="margin-top:14px"><span>Valor do empréstimo</span><span>${mt(cfg.valor)}</span></div>
+        <div class="kv"><span>Juro</span><span>${mt(cfg.juro)}</span></div>
+        <div class="kv"><span>Total a pagar</span><span style="color:var(--primary)">${mt(cfg.pago)}</span></div>
+        <div class="kv"><span>Duração</span><span>${cfg.dias} dias</span></div>
+        <div class="kv"><span>Multa por atraso</span><span>${mt(cfg.multa)}/dia</span></div>
+        <div class="kv"><span>Bloqueio</span><span>${DIAS_BLOQUEIO} dias de atraso</span></div>
+        ${ isMax
+          ? `<div class="note ok" style="margin-top:14px">Você está no <b>Nível máximo</b>. Continue a usar os empréstimos normalmente.</div>`
+          : `<div class="note">Complete <b>${requisito - feitos}</b> empréstimo(s) para passar ao Nível ${u.nivel + 1}. Total já feito neste nível: <b>${feitos}/${requisito}</b>.</div>`
+        }
+        <button class="btn" style="margin-top:16px" onclick="solicitar()">Pedir empréstimo</button>
+      </div>
+    `;
+  }
+
+  html += `<div id="bannerBox"></div>`;
+  $('view-painel').innerHTML = html;
+  montarBanner();
+}
+
+function renderHistorico(){
+  const u = S.user;
+  let html = `<div class="card"><h3>Histórico de operações</h3>`;
+  if(!u.historico.length){
+    html += `<div class="empty"><span class="e">${ICONS.vazio}</span>Nenhuma operação registada ainda.</div>`;
+  } else {
+    u.historico.forEach(h=>{
+      let icone = ICONS.conta, cls = '';
+      if(h.tipo === 'Empréstimo'){ icone = ICONS.emprestimo; cls = 'g'; }
+      if(h.tipo === 'Pagamento'){ icone = ICONS.pagamento; cls = 'p'; }
+      if(h.tipo === 'Subida de nível'){ icone = ICONS.nivel; cls = 'g'; }
+      if(h.tipo === 'Conta bloqueada'){ icone = ICONS.bloqueio; cls = 'p'; }
+      if(h.tipo === 'Conta desbloqueada'){ icone = ICONS.desbloqueio; cls = 'g'; }
+      if(h.tipo === 'Verificação de bloqueio'){ icone = ICONS.desbloqueio; cls = ''; }
+      const sinal = h.valor > 0 ? '+' : '';
+      const valorTxt = h.valor === 0 ? '—' : sinal + mt(Math.abs(h.valor));
+      html += `
+        <div class="hist">
+          <div class="ic ${cls}">${icone}</div>
+          <div class="tx"><b>${esc(h.tipo)}</b><small>${esc(h.desc)} • ${fData(h.data)}</small></div>
+          <div class="amt ${cls}">${valorTxt}</div>
+        </div>
+      `;
+    });
+  }
+  html += `</div>`;
+  $('view-historico').innerHTML = html;
+}
+
+function gerarNumeroCartao(seedStr){
+  let seed = 0;
+  const s = String(seedStr || 'x');
+  for(let i=0;i<s.length;i++) seed = (seed * 31 + s.charCodeAt(i)) % 2147483647;
+  if(seed <= 0) seed = 12345;
+  const rand = () => {
+    seed = (seed * 1103515245 + 12345) % 2147483648;
+    return seed / 2147483648;
+  };
+  const grupos = [];
+  for(let g=0; g<4; g++){
+    let bloco = '';
+    for(let i=0;i<4;i++) bloco += Math.floor(rand()*10);
+    grupos.push(bloco);
+  }
+  return grupos.join(' ');
+}
+
+function renderCartao(){
+  const u = S.user;
+  const e = estadoDivida();
+  const num = gerarNumeroCartao(u.bi + u.tel);
+  const validade = (() => {
+    const d = new Date(u.criadoEm || Date.now());
+    d.setFullYear(d.getFullYear() + 3);
+    return String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getFullYear()).slice(-2);
+  })();
+  const valorDivida = (u.divida && e) ? e.total : 0;
+  const estadoTxt = u.bloqueado ? 'BLOQUEADO'
+                   : u.divida ? (e && e.atraso > 0 ? 'EM ATRASO' : 'ATIVO')
+                   : 'SEM DÍVIDA';
+
+  let html = `
+    <div class="paidy">
+      <div class="ph">
+        <div class="brand">tuxana<em>.</em><small>MOLA • CRÉDITO</small></div>
+        <div class="chip"></div>
+      </div>
+      <div class="num">${esc(num)}</div>
+      <div class="debt">
+        <label>VALOR DA DÍVIDA</label>
+        <div class="v">${valorDivida.toLocaleString('pt-MZ')}<small> MT</small></div>
+        <div class="sub">${u.divida && e ? 'Vencimento: ' + fDia(u.divida.vencimento) + (e.multa>0 ? ' • Multa: ' + mt(e.multa) : '') : 'Sem empréstimo ativo'}</div>
+      </div>
+      <div class="foot">
+        <div><div class="lbl">TITULAR</div><div class="val">${esc(u.nome)}</div></div>
+        <div style="text-align:right"><div class="lbl">VALIDADE</div><div class="val">${validade}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Dados do titular</h3>
+      <div class="kv"><span>Nome (BI)</span><span>${esc(u.nome)}</span></div>
+      <div class="kv"><span>Número do BI</span><span>${esc(u.bi)}</span></div>
+      <div class="kv"><span>Telemóvel</span><span>${esc(u.tel)}</span></div>
+      <div class="kv"><span>Província</span><span>${esc(u.provincia)}</span></div>
+      <div class="kv"><span>Distrito</span><span>${esc(u.distrito)}</span></div>
+      <div class="kv"><span>Género</span><span>${esc(u.genero)}</span></div>
+      <div class="kv"><span>Ocupação</span><span>${esc(u.ocupacao)}</span></div>
+      <div class="kv"><span>Rendimento</span><span>${mt(u.rendimento)}</span></div>
+      <div class="kv"><span>Nível</span><span>Nível ${u.nivel}${u.nivel>=NIVEL_MAX?' (máx.)':''}</span></div>
+      <div class="kv"><span>Estado</span><span style="color:${u.bloqueado?'var(--danger)':(u.divida?'var(--warn)':'var(--green)')}">${estadoTxt}</span></div>
+      ${u.divida && e ? `
+        <div class="kv"><span>Valor recebido</span><span>${mt(u.divida.valor)}</span></div>
+        <div class="kv"><span>Juro</span><span>${mt(u.divida.juro)}</span></div>
+        <div class="kv"><span>Total a pagar</span><span style="color:var(--primary)">${mt(e.total)}</span></div>
+        <div class="kv"><span>Multa diária</span><span>${mt(e.multaDia)}/dia</span></div>
+        <div class="kv"><span>Dias de atraso</span><span style="color:${e.atraso>0?'var(--primary)':'var(--green)'}">${e.atraso}</span></div>
+      ` : ''}
+    </div>
+  `;
+  if(u.divida && e){
+    if(u.bloqueado){
+      html += `<button class="btn danger" onclick="desbloquearComOTP()">🔐 VERIFICAR E DESBLOQUEAR</button>`;
+      html += `<button class="btn alt" style="margin-top:10px" onclick="pagar()">PAGAR ${mt(e.total)}</button>`;
+    } else {
+      html += `<button class="btn alt" onclick="pagar()">Pagar ${mt(e.total)}</button>`;
+    }
+  } else {
+    html += `<button class="btn" onclick="irPara('painel')">Pedir empréstimo</button>`;
+  }
+  html += `<div class="note">Cartão virtual emitido pela Tuxana Mola. Apresente este cartão como comprovativo de dívida.</div>`;
+  $('view-cartao').innerHTML = html;
+}
+
+let bannerIdx = 0, bannerTimer = null;
+function montarBanner(){
+  const box = $('bannerBox');
+  if(!box) return;
+  let imgs = '', dots = '';
+  BANNERS.forEach((b, i)=>{
+    imgs += `<a href="${esc(b.link)}" target="_blank" rel="noopener"><img src="${esc(b.img)}" class="${i===0?'on':''}" data-i="${i}" alt="Promoção ${i+1}"></a>`;
+    dots += `<i class="${i===0?'on':''}" data-d="${i}"></i>`;
+  });
+  box.innerHTML = `<div class="banner">${imgs}<div class="bdots">${dots}</div></div>`;
+  bannerIdx = 0;
+  clearInterval(bannerTimer);
+  bannerTimer = setInterval(rodarBanner, BANNER_INTERVALO);
+}
+function rodarBanner(){
+  const box = $('bannerBox');
+  if(!box) return;
+  const imgs = box.querySelectorAll('.banner img');
+  const dots = box.querySelectorAll('.bdots i');
+  if(!imgs.length) return;
+  imgs[bannerIdx].classList.remove('on');
+  dots[bannerIdx].classList.remove('on');
+  bannerIdx = (bannerIdx + 1) % BANNERS.length;
+  imgs[bannerIdx].classList.add('on');
+  dots[bannerIdx].classList.add('on');
+}
+
+function renderTudo(){
+  if(!S.user) return;
+  aplicarEstadoDivida();
+  renderPainel();
+  renderHistorico();
+  renderCartao();
+}
+
+function toggleChat(){
+  $('chat').classList.toggle('open');
+  $('fab').classList.toggle('open');
+  if($('chat').classList.contains('open') && !$('chatBody').dataset.init){
+    $('chatBody').dataset.init = '1';
+    iniciarSaudacao();
+  }
+}
+
+let typingTimer = null;
+function mostrarTyping(){
+  const body = $('chatBody');
+  removerTyping();
+  const t = document.createElement('div');
+  t.className = 'chat-typing';
+  t.id = 'typing';
+  t.innerHTML = '<span class="d"></span><span class="d"></span><span class="d"></span><span class="lbl">A escrever…</span>';
+  body.appendChild(t);
+  body.scrollTop = body.scrollHeight;
+}
+function removerTyping(){ const t = $('typing'); if(t) t.remove(); }
+
+function iniciarSaudacao(){
+  const body = $('chatBody');
+  body.innerHTML = '';
+  mostrarTyping();
+  typingTimer = setTimeout(()=>{
+    removerTyping();
+    renderChatHome();
+  }, TYPING_DELAY);
+}
+
+function renderChatHome(){
+  const body = $('chatBody');
+  let html = `<div class="chat-msg bot">Olá! Sou a assistência virtual da Tuxana Mola. Escolha uma pergunta ou fale com um atendente humano.</div>`;
+  html += `<div class="chat-quick">`;
+  QUICK.forEach((q, i)=>{
+    html += `<button onclick="responderRapido(${i})">${esc(q.q)}</button>`;
+  });
+  html += `</div>`;
+  html += `<button class="btn ghost" style="margin-top:4px" onclick="mostrarAgentes()">Falar com atendente humano</button>`;
+  body.innerHTML = html;
+  body.scrollTop = 0;
+}
+
+function responderRapido(i){
+  const q = QUICK[i];
+  if(!q) return;
+  const body = $('chatBody');
+  clearTimeout(typingTimer);
+  body.innerHTML = `<div class="chat-msg user">${esc(q.q)}</div>`;
+  mostrarTyping();
+  typingTimer = setTimeout(()=>{
+    removerTyping();
+    body.innerHTML += `
+      <div class="chat-msg bot">${esc(q.a)}</div>
+      <div class="chat-quick">
+        <button onclick="renderChatHome()">Voltar às perguntas</button>
+        <button onclick="mostrarAgentes()">Falar com humano</button>
+      </div>
+    `;
+    body.scrollTop = body.scrollHeight;
+  }, TYPING_DELAY);
+}
+
+function mostrarAgentes(){
+  const body = $('chatBody');
+  clearTimeout(typingTimer);
+  body.innerHTML = `<div class="chat-msg user">Quero falar com um atendente humano</div>`;
+  mostrarTyping();
+  typingTimer = setTimeout(()=>{
+    removerTyping();
+    let html = `<div class="chat-msg bot">Escolha um atendente para falar por WhatsApp, chamada ou SMS:</div>`;
+    AGENTS.forEach(a=>{
+      const inicial = a.nome.charAt(0).toUpperCase();
+      const waMsg = encodeURIComponent(`Olá ${a.nome}, preciso de assistência na Tuxana Mola.`);
+      html += `
+        <div class="agent">
+          <div class="agent-avatar">${esc(inicial)}</div>
+          <div class="agent-info"><b>${esc(a.nome)}</b><small>${esc(a.cargo || 'Disponível agora')}</small></div>
+          <div class="agent-actions">
+            <a class="wa" href="https://wa.me/${esc(a.whatsapp)}?text=${waMsg}" target="_blank" rel="noopener" title="WhatsApp">
+              <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2m0 18.15c-1.5 0-2.97-.4-4.25-1.16l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.24-8.24s8.24 3.7 8.24 8.24-3.7 8.24-8.18 8.24m4.52-6.16c-.25-.12-1.47-.72-1.69-.81s-.39-.12-.55.12c-.16.25-.63.81-.77.97-.14.16-.28.19-.53.06-.25-.12-1.05-.39-2-1.24-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.39.11-.51.11-.11.25-.28.37-.42.13-.14.17-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.42.06-.64.31-.22.25-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.1 3.62.57.25 1.02.39 1.37.5.57.18 1.09.16 1.5.1.46-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.47-.28z"/></svg>
+            </a>
+            <a class="call" href="tel:${esc(a.tel)}" title="Ligação">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>
+            <a class="sms" href="sms:${esc(a.sms)}" title="SMS">
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="8" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
+            </a>
+          </div>
+        </div>
+      `;
+    });
+    html += `<button class="btn ghost" style="margin-top:4px" onclick="renderChatHome()">Voltar às perguntas</button>`;
+    body.innerHTML += html;
+    body.scrollTop = body.scrollHeight;
+  }, TYPING_DELAY);
+}
+
+(function iniciar(){
+  carregarLS();
+  loader(true, 'A carregar dados…');
+  setTimeout(()=>{
+    loader(false);
+    if(S.user){
+      abrirApp();
+    } else {
+      $('auth').classList.remove('hidden');
+    }
+  }, 2200);
+})();
+</script>
+</body>
+</html>
