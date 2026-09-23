@@ -489,6 +489,186 @@ button,input,select,textarea{font-family:inherit;font-size:15px;outline:none;bor
   box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.3s;
   max-width:88vw;text-align:center;}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* =========================================================
+   🖥️  MODO COMPUTADOR  (ecrãs ≥ 960px)
+   ========================================================= */
+@media (min-width: 960px){
+
+  /* ---------- Layout geral: sidebar + conteúdo ---------- */
+  #app{
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 22px 28px 80px;
+    display: grid;
+    grid-template-columns: 264px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+
+  /* ---------- Topbar vira cabeçalho flutuante ---------- */
+  .topbar{
+    grid-column: 1 / -1;
+    grid-row: 1;
+    position: sticky;
+    top: 14px;
+    border-radius: 20px;
+    padding: 14px 24px;
+    box-shadow: var(--shadow-md);
+    z-index: 70;
+  }
+  .topbar .mini{ width: 52px; height: 52px; border-radius: 16px; }
+  .topbar .tt h2{ font-size: 18px; letter-spacing: 2px; }
+
+  /* Hamburger desaparece */
+  .menubtn{ display: none !important; }
+
+  /* ---------- Dropdown vira sidebar fixa ---------- */
+  .dropdown{
+    position: sticky !important;
+    top: 100px !important;
+    right: auto !important;
+    left: auto !important;
+    grid-column: 1;
+    grid-row: 2;
+    width: 100% !important;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    padding: 12px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .dropdown::before{
+    content:"Navegação";
+    display:block;
+    font-size: 10.5px;
+    letter-spacing: 2.4px;
+    color: var(--muted2);
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 6px 14px 10px;
+  }
+  .dropdown button{ padding: 15px 14px; font-size: 14.5px; }
+  .dropdown button .ic{ width: 42px; height: 42px; border-radius: 12px; }
+
+  /* ---------- Área de conteúdo ---------- */
+  .wrap{
+    grid-column: 2;
+    grid-row: 2;
+    padding: 0;
+    min-width: 0;
+  }
+
+  /* Painel: cartões em grade */
+  #view-painel{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+    align-items: start;
+  }
+  #view-painel > .card,
+  #view-painel > #bannerBox{ margin-bottom: 0; }
+  #view-painel > #bannerBox{
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Cartões com mais respiro */
+  .card{
+    padding: 26px;
+    border-radius: 22px;
+    margin-bottom: 20px;
+  }
+
+  /* Banner contido e centrado */
+  .banner{
+    max-width: 420px;
+    margin: 0;
+  }
+
+  /* ---------- Histórico ---------- */
+  #view-historico .card{ padding: 28px 30px; }
+  .hist{ padding: 16px 0; }
+  .hist .ic{ width: 48px; height: 48px; border-radius: 15px; }
+
+  /* ---------- Cartão virtual: cartão + dados lado-a-lado ---------- */
+  #view-cartao{
+    display: grid;
+    grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
+    gap: 22px;
+    align-items: start;
+  }
+  #view-cartao > .paidy,
+  #view-cartao > .card{ margin-bottom: 0; }
+  #view-cartao > .btn,
+  #view-cartao > .note{
+    grid-column: 1 / -1;
+    margin-top: 0 !important;
+  }
+  #view-cartao .paidy{
+    min-height: 320px;
+    padding: 32px 30px 26px;
+  }
+  #view-cartao .paidy .debt .v{
+    font-size: clamp(32px, 4vw, 48px);
+  }
+
+  /* ---------- Chat flutuante ---------- */
+  .chat{ width: 400px; max-height: 660px; }
+  .fab{ width: 68px; height: 68px; }
+
+  /* ---------- Ecrã de login: duas colunas ---------- */
+  #auth.screen{
+    max-width: none;
+    margin: 0;
+    padding: 60px;
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 480px;
+    align-items: center;
+    gap: 60px;
+  }
+  #auth .logo{
+    text-align: left;
+    margin: 0;
+    align-self: center;
+  }
+  #auth .logo .mark{
+    width: 120px;
+    height: 120px;
+    margin: 0 0 24px;
+    border-radius: 32px;
+  }
+  #auth .logo h1{ font-size: 44px; letter-spacing: -.8px; }
+  #auth .logo p{ font-size: 15px; margin-top: 12px; max-width: 380px; }
+  #auth #formReg{
+    padding: 34px;
+    border-radius: 26px;
+    box-shadow: var(--shadow-lg);
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  /* ---------- Modal e toast ---------- */
+  .modal{ max-width: 480px; padding: 30px 28px; }
+  #toast{ bottom: 32px; padding: 16px 28px; font-size: 14px; }
+}
+
+/* Ecrãs muito largos */
+@media (min-width: 1400px){
+  #app{
+    max-width: 1360px;
+    padding: 26px 40px 90px;
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+  #auth.screen{
+    grid-template-columns: minmax(0, 1fr) 520px;
+    gap: 90px;
+    padding: 70px 100px;
+  }
+}
 </style>
 </head>
 <body>
@@ -942,7 +1122,9 @@ $('f_tel').addEventListener('focus', ()=>$('telHint').classList.remove('hidden')
   const el = document.getElementById('f_tel');
   if(!el) return;
   el.addEventListener('input', ()=>{
-    let v = el.value.replace(/\D/g,'').slice(0,9);
+    let v = el.value.replace(/\D/g,'');
+    if(v.startsWith('258')) v = v.slice(3);
+    v = v.slice(0,9);
     if(v.length > 5) v = v.slice(0,2) + ' ' + v.slice(2,5) + ' ' + v.slice(5);
     else if(v.length > 2) v = v.slice(0,2) + ' ' + v.slice(2);
     el.value = v;
@@ -973,13 +1155,15 @@ function registar(){
   if(!dist) return toast('Selecione o distrito.');
   if(!gen)  return toast('Selecione o género.');
   if(!ocu)  return toast('Selecione a ocupação.');
-  if(!rend || Number(rend) < 0) return toast('Insira quanto recebe.');
+
+  const rendN = Number(rend);
+  if(!rend || !Number.isFinite(rendN) || rendN < 0) return toast('Insira um valor de rendimento válido.');
 
   loader(true, 'A criar a sua conta…');
   setTimeout(()=>{
     S.user = {
       nome, bi, tel, provincia:prov, distrito:dist, genero:gen,
-      ocupacao:ocu, rendimento:Number(rend),
+      ocupacao:ocu, rendimento:rendN,
       nivel:1, emprestimos:0, emprestimosNoNivel:0, bloqueado:false,
       divida:null, historico:[],
       criadoEm:new Date().toISOString()
@@ -1463,8 +1647,9 @@ function renderHistorico(){
       if(h.tipo === 'Conta bloqueada'){ icone = ICONS.bloqueio; cls = 'p'; }
       if(h.tipo === 'Conta desbloqueada'){ icone = ICONS.desbloqueio; cls = 'g'; }
       if(h.tipo === 'Verificação de bloqueio'){ icone = ICONS.desbloqueio; cls = ''; }
-      const sinal = h.valor > 0 ? '+' : '';
-      const valorTxt = h.valor === 0 ? '—' : sinal + mt(Math.abs(h.valor));
+      const valorTxt = h.valor === 0
+        ? '—'
+        : (h.valor > 0 ? '+' : '-') + mt(Math.abs(h.valor));
       html += `
         <div class="hist">
           <div class="ic ${cls}">${icone}</div>
