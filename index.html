@@ -1,1900 +1,2063 @@
 <!DOCTYPE html>
-<html lang="pt-MZ">
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#f7fafe">
-<title>Tuxana Mola — Empréstimos Digital</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a1428">
+<title>Txuna Mola</title>
 <style>
+/* ===================== BASE ===================== */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#f7fafe;--bg2:#ffffff;--card:#ffffff;--card2:#fbfdff;
-  --line:rgba(74,144,226,.16);--line2:rgba(74,144,226,.09);
-  --primary:#4a90e2;--primary2:#3b7dd8;--primary3:#6ba3e8;
-  --accent:#a8cdf0;--light:#e3eefb;--light2:#f2f7fd;
-  --green:#10b981;--danger:#ef4444;--warn:#f59e0b;
-  --txt:#0f172a;--muted:#64748b;--muted2:#94a3b8;
-  --shadow-sm:0 2px 8px rgba(74,144,226,.08);
-  --shadow-md:0 10px 28px rgba(74,144,226,.13);
-  --shadow-lg:0 24px 60px rgba(74,144,226,.20);
-  --shadow-xl:0 30px 80px rgba(74,144,226,.26);
+  --bg:#070b16;
+  --bg2:#0e1526;
+  --card:#121a2e;
+  --card2:#18223a;
+  --line:#24304d;
+  --txt:#e9eefb;
+  --muted:#93a0bd;
+  --brand:#2b8cff;
+  --brand2:#00c6ff;
+  --white:#ffffff;
+  --accent:#ffffff;
+  --danger:#ff5c7a;
+  --ok:#25d07a;
+  --radius:16px;
 }
 html,body{height:100%}
 body{
   font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;
   background:
-    radial-gradient(900px 500px at 50% -10%, #e3eefb 0%, transparent 60%),
-    radial-gradient(700px 400px at 100% 100%, #eef5fd 0%, transparent 55%),
-    linear-gradient(180deg, #f7fafe 0%, #ffffff 100%);
-  background-attachment:fixed;color:var(--txt);min-height:100vh;
-  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+    radial-gradient(1000px 600px at 10% -10%, #0d2a5c 0%, transparent 60%),
+    radial-gradient(900px 600px at 110% 10%, #0a2a55 0%, transparent 55%),
+    var(--bg);
+  color:var(--txt);
+  min-height:100dvh;
+  overflow-x:hidden;
 }
-.hidden{display:none!important}
-button,input,select,textarea{font-family:inherit;font-size:15px;outline:none;border:none}
+.hidden{display:none !important}
+svg{display:block}
+.ico{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 
-/* Barra de loading global */
-#clickLoader{
-  position:fixed;top:0;left:0;right:0;height:3px;z-index:99999;
-  pointer-events:none;opacity:0;transition:opacity .2s ease;
+/* ===================== CHROME BAR ===================== */
+#chrome-bar{
+  position:fixed;top:0;left:0;height:3px;width:100%;
+  z-index:10000;pointer-events:none;
+  background:transparent;
+  opacity:0;visibility:hidden;
+  transition:opacity .35s ease, visibility 0s linear .35s;
 }
-#clickLoader.on{opacity:1}
-#clickLoader i{
-  display:block;height:100%;width:0;
-  background:linear-gradient(90deg,#7bb8f0,#4a90e2,#3b7dd8);
-  box-shadow:0 0 14px rgba(107,163,232,.85);
+#chrome-bar.active{
+  opacity:1;visibility:visible;
+  transition:opacity .35s ease, visibility 0s linear 0s;
+}
+#chrome-bar .progress{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--brand),var(--brand2),var(--white));
+  box-shadow:0 0 10px rgba(43,140,255,.9),0 0 22px rgba(0,198,255,.55);
   border-radius:0 3px 3px 0;
   transition:width .35s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+#chrome-bar .progress::after{
+  content:"";position:absolute;right:0;top:0;bottom:0;width:80px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.55));
+  filter:blur(6px);
+  animation:chromeShine .6s infinite;
+}
+@keyframes chromeShine{
+  0%{transform:translateX(-10px);opacity:.4}
+  50%{opacity:1}
+  100%{transform:translateX(10px);opacity:.4}
+}
+#chrome-bar.done .progress{transition:width .2s ease}
+#chrome-bar.done{
+  opacity:0;
+  transition:opacity .5s ease .3s, visibility 0s linear .8s;
+}
+.ripple{
+  position:absolute;border-radius:50%;
+  background:rgba(255,255,255,.35);
+  transform:scale(0);animation:rippleGo .55s ease-out;
+  pointer-events:none;
+}
+@keyframes rippleGo{to{transform:scale(3);opacity:0}}
+
+/* ===================== LOADING UNIVERSAL ===================== */
+.loading-overlay{
+  position:fixed;inset:0;z-index:9998;
+  background:rgba(5,8,16,.58);
+  backdrop-filter:blur(5px);
+  -webkit-backdrop-filter:blur(5px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  opacity:0;visibility:hidden;
+  transition:opacity .18s ease, visibility .18s ease;
+  pointer-events:none;
+}
+.loading-overlay.active{opacity:1;visibility:visible;pointer-events:auto}
+.loading-ring{position:relative;width:64px;height:64px}
+.loading-ring::before,.loading-ring::after{content:"";position:absolute;inset:0;border-radius:50%}
+.loading-ring::before{border:3px solid rgba(43,140,255,.15)}
+.loading-ring::after{
+  border:3px solid transparent;
+  border-top-color:var(--brand);
+  border-right-color:var(--brand2);
+  animation:loadSpin .75s linear infinite;
+  box-shadow:0 0 18px rgba(43,140,255,.55);
+}
+@keyframes loadSpin{to{transform:rotate(360deg)}}
+.loading-ring .core{
+  position:absolute;top:50%;left:50%;
+  width:14px;height:14px;margin:-7px;
+  border-radius:50%;
+  background:radial-gradient(circle,var(--white),var(--brand));
+  box-shadow:0 0 14px var(--brand),0 0 28px rgba(43,140,255,.6);
+  animation:corePulse 1.3s ease-in-out infinite;
+}
+@keyframes corePulse{
+  0%,100%{transform:scale(1);opacity:1}
+  50%{transform:scale(.72);opacity:.65}
+}
+.loading-label{
+  display:flex;align-items:baseline;gap:1px;
+  font-size:13px;font-weight:800;
+  letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--white);
+  text-shadow:0 0 16px rgba(43,140,255,.7);
+}
+.loading-label .dot-anim{display:inline-block;width:14px;text-align:left}
+.loading-label .dot-anim::after{content:"";animation:loadDots 1.4s steps(1,end) infinite}
+@keyframes loadDots{
+  0%,20%{content:""}
+  40%{content:"."}
+  60%{content:".."}
+  80%,100%{content:"..."}
+}
+.loading-underline{
+  width:80px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--brand),var(--brand2),transparent);
+  opacity:.75;
+  animation:underGlow 1.6s ease-in-out infinite;
+}
+@keyframes underGlow{
+  0%,100%{transform:scaleX(.6);opacity:.4}
+  50%{transform:scaleX(1);opacity:1}
 }
 
-#loader{
+/* ===================== LOADER INICIAL ===================== */
+.loader-overlay{
   position:fixed;inset:0;z-index:9999;
+  background:rgba(5,8,16,.96);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;
-  background:rgba(255,255,255,.94);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  transition:opacity .45s ease, visibility .45s ease;
 }
-#spin{position:relative;width:110px;height:110px;animation:spinRot 2.6s linear infinite}
-#spin::after{
-  content:"";position:absolute;left:50%;top:50%;
-  width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
-  background:radial-gradient(circle, rgba(107,163,232,.35), transparent 70%);
-  animation:centerGlow 1.6s ease-in-out infinite;
+.loader-overlay.hide{opacity:0;visibility:hidden}
+.loader-logo-wrap{position:relative;width:130px;height:130px;display:grid;place-items:center}
+.loader-logo{
+  width:88px;height:88px;border-radius:50%;object-fit:cover;
+  border:2px solid rgba(43,140,255,.6);
+  box-shadow:0 0 30px rgba(43,140,255,.65),0 0 60px rgba(255,255,255,.15);
+  background:#0a1020;
+  position:relative;z-index:2;
 }
-#spin span{
-  position:absolute;left:50%;top:50%;
-  width:13px;height:13px;margin:-6.5px 0 0 -6.5px;border-radius:50%;
-  background:linear-gradient(135deg, var(--accent), var(--primary));
-  box-shadow:0 0 16px rgba(107,163,232,.75), 0 0 4px rgba(74,144,226,.5) inset;
-  transform:rotate(var(--rot,0deg)) translateY(-42px);
-  animation:dotPulse 1.6s ease-in-out infinite;
+.orbit{position:absolute;inset:0;animation:spin 1.5s linear infinite}
+.orbit span{
+  position:absolute;top:50%;left:50%;width:14px;height:14px;margin:-7px;
+  border-radius:50%;background:var(--brand);
+  box-shadow:0 0 12px var(--brand),0 0 26px rgba(43,140,255,.45);
 }
-#spin span:nth-child(3n+1){background:linear-gradient(135deg,#a8cdf0,var(--primary3))}
-#spin span:nth-child(3n+2){background:linear-gradient(135deg,#c9dff5,var(--accent))}
-@keyframes spinRot{to{transform:rotate(360deg)}}
-@keyframes dotPulse{0%,100%{opacity:.12;box-shadow:0 0 6px rgba(107,163,232,.2)}
-  50%{opacity:1;box-shadow:0 0 20px rgba(107,163,232,.9)}}
-@keyframes centerGlow{0%,100%{transform:scale(.85);opacity:.5}50%{transform:scale(1.15);opacity:1}}
-#loader p{color:var(--muted);letter-spacing:2.5px;font-size:12px;text-transform:uppercase;font-weight:600}
-#loader b{font-size:22px;letter-spacing:4px;font-weight:900;
-  background:linear-gradient(135deg,var(--primary),var(--primary3));
-  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.orbit span:nth-child(1){transform:rotate(0deg)   translateY(-62px) scale(1)}
+.orbit span:nth-child(2){transform:rotate(45deg)  translateY(-62px) scale(.9);background:var(--white);box-shadow:0 0 12px var(--white)}
+.orbit span:nth-child(3){transform:rotate(90deg)  translateY(-62px) scale(.8)}
+.orbit span:nth-child(4){transform:rotate(135deg) translateY(-62px) scale(.7);background:var(--brand2);box-shadow:0 0 12px var(--brand2)}
+.orbit span:nth-child(5){transform:rotate(180deg) translateY(-62px) scale(.6)}
+.orbit span:nth-child(6){transform:rotate(225deg) translateY(-62px) scale(.5);background:var(--white);box-shadow:0 0 12px var(--white)}
+.orbit span:nth-child(7){transform:rotate(270deg) translateY(-62px) scale(.4)}
+.orbit span:nth-child(8){transform:rotate(315deg) translateY(-62px) scale(.3);background:var(--brand2);box-shadow:0 0 12px var(--brand2)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:20px;font-weight:800;letter-spacing:3px;color:var(--white);text-transform:uppercase;text-shadow:0 0 18px rgba(43,140,255,.7)}
+.loader-sub{font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:-16px}
 
-.modal-bg{
-  position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.5);
-  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
-  display:flex;align-items:center;justify-content:center;padding:18px;
-  animation:fade .25s ease;
+/* ===================== ESTRUTURA ===================== */
+.wrap{width:100%;max-width:980px;margin:0 auto;padding:16px}
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;
+  background:rgba(9,13,25,.88);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
 }
-.modal{
-  width:100%;max-width:430px;background:#fff;
-  border:1px solid var(--line);border-radius:24px;
-  padding:24px 20px;box-shadow:var(--shadow-xl);
-  animation:pop .3s cubic-bezier(.2,.9,.3,1.3);
-  max-height:92vh;overflow-y:auto;
+.menu-btn{
+  width:44px;height:44px;border-radius:12px;border:1px solid var(--line);
+  background:linear-gradient(145deg,#16203a,#0d1424);
+  color:var(--white);cursor:pointer;display:grid;place-items:center;
+  transition:.2s;position:relative;overflow:hidden;
 }
-@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
-.modal h3{font-size:17px;margin-bottom:16px;text-align:center;
-  color:var(--primary);letter-spacing:.3px;font-weight:800;}
-.modal textarea{
-  width:100%;padding:13px;border-radius:14px;
-  background:var(--light2);border:1px solid var(--line);
-  color:var(--txt);resize:vertical;font-family:inherit;transition:.2s;
+.menu-btn:active{transform:scale(.93)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:1px;font-size:18px;color:var(--white)}
+.brand-logo{
+  width:36px;height:36px;border-radius:10px;object-fit:cover;
+  border:1px solid rgba(43,140,255,.55);
+  background:#0a1020;
+  box-shadow:0 0 14px rgba(43,140,255,.45);
 }
-.modal textarea:focus{border-color:var(--primary3);background:#fff;box-shadow:0 0 0 3px rgba(107,163,232,.15)}
-#modalActions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
-#otpInput{
-  text-align:center;font-size:26px;letter-spacing:12px;font-weight:800;
-  padding:16px;padding-left:28px;background:var(--light2);
-  border:1px solid var(--line);border-radius:14px;color:var(--txt);
-  transition:.2s;width:100%;
-}
-#otpInput:focus{border-color:var(--primary3);background:#fff;box-shadow:0 0 0 4px rgba(107,163,232,.18)}
+.brand small{display:block;font-size:9px;letter-spacing:2px;color:var(--muted);font-weight:600}
 
-.screen{min-height:100vh;padding:26px 18px 40px;max-width:520px;margin:0 auto;animation:fade .4s ease}
-@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.logo{text-align:center;margin-bottom:24px}
-.logo .mark{
-  width:92px;height:92px;margin:0 auto 14px;border-radius:26px;overflow:hidden;
-  border:3px solid #fff;
-  box-shadow:0 14px 34px rgba(74,144,226,.24), 0 0 0 1px rgba(74,144,226,.14);
-  background:var(--light);
+.drawer{
+  position:fixed;top:0;left:0;height:100dvh;width:280px;max-width:82vw;
+  background:linear-gradient(180deg,#0f1728,#0a1020);
+  border-right:1px solid var(--line);
+  transform:translateX(-105%);
+  transition:transform .32s cubic-bezier(.4,0,.2,1);
+  z-index:80;padding:22px 18px;overflow-y:auto;
 }
-.logo .mark img{width:100%;height:100%;object-fit:cover;display:block}
-.logo h1{font-size:26px;letter-spacing:.5px;font-weight:900;color:var(--txt)}
-.logo h1 span{background:linear-gradient(135deg,var(--primary),var(--primary3));
-  -webkit-background-clip:text;background-clip:text;color:transparent;}
-.logo p{color:var(--muted);font-size:13px;margin-top:6px;font-weight:500}
+.drawer.open{transform:translateX(0)}
+.drawer h4{font-size:11px;letter-spacing:2px;color:var(--muted);margin:6px 0 14px;text-transform:uppercase}
+.drawer .user-mini{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:18px;
+  display:flex;align-items:center;gap:11px;
+}
+.drawer .avatar{
+  width:42px;height:42px;border-radius:12px;flex-shrink:0;overflow:hidden;
+  background:linear-gradient(135deg,var(--brand),var(--white));
+  display:grid;place-items:center;
+  border:1px solid rgba(43,140,255,.5);
+}
+.drawer .avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.drawer .user-mini b{display:block;font-size:12.5px;margin-bottom:3px;line-height:1.25;color:var(--white)}
+.drawer .user-mini span{font-size:10.5px;color:var(--muted)}
+.drawer nav a{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;border-radius:12px;color:var(--txt);text-decoration:none;
+  font-size:14px;font-weight:600;margin-bottom:6px;cursor:pointer;
+  border:1px solid transparent;transition:.2s;
+}
+.drawer nav a:hover{background:var(--card2)}
+.drawer nav a.active{background:linear-gradient(135deg,rgba(43,140,255,.18),rgba(255,255,255,.06));border-color:rgba(43,140,255,.5);color:var(--white)}
+.overlay{
+  position:fixed;inset:0;background:rgba(3,6,14,.7);backdrop-filter:blur(3px);
+  z-index:70;opacity:0;visibility:hidden;transition:.3s;
+}
+.overlay.open{opacity:1;visibility:visible}
 
-.panel{background:#fff;border:1px solid var(--line);border-radius:22px;
-  padding:22px 18px;box-shadow:var(--shadow-sm);}
+/* ===================== CARDS/FORMS ===================== */
+.panel-card{
+  background:linear-gradient(160deg,var(--card),#0d1424);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:18px;margin-bottom:16px;
+}
+.title-lg{font-size:22px;font-weight:800;margin-bottom:4px;color:var(--white)}
+.sub{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
 
-.field{margin-bottom:15px;position:relative}
-.field label{display:block;font-size:12.5px;color:var(--muted);
-  margin-bottom:7px;font-weight:600;letter-spacing:.2px;}
-
-.field .input-box{position:relative}
-.field .input-box .fi{
-  position:absolute;left:14px;top:50%;transform:translateY(-50%);
-  width:20px;height:20px;display:flex;align-items:center;justify-content:center;
-  color:var(--primary3);pointer-events:none;transition:.22s;z-index:2;
+.field{margin-bottom:16px;position:relative}
+.field label{display:block;font-size:12.5px;font-weight:700;margin-bottom:7px;color:#c6d2ea;letter-spacing:.3px}
+.field label .req{color:var(--danger)}
+.field input,.field select,.field textarea{
+  width:100%;padding:14px;border-radius:12px;
+  background:#0b1220;border:1px solid var(--line);color:var(--txt);
+  font-size:15px;font-family:inherit;outline:none;transition:.2s;
 }
-.field .input-box .fi svg{
-  width:100%;height:100%;stroke:currentColor;fill:none;
-  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;
+.field textarea{min-height:110px;resize:vertical;line-height:1.5}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--brand);box-shadow:0 0 0 3px rgba(43,140,255,.18);
 }
-.field .input-box:focus-within .fi{
-  color:var(--primary);
-  transform:translateY(-50%) scale(1.08);
+.field input.err,.field select.err,.field textarea.err{border-color:var(--danger);box-shadow:0 0 0 3px rgba(255,92,122,.12)}
+.field input::placeholder,.field textarea::placeholder{color:#4d5a78}
+.hint{
+  display:none;margin-top:8px;font-size:12px;line-height:1.5;
+  background:rgba(43,140,255,.1);border-left:3px solid var(--brand);
+  padding:9px 11px;border-radius:8px;color:#bcd6ff;
 }
-.field .input-box input,
-.field .input-box select{
-  width:100%;padding:14px;padding-left:46px;border-radius:13px;
-  background:var(--light2);border:1px solid var(--line);color:var(--txt);
-  transition:.2s;font-weight:500;
-}
-.field .input-box input:focus,
-.field .input-box select:focus{
-  border-color:var(--primary3);background:#fff;
-  box-shadow:0 0 0 3px rgba(107,163,232,.15);
-}
-.field .input-box input::placeholder{color:var(--muted2);font-weight:400}
-
-.field .input-box select{
-  appearance:none;
-  background-image:linear-gradient(45deg,transparent 50%,var(--primary) 50%),
-                   linear-gradient(135deg,var(--primary) 50%,transparent 50%);
-  background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;
-  background-size:6px 6px,6px 6px;background-repeat:no-repeat;
-  padding-right:44px;
-}
-.field .input-box select:disabled{opacity:.5}
+.hint.show{display:block;animation:fadeIn .25s ease}
+.hint.warn{background:rgba(255,92,122,.09);border-left-color:var(--danger);color:#ffb8c6}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.row2{grid-template-columns:1fr}}
 
-.hint{margin-top:9px;padding:12px 14px;border-radius:12px;
-  font-size:12.5px;line-height:1.55;
-  background:linear-gradient(135deg,#f2f7fd,#e3eefb);
-  border:1px solid rgba(74,144,226,.22);color:#2c5f96;
-  animation:fade .3s ease;font-weight:500;}
-.hint::before{content:"💡  "}
-
-.btn{width:100%;padding:16px;border-radius:15px;font-weight:800;
-  font-size:15px;letter-spacing:.4px;
-  background:linear-gradient(135deg,#6ba3e8,#3b7dd8);
-  color:#fff;cursor:pointer;transition:.22s;
-  box-shadow:0 10px 24px rgba(74,144,226,.30), inset 0 1px 0 rgba(255,255,255,.35);}
-.btn:hover{filter:brightness(1.04)}
-.btn:active{transform:translateY(1px) scale(.985);box-shadow:0 6px 14px rgba(74,144,226,.22)}
-.btn.alt{background:linear-gradient(135deg,#7bb8f0,#4a90e2);
-  box-shadow:0 10px 24px rgba(74,144,226,.32), inset 0 1px 0 rgba(255,255,255,.35);}
-.btn.ghost{background:#fff;border:1.5px solid var(--line);color:var(--txt);box-shadow:var(--shadow-sm);}
-.btn.ghost:hover{background:var(--light2);border-color:var(--primary3)}
-.btn.danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;
-  box-shadow:0 10px 26px rgba(239,68,68,.32), inset 0 1px 0 rgba(255,255,255,.25);}
-
-#app{padding:0 0 40px;max-width:520px;margin:0 auto}
-.topbar{position:sticky;top:0;z-index:60;display:flex;align-items:center;
-  gap:12px;padding:13px 16px;
-  background:linear-gradient(90deg, rgba(227,238,251,.92) 0%, rgba(255,255,255,.96) 100%);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--line);box-shadow:0 4px 20px rgba(74,144,226,.06);}
-.topbar .mini{width:44px;height:44px;border-radius:14px;overflow:hidden;flex-shrink:0;
-  border:2px solid #fff;
-  box-shadow:0 6px 16px rgba(74,144,226,.22), 0 0 0 1px rgba(74,144,226,.12);
-  background:var(--light);}
-.topbar .mini img{width:100%;height:100%;object-fit:cover;display:block}
-.topbar .tt{flex:1;min-width:0}
-.topbar .tt h2{font-size:15.5px;letter-spacing:1px;font-weight:800;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  background:linear-gradient(135deg,var(--primary),var(--primary3));
-  -webkit-background-clip:text;background-clip:text;color:transparent;}
-.menubtn{width:42px;height:42px;border-radius:13px;background:#fff;
-  border:1px solid var(--line);display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:4px;cursor:pointer;
-  flex-shrink:0;transition:.2s;box-shadow:var(--shadow-sm);}
-.menubtn:hover{background:var(--light2)}
-.menubtn i{display:block;width:18px;height:2px;background:var(--primary);
-  border-radius:2px;transition:.25s;}
-.menubtn.open i:nth-child(1){transform:translateY(6px) rotate(45deg)}
-.menubtn.open i:nth-child(2){opacity:0}
-.menubtn.open i:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
-
-.dropdown{position:fixed;top:74px;right:14px;width:min(290px,88vw);z-index:80;
-  background:#fff;border:1px solid var(--line);border-radius:20px;padding:8px;
-  box-shadow:var(--shadow-lg);transform-origin:top right;
-  opacity:0;transform:scale(.9) translateY(-8px);pointer-events:none;
-  transition:.22s cubic-bezier(.2,.9,.3,1.3);}
-.dropdown.open{opacity:1;transform:none;pointer-events:auto}
-.dropdown button{width:100%;display:flex;align-items:center;gap:12px;
-  padding:13px 12px;border-radius:13px;background:transparent;color:var(--txt);
-  font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:.2s;}
-.dropdown button:hover,.dropdown button.on{
-  background:linear-gradient(135deg,var(--light2),var(--light));color:var(--primary);}
-.dropdown button .ic{width:36px;height:36px;border-radius:11px;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--light2);color:var(--primary3);flex-shrink:0;transition:.2s;}
-.dropdown button.on .ic,.dropdown button:hover .ic{
-  background:linear-gradient(135deg,var(--primary3),var(--primary));
-  color:#fff;box-shadow:0 4px 12px rgba(74,144,226,.28);}
-.dropdown button .ic svg{width:18px;height:18px;stroke:currentColor;fill:none;
-  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
-
-.wrap{padding:16px}
-.view{animation:fade .32s ease}
-
-.card{background:#fff;border:1px solid var(--line);border-radius:22px;
-  padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm);transition:.2s;}
-.card:hover{box-shadow:var(--shadow-md)}
-.card h3{font-size:12.5px;color:var(--muted);font-weight:700;
-  margin-bottom:14px;letter-spacing:1px;text-transform:uppercase;}
-.big{font-size:clamp(24px,7.5vw,34px);font-weight:900;
-  letter-spacing:-1px;line-height:1.15;word-break:break-word;
-  background:linear-gradient(135deg,var(--primary),var(--primary3));
-  -webkit-background-clip:text;background-clip:text;color:transparent;}
-.big small{font-size:.48em;color:var(--muted);font-weight:600;
-  letter-spacing:0;-webkit-text-fill-color:var(--muted);}
-
-.kv{display:flex;justify-content:space-between;padding:11px 0;
-  border-bottom:1px dashed var(--line2);font-size:13.5px;gap:12px;}
-.kv:last-child{border-bottom:none}
-.kv span:first-child{color:var(--muted);font-weight:500}
-.kv span:last-child{font-weight:700;text-align:right;word-break:break-word;color:var(--txt)}
-
-.bar{height:10px;border-radius:10px;background:var(--light2);overflow:hidden;margin-top:10px}
-.bar i{display:block;height:100%;
-  background:linear-gradient(90deg,var(--primary3),var(--primary));
-  border-radius:10px;transition:width .6s ease;
-  box-shadow:0 0 12px rgba(107,163,232,.4);}
-
-.badge{display:inline-block;padding:5px 12px;border-radius:20px;
-  font-size:11px;font-weight:800;letter-spacing:.4px;}
-.badge.ok{background:#d1fae5;color:#047857}
-.badge.warn{background:#fef3c7;color:#b45309}
-.badge.bad{background:#fee2e2;color:#b91c1c}
-
-.banner{position:relative;width:100%;max-width:420px;margin:0 auto 16px;
-  aspect-ratio:736/1104;border-radius:22px;overflow:hidden;
-  border:1px solid var(--line);box-shadow:var(--shadow-md);}
-.banner a{position:absolute;inset:0;display:block}
-.banner img{position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;opacity:0;transition:opacity 1s ease;}
-.banner img.on{opacity:1}
-.bdots{position:absolute;bottom:14px;left:0;right:0;
-  display:flex;justify-content:center;gap:7px;z-index:3;}
-.bdots i{width:7px;height:7px;border-radius:50%;
-  background:rgba(255,255,255,.55);transition:.3s;
-  box-shadow:0 2px 6px rgba(0,0,0,.15);}
-.bdots i.on{background:#fff;width:22px;border-radius:7px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
-
-/* Cartão virtual azul suave */
-.paidy{
-  width:100%;max-width:440px;margin:0 auto 18px;
-  border-radius:18px;padding:26px 24px 22px;
-  background:linear-gradient(135deg,#4a90e2 0%,#5fa3ea 55%,#7bb8f0 100%);
-  color:#fff;position:relative;overflow:hidden;
-  box-shadow:0 22px 44px rgba(74,144,226,.38), 0 4px 10px rgba(74,144,226,.22);
-  min-height:290px;display:flex;flex-direction:column;justify-content:space-between;
+.radio-group{display:flex;gap:10px}
+.radio-group label{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:13px;border-radius:12px;border:1px solid var(--line);
+  background:#0b1220;cursor:pointer;font-size:14px;font-weight:600;margin:0;
+  transition:.2s;
 }
-.paidy::before{
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(circle at 100% 0%, rgba(255,255,255,.16), transparent 60%);
+.radio-group input{display:none}
+.radio-group label:has(input:checked){
+  border-color:var(--brand);background:rgba(43,140,255,.12);
+  box-shadow:0 0 0 3px rgba(43,140,255,.14);color:var(--white);
 }
-.paidy .ph{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2}
-.paidy .brand{font-size:26px;font-weight:900;letter-spacing:-.8px;line-height:1;color:#fff}
-.paidy .brand em{font-style:normal;font-weight:400;color:#dbeafe}
-.paidy .brand small{display:block;font-size:8.5px;letter-spacing:3.5px;
-  color:rgba(255,255,255,.78);font-weight:600;margin-top:5px;}
 
-.paidy .chip{
-  width:48px;height:36px;border-radius:6px;position:relative;
-  background:linear-gradient(135deg,#f9e9b8 0%,#d9b64a 20%,#b8860b 45%,#f9e9b8 55%,#d9b64a 80%,#8b6508 100%);
-  box-shadow:
-    inset 0 1px 1px rgba(255,255,255,.75),
-    inset 0 -1px 2px rgba(0,0,0,.35),
-    inset 1px 0 1px rgba(255,255,255,.45),
-    inset -1px 0 2px rgba(0,0,0,.22),
-    0 1px 3px rgba(0,0,0,.28);
+.check{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#c6d2ea;line-height:1.5;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--brand);flex-shrink:0;margin-top:1px}
+.check a{color:var(--brand);text-decoration:underline;cursor:pointer}
+
+.btn{
+  width:100%;padding:16px;border:none;border-radius:14px;
+  font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  color:var(--white);transition:.25s;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  text-shadow:0 1px 2px rgba(0,0,0,.25);
+  position:relative;overflow:hidden;
 }
-.paidy .chip::before{
-  content:"";position:absolute;inset:4px;border-radius:3px;
-  border:1px solid rgba(80,60,20,.55);
+.btn:active{transform:scale(.98)}
+.btn:disabled{background:#1b2338;color:#54617d;cursor:not-allowed;box-shadow:none;transform:none;text-shadow:none}
+.btn.ready{animation:pulseBtn 1.5s infinite;box-shadow:0 8px 26px rgba(43,140,255,.4)}
+@keyframes pulseBtn{
+  0%,100%{box-shadow:0 8px 26px rgba(43,140,255,.4)}
+  50%{box-shadow:0 8px 34px rgba(43,140,255,.75),0 0 0 4px rgba(255,255,255,.08)}
+}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt);text-shadow:none}
+.btn.small{padding:12px;font-size:13.5px;border-radius:11px}
+.btn.wa{background:linear-gradient(135deg,#2b8cff,#00c6ff);color:var(--white)}
+.btn.wa .ico{stroke:var(--white)}
+
+/* ===================== BANNER ===================== */
+.banner{
+  width:100%;max-width:min(100%,420px);
+  aspect-ratio:904/1280;
+  margin:0 auto 18px;
+  border-radius:20px;border:1px solid var(--line);
+  overflow:hidden;position:relative;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-color:#0f1b33;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding:26px;
+}
+.banner::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,
+    rgba(5,10,22,.15) 0%,
+    rgba(5,10,22,.35) 45%,
+    rgba(5,10,22,.85) 100%);
+  z-index:1;pointer-events:none;
+}
+.banner::after{
+  content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 2px,transparent 2px 14px);
+  pointer-events:none;z-index:1;
+}
+.banner .b-content{
+  position:relative;z-index:2;
+  width:100%;text-align:center;
+  display:flex;flex-direction:column;align-items:center;
+}
+.banner-logo{
+  width:88px;height:88px;border-radius:50%;object-fit:cover;
+  border:2px solid rgba(43,140,255,.65);
+  box-shadow:0 0 40px rgba(43,140,255,.65),0 0 80px rgba(255,255,255,.15);
+  background:#0a1020;
+  margin-bottom:16px;
+}
+.banner h1{
+  font-size:clamp(26px,7vw,40px);font-weight:900;letter-spacing:3px;
+  line-height:1.1;color:var(--white);
+  text-shadow:0 2px 18px rgba(0,0,0,.7);
+}
+.banner h1 span{color:var(--brand2)}
+.banner p{
+  color:#e6eeff;font-size:13px;margin-top:10px;letter-spacing:.6px;
+  line-height:1.7;text-shadow:0 2px 12px rgba(0,0,0,.65);
+}
+.banner .tag{
+  margin-top:20px;padding:8px 16px;border-radius:30px;
+  border:1px solid rgba(43,140,255,.6);color:var(--white);
+  font-size:11px;letter-spacing:2px;font-weight:700;
+  background:rgba(43,140,255,.15);backdrop-filter:blur(6px);
+}
+
+/* ===================== STATUS ===================== */
+.status-card{
+  border-radius:var(--radius);padding:18px;margin-bottom:16px;
+  border:1px solid var(--line);
+  background:linear-gradient(150deg,var(--card),#0d1424);
+  display:flex;align-items:center;gap:14px;
+}
+.status-card.has{
+  border-color:rgba(43,140,255,.55);
+  background:linear-gradient(150deg,rgba(43,140,255,.15),rgba(255,255,255,.05));
+}
+.status-ico{
+  width:52px;height:52px;border-radius:14px;flex-shrink:0;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);
+  color:var(--muted);
+}
+.status-card.has .status-ico{background:rgba(43,140,255,.2);border-color:rgba(43,140,255,.5);color:var(--white)}
+.status-ico .ico{width:24px;height:24px}
+.status-card b{display:block;font-size:15px;margin-bottom:4px;color:var(--white)}
+.status-card span{font-size:12.5px;color:var(--muted);line-height:1.5}
+
+/* ===================== CARTÃO VIRTUAL ===================== */
+.vcard{
+  width:100%;max-width:736px;aspect-ratio:736/464;
+  margin:0 auto 18px;border-radius:20px;padding:24px;
   background:
-    linear-gradient(to right,transparent 31%,rgba(80,60,20,.55) 31%,rgba(80,60,20,.55) 34%,transparent 34%),
-    linear-gradient(to right,transparent 65%,rgba(80,60,20,.55) 65%,rgba(80,60,20,.55) 68%,transparent 68%),
-    linear-gradient(to bottom,transparent 47%,rgba(80,60,20,.55) 47%,rgba(80,60,20,.55) 53%,transparent 53%);
+    radial-gradient(500px 300px at 85% 0%,rgba(43,140,255,.45),transparent 60%),
+    radial-gradient(500px 400px at 0% 100%,rgba(0,198,255,.35),transparent 60%),
+    linear-gradient(140deg,#132241,#0a1222);
+  border:1px solid rgba(43,140,255,.45);
+  box-shadow:0 26px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.1);
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+  font-family:'Segoe UI',system-ui,sans-serif;
 }
-.paidy .chip::after{
-  content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;
-  background:linear-gradient(to bottom,transparent 0%,rgba(80,60,20,.35) 40%,rgba(80,60,20,.35) 60%,transparent 100%);
-  transform:translateX(-50%);opacity:.4;
+.vcard::before{
+  content:"";position:absolute;width:340px;height:340px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.15);right:-130px;top:-130px;
 }
+.vcard::after{
+  content:"";position:absolute;width:220px;height:220px;border-radius:50%;
+  border:1px solid rgba(43,140,255,.22);right:-60px;top:-60px;
+}
+.vcard .shine{
+  position:absolute;inset:0;
+  background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.09) 45%,transparent 55%);
+  pointer-events:none;
+}
+.vcard-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:2;gap:12px}
+.vcard-brand{font-weight:900;letter-spacing:2px;font-size:15px;color:var(--white);display:flex;align-items:center;gap:9px}
+.vcard-brand .mark{
+  width:30px;height:30px;border-radius:8px;overflow:hidden;flex-shrink:0;
+  border:1px solid rgba(255,255,255,.4);
+  background:#0a1020;
+}
+.vcard-brand .mark img{width:100%;height:100%;object-fit:cover;display:block}
+.vcard-brand small{display:block;font-size:8.5px;letter-spacing:2.5px;color:rgba(255,255,255,.7);font-weight:600;margin-top:2px}
 
-.paidy .num{font-family:'Courier New',monospace;font-size:19px;letter-spacing:2.5px;
-  margin:22px 0 4px;position:relative;z-index:2;color:#fff;font-weight:700;
-  text-shadow:0 1px 2px rgba(0,0,0,.22);}
-.paidy .debt{position:relative;z-index:2;margin:16px 0 6px;
-  padding:14px 16px;border-radius:14px;background:rgba(255,255,255,.16);
-  border:1px solid rgba(255,255,255,.24);
-  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
-.paidy .debt label{font-size:10px;letter-spacing:2.4px;color:rgba(255,255,255,.9);
-  font-weight:700;text-transform:uppercase;}
-.paidy .debt .v{font-size:clamp(28px,8.5vw,42px);font-weight:900;line-height:1.05;
-  letter-spacing:-1.2px;color:#fff;margin-top:4px;word-break:break-word;}
-.paidy .debt .v small{font-size:.42em;color:#dbeafe;font-weight:700}
-.paidy .debt .sub{font-size:11px;color:rgba(255,255,255,.86);margin-top:5px;font-weight:500}
-.paidy .foot{display:flex;justify-content:space-between;align-items:flex-end;
-  position:relative;z-index:2;margin-top:14px;gap:12px;}
-.paidy .foot .lbl{font-size:8.5px;letter-spacing:2.2px;color:rgba(255,255,255,.75);
-  font-weight:700;margin-bottom:3px;text-transform:uppercase;}
-.paidy .foot .val{font-size:13px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.6px;color:#fff;}
+.chip{width:52px;height:40px;flex-shrink:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,.55))}
+.chip svg{width:100%;height:100%;display:block}
 
-.hist{display:flex;gap:13px;align-items:center;padding:14px 0;
-  border-bottom:1px dashed var(--line2);}
-.hist:last-child{border-bottom:none}
-.hist .ic{width:44px;height:44px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--light2);flex-shrink:0;color:var(--primary3);}
-.hist .ic svg{width:20px;height:20px;stroke:currentColor;fill:none;
-  stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
-.hist .ic.g{color:#047857;background:#d1fae5}
-.hist .ic.p{color:#b91c1c;background:#fee2e2}
-.hist .tx{flex:1;min-width:0}
-.hist .tx b{display:block;font-size:13.5px;margin-bottom:4px;font-weight:700;color:var(--txt)}
-.hist .tx small{color:var(--muted);font-size:11.5px;line-height:1.4}
-.hist .amt{font-weight:800;font-size:14px;white-space:nowrap}
-.hist .amt.p{color:var(--danger)}
-.hist .amt.g{color:var(--green)}
-
-.empty{text-align:center;padding:36px 14px;color:var(--muted);
-  font-size:13.5px;line-height:1.7;}
-.empty .e{display:flex;align-items:center;justify-content:center;
-  margin:0 auto 14px;width:56px;height:56px;border-radius:18px;
-  background:linear-gradient(135deg,var(--light2),var(--light));color:var(--primary3);}
-.empty .e svg{width:28px;height:28px;stroke:currentColor;fill:none;
-  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
-
-.note{font-size:12.5px;line-height:1.65;color:var(--muted);
-  background:linear-gradient(135deg,var(--light2),#fff);
-  border-left:3px solid var(--primary3);padding:12px 14px;
-  border-radius:10px;margin-top:14px;font-weight:500;}
-.note.bad{border-left-color:var(--danger);background:linear-gradient(135deg,#fef2f2,#fff);color:#991b1b}
-.note.ok{border-left-color:var(--green);background:linear-gradient(135deg,#ecfdf5,#fff);color:#047857}
-
-.fab{position:fixed;bottom:22px;right:22px;z-index:990;
-  width:62px;height:62px;border-radius:50%;
-  background:linear-gradient(135deg,#7bb8f0,#3b7dd8);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  transition:.25s;color:#fff;
-  box-shadow:0 16px 36px rgba(74,144,226,.42), 0 0 0 0 rgba(107,163,232,.55),
-    inset 0 1px 0 rgba(255,255,255,.35);
-  animation:pulse 2.6s infinite;}
-@keyframes pulse{
-  0%{box-shadow:0 16px 36px rgba(74,144,226,.42), 0 0 0 0 rgba(107,163,232,.55), inset 0 1px 0 rgba(255,255,255,.35)}
-  70%{box-shadow:0 16px 36px rgba(74,144,226,.42), 0 0 0 20px rgba(107,163,232,0), inset 0 1px 0 rgba(255,255,255,.35)}
-  100%{box-shadow:0 16px 36px rgba(74,144,226,.42), 0 0 0 0 rgba(107,163,232,0), inset 0 1px 0 rgba(255,255,255,.35)}}
-.fab:hover{transform:scale(1.08)}
-.fab:active{transform:scale(.95)}
-.fab svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:2.2;
-  stroke-linecap:round;stroke-linejoin:round;}
-.fab .i-close{display:none}
-.fab.open{animation:none}
-.fab.open .i-chat{display:none}
-.fab.open .i-close{display:block}
-
-.chat{position:fixed;bottom:96px;right:22px;z-index:989;
-  width:min(370px,calc(100vw - 32px));max-height:74vh;
-  background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;
-  display:flex;flex-direction:column;box-shadow:var(--shadow-xl);
-  opacity:0;transform:scale(.92) translateY(20px);pointer-events:none;
-  transition:.28s cubic-bezier(.2,.9,.3,1.2);transform-origin:bottom right;}
-.chat.open{opacity:1;transform:none;pointer-events:auto}
-.chat-head{display:flex;align-items:center;gap:12px;padding:15px 17px;
-  background:linear-gradient(135deg,#6ba3e8,#3b7dd8);
-  border-bottom:1px solid rgba(0,0,0,.05);flex-shrink:0;}
-.chat-head .avatar{width:42px;height:42px;border-radius:13px;overflow:hidden;
-  flex-shrink:0;border:2px solid rgba(255,255,255,.5);background:var(--light);}
-.chat-head .avatar img{width:100%;height:100%;object-fit:cover;display:block}
-.chat-head .info{flex:1;min-width:0}
-.chat-head .info b{display:block;font-size:14px;letter-spacing:.3px;color:#fff;font-weight:700}
-.chat-head .info small{font-size:11px;color:rgba(255,255,255,.88);
-  display:flex;align-items:center;gap:6px;margin-top:3px;font-weight:600;}
-.chat-head .info small::before{content:"";width:7px;height:7px;border-radius:50%;
-  background:#4ade80;box-shadow:0 0 8px #4ade80;animation:dotPulse 1.6s infinite;}
-.chat-body{padding:15px;overflow-y:auto;flex:1;display:flex;flex-direction:column;
-  gap:11px;scrollbar-width:thin;scrollbar-color:var(--line2) transparent;
-  background:linear-gradient(180deg,#fbfdff,#ffffff);}
-.chat-body::-webkit-scrollbar{width:5px}
-.chat-body::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px}
-
-.chat-msg{padding:12px 15px;border-radius:15px;font-size:13.5px;
-  line-height:1.55;max-width:90%;animation:fade .3s ease;
-  word-wrap:break-word;white-space:pre-line;}
-.chat-msg.bot{background:#fff;border:1px solid var(--line);color:var(--txt);
-  border-bottom-left-radius:5px;align-self:flex-start;box-shadow:var(--shadow-sm);}
-.chat-msg.user{background:linear-gradient(135deg,#7bb8f0,#3b7dd8);
-  color:#fff;font-weight:600;border-bottom-right-radius:5px;align-self:flex-end;
-  box-shadow:0 6px 16px rgba(74,144,226,.25);}
-
-.chat-typing{display:flex;align-items:center;gap:6px;padding:14px 16px;
-  background:#fff;border:1px solid var(--line);border-radius:15px;
-  border-bottom-left-radius:5px;align-self:flex-start;animation:fade .3s ease;
-  max-width:90%;box-shadow:var(--shadow-sm);}
-.chat-typing .d{width:8px;height:8px;border-radius:50%;background:var(--primary3);
-  animation:typeBounce 1.2s ease-in-out infinite;}
-.chat-typing .d:nth-child(2){animation-delay:.15s;background:var(--primary)}
-.chat-typing .d:nth-child(3){animation-delay:.3s;background:var(--primary2)}
-.chat-typing .lbl{margin-left:8px;font-size:11.5px;color:var(--muted);
-  font-weight:600;letter-spacing:.3px;}
-@keyframes typeBounce{
-  0%,60%,100%{transform:translateY(0);opacity:.35}
-  30%{transform:translateY(-6px);opacity:1}}
-
-.chat-quick{display:flex;flex-direction:column;gap:8px;margin-top:2px}
-.chat-quick button{width:100%;text-align:left;padding:13px 15px;border-radius:13px;
-  background:#fff;border:1px solid var(--line);color:var(--txt);font-size:13px;
-  font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;
-  gap:11px;box-shadow:var(--shadow-sm);}
-.chat-quick button::before{content:"";width:7px;height:7px;border-radius:50%;
-  background:linear-gradient(135deg,#7bb8f0,#4a90e2);
-  flex-shrink:0;box-shadow:0 0 6px rgba(107,163,232,.5);}
-.chat-quick button:hover{background:linear-gradient(135deg,var(--light2),var(--light));
-  border-color:var(--primary3);color:var(--primary);}
-.chat-quick button:active{transform:scale(.98)}
-
-.agent{display:flex;align-items:center;gap:12px;padding:13px;border-radius:15px;
-  background:#fff;border:1px solid var(--line);animation:fade .3s ease;
-  box-shadow:var(--shadow-sm);}
-.agent-avatar{width:46px;height:46px;border-radius:50%;flex-shrink:0;
-  background:linear-gradient(135deg,#7bb8f0,#3b7dd8);color:#fff;
-  display:flex;align-items:center;justify-content:center;font-weight:900;
-  font-size:18px;box-shadow:0 6px 14px rgba(74,144,226,.28);}
-.agent-info{flex:1;min-width:0}
-.agent-info b{display:block;font-size:14px;margin-bottom:3px;color:var(--txt)}
-.agent-info small{color:#047857;font-size:11px;font-weight:700;letter-spacing:.3px}
-.agent-actions{display:flex;gap:6px;flex-shrink:0}
-.agent-actions a{width:38px;height:38px;border-radius:12px;display:flex;
-  align-items:center;justify-content:center;transition:.2s;text-decoration:none;}
-.agent-actions a svg{width:18px;height:18px;stroke:currentColor;fill:none;
-  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.agent-actions a.wa{background:#dcfce7;color:#15803d}
-.agent-actions a.wa svg{fill:currentColor;stroke:none}
-.agent-actions a.call{background:#e3eefb;color:#3b7dd8}
-.agent-actions a.sms{background:#fef3c7;color:#b45309}
-.agent-actions a:hover{transform:scale(1.08)}
-.agent-actions a:active{transform:scale(.94)}
-
-#toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,26px);
-  z-index:9998;background:#fff;border:1px solid var(--line);color:var(--txt);
-  padding:14px 22px;border-radius:15px;font-size:13.5px;font-weight:600;
-  box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.3s;
-  max-width:88vw;text-align:center;}
-#toast.on{opacity:1;transform:translate(-50%,0)}
-
-/* =========================================================
-   🖥️  MODO COMPUTADOR  (ecrãs ≥ 960px)
-   ========================================================= */
-@media (min-width: 960px){
-
-  /* ---------- Layout geral: sidebar + conteúdo ---------- */
-  #app{
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 22px 28px 80px;
-    display: grid;
-    grid-template-columns: 264px minmax(0, 1fr);
-    grid-template-rows: auto 1fr;
-    gap: 22px;
-    align-items: start;
-  }
-
-  /* ---------- Topbar vira cabeçalho flutuante ---------- */
-  .topbar{
-    grid-column: 1 / -1;
-    grid-row: 1;
-    position: sticky;
-    top: 14px;
-    border-radius: 20px;
-    padding: 14px 24px;
-    box-shadow: var(--shadow-md);
-    z-index: 70;
-  }
-  .topbar .mini{ width: 52px; height: 52px; border-radius: 16px; }
-  .topbar .tt h2{ font-size: 18px; letter-spacing: 2px; }
-
-  /* Hamburger desaparece */
-  .menubtn{ display: none !important; }
-
-  /* ---------- Dropdown vira sidebar fixa ---------- */
-  .dropdown{
-    position: sticky !important;
-    top: 100px !important;
-    right: auto !important;
-    left: auto !important;
-    grid-column: 1;
-    grid-row: 2;
-    width: 100% !important;
-    transform: none !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    padding: 12px;
-    border-radius: 20px;
-    box-shadow: var(--shadow-sm);
-  }
-  .dropdown::before{
-    content:"Navegação";
-    display:block;
-    font-size: 10.5px;
-    letter-spacing: 2.4px;
-    color: var(--muted2);
-    font-weight: 800;
-    text-transform: uppercase;
-    padding: 6px 14px 10px;
-  }
-  .dropdown button{ padding: 15px 14px; font-size: 14.5px; }
-  .dropdown button .ic{ width: 42px; height: 42px; border-radius: 12px; }
-
-  /* ---------- Área de conteúdo ---------- */
-  .wrap{
-    grid-column: 2;
-    grid-row: 2;
-    padding: 0;
-    min-width: 0;
-  }
-
-  /* Painel: cartões em grade */
-  #view-painel{
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 20px;
-    align-items: start;
-  }
-  #view-painel > .card,
-  #view-painel > #bannerBox{ margin-bottom: 0; }
-  #view-painel > #bannerBox{
-    display: flex;
-    justify-content: center;
-  }
-
-  /* Cartões com mais respiro */
-  .card{
-    padding: 26px;
-    border-radius: 22px;
-    margin-bottom: 20px;
-  }
-
-  /* Banner contido e centrado */
-  .banner{
-    max-width: 420px;
-    margin: 0;
-  }
-
-  /* ---------- Histórico ---------- */
-  #view-historico .card{ padding: 28px 30px; }
-  .hist{ padding: 16px 0; }
-  .hist .ic{ width: 48px; height: 48px; border-radius: 15px; }
-
-  /* ---------- Cartão virtual: cartão + dados lado-a-lado ---------- */
-  #view-cartao{
-    display: grid;
-    grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
-    gap: 22px;
-    align-items: start;
-  }
-  #view-cartao > .paidy,
-  #view-cartao > .card{ margin-bottom: 0; }
-  #view-cartao > .btn,
-  #view-cartao > .note{
-    grid-column: 1 / -1;
-    margin-top: 0 !important;
-  }
-  #view-cartao .paidy{
-    min-height: 320px;
-    padding: 32px 30px 26px;
-  }
-  #view-cartao .paidy .debt .v{
-    font-size: clamp(32px, 4vw, 48px);
-  }
-
-  /* ---------- Chat flutuante ---------- */
-  .chat{ width: 400px; max-height: 660px; }
-  .fab{ width: 68px; height: 68px; }
-
-  /* ---------- Ecrã de login: duas colunas ---------- */
-  #auth.screen{
-    max-width: none;
-    margin: 0;
-    padding: 60px;
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 480px;
-    align-items: center;
-    gap: 60px;
-  }
-  #auth .logo{
-    text-align: left;
-    margin: 0;
-    align-self: center;
-  }
-  #auth .logo .mark{
-    width: 120px;
-    height: 120px;
-    margin: 0 0 24px;
-    border-radius: 32px;
-  }
-  #auth .logo h1{ font-size: 44px; letter-spacing: -.8px; }
-  #auth .logo p{ font-size: 15px; margin-top: 12px; max-width: 380px; }
-  #auth #formReg{
-    padding: 34px;
-    border-radius: 26px;
-    box-shadow: var(--shadow-lg);
-    max-height: calc(100vh - 120px);
-    overflow-y: auto;
-  }
-
-  /* ---------- Modal e toast ---------- */
-  .modal{ max-width: 480px; padding: 30px 28px; }
-  #toast{ bottom: 32px; padding: 16px 28px; font-size: 14px; }
+.vcard-num{
+  font-family:'Courier New',monospace;font-size:clamp(15px,3.4vw,22px);
+  letter-spacing:2.5px;font-weight:700;position:relative;z-index:2;margin:14px 0;
+  color:var(--white);text-shadow:0 0 18px rgba(255,255,255,.35);
+}
+.vcard-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px;position:relative;z-index:2}
+.vcard-grid .it small{display:block;font-size:9px;letter-spacing:1.6px;color:rgba(255,255,255,.65);text-transform:uppercase;margin-bottom:3px}
+.vcard-grid .it b{font-size:12.5px;font-weight:700;word-break:break-word;color:var(--white)}
+@media(max-width:520px){
+  .vcard{padding:16px;border-radius:16px}
+  .vcard-grid{gap:7px 12px}
+  .vcard-grid .it b{font-size:11px}
+  .chip{width:42px;height:32px}
+  .vcard-brand .mark{width:24px;height:24px}
 }
 
-/* Ecrãs muito largos */
-@media (min-width: 1400px){
-  #app{
-    max-width: 1360px;
-    padding: 26px 40px 90px;
-    grid-template-columns: 280px minmax(0, 1fr);
-  }
-  #auth.screen{
-    grid-template-columns: minmax(0, 1fr) 520px;
-    gap: 90px;
-    padding: 70px 100px;
-  }
+/* ===================== NÍVEIS ===================== */
+.nivel{
+  border:1px solid var(--line);border-radius:15px;padding:15px;margin-bottom:12px;
+  background:linear-gradient(150deg,var(--card),#0c1322);transition:.25s;
+}
+.nivel.aberto{border-color:rgba(43,140,255,.45)}
+.nivel.bloq{opacity:.62}
+.nivel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px}
+.nivel-head b{font-size:15px;color:var(--white)}
+.badge{font-size:10px;font-weight:800;letter-spacing:1px;padding:5px 11px;border-radius:20px;text-transform:uppercase}
+.badge.on{background:rgba(43,140,255,.2);color:var(--white);border:1px solid rgba(43,140,255,.5)}
+.badge.off{background:rgba(255,92,122,.13);color:var(--danger);border:1px solid rgba(255,92,122,.35)}
+.nivel-vals{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:9px;margin-bottom:13px}
+.nivel-vals div{background:#0a1120;border:1px solid var(--line);border-radius:10px;padding:9px}
+.nivel-vals small{display:block;font-size:9.5px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.nivel-vals b{font-size:13.5px;color:var(--txt)}
+.nivel-vals b.g{color:var(--white)}
+
+/* ===================== AVISO EMPRÉSTIMO ACTIVO ===================== */
+.aviso-activo{
+  display:flex;align-items:flex-start;gap:12px;
+  border:1px solid rgba(255,92,122,.5);
+  background:linear-gradient(150deg,rgba(255,92,122,.14),rgba(255,92,122,.05));
+  border-radius:15px;padding:15px;margin-bottom:16px;
+  animation:avisoPulse 2s ease-in-out infinite;
+}
+@keyframes avisoPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,92,122,.25)}
+  50%{box-shadow:0 0 0 6px rgba(255,92,122,0)}
+}
+.aviso-activo .ic{
+  width:42px;height:42px;flex-shrink:0;border-radius:12px;
+  display:grid;place-items:center;
+  background:rgba(255,92,122,.22);color:#ffb8c6;
+  border:1px solid rgba(255,92,122,.55);
+}
+.aviso-activo .ic .ico{width:22px;height:22px}
+.aviso-activo b{display:block;font-size:14px;color:#ffd0d9;margin-bottom:5px;letter-spacing:.3px}
+.aviso-activo span{font-size:12.5px;color:#ffb8c6;line-height:1.55}
+
+/* ===================== HISTÓRICO ===================== */
+.hist-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.hist-item:last-child{border-bottom:none}
+.hist-dot{width:9px;height:9px;border-radius:50%;background:var(--brand);box-shadow:0 0 10px var(--brand);flex-shrink:0;margin-top:6px}
+.hist-item p{font-size:13px;line-height:1.55}
+.hist-item span{font-size:10.5px;color:var(--muted);letter-spacing:.5px}
+.empty{text-align:center;padding:36px 14px;color:var(--muted);font-size:13px;line-height:1.7}
+.empty .big{display:block;margin:0 auto 12px;color:#3a4a6b;width:46px;height:46px}
+.empty .big svg{width:100%;height:100%}
+
+/* ===================== MODAIS ===================== */
+.modal{
+  position:fixed;inset:0;z-index:10050;
+  background:rgba(4,7,14,.82);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;padding:18px;
+  opacity:0;visibility:hidden;transition:.28s;
+}
+.modal.open{opacity:1;visibility:visible}
+.modal-box{
+  width:100%;max-width:400px;background:linear-gradient(160deg,#141d33,#0b1220);
+  border:1px solid var(--line);border-radius:20px;padding:24px;
+  transform:translateY(14px) scale(.97);transition:.28s;
+}
+.modal.open .modal-box{transform:none}
+.modal-box h3{font-size:18px;margin-bottom:8px;display:flex;align-items:center;gap:9px;color:var(--white)}
+.modal-box h3 .ico{color:var(--brand)}
+.modal-box p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.modal-box input{
+  width:100%;padding:15px;border-radius:12px;background:#0a1020;
+  border:1px solid var(--line);color:var(--white);font-size:22px;text-align:center;
+  letter-spacing:9px;font-family:'Courier New',monospace;outline:none;
+}
+.modal-box input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(43,140,255,.2)}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-actions .btn{flex:1}
+.otp-erro{color:var(--danger);font-size:12.5px;margin-top:11px;text-align:center;min-height:16px}
+
+/* ===================== OTP INFO ===================== */
+.otp-info{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  background:rgba(43,140,255,.1);
+  border:1px dashed rgba(43,140,255,.5);
+  border-radius:11px;padding:10px 13px;margin-bottom:14px;
+  font-size:12px;color:#bcd6ff;line-height:1.4;
+}
+.otp-info b{
+  font-family:'Courier New',monospace;
+  letter-spacing:2px;color:var(--white);
+}
+.otp-info .otp-info-hour b{
+  color:var(--brand);letter-spacing:1px;
+}
+.otp-info .otp-info-code b{
+  color:var(--brand2);
+  letter-spacing:3px;font-size:15px;font-weight:800;
+  text-shadow:0 0 10px rgba(0,198,255,.55);
+}
+.otp-info .otp-info-code.expira b{
+  color:#ffb8c6;
+  text-shadow:0 0 10px rgba(255,92,122,.55);
+  animation:expiraPulse .9s ease-in-out infinite;
+}
+@keyframes expiraPulse{
+  0%,100%{opacity:1}
+  50%{opacity:.55}
+}
+
+/* ===================== TOAST ===================== */
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translate(-50%,150%);
+  background:linear-gradient(135deg,#16223c,#0d1524);
+  border:1px solid var(--line);border-left:4px solid var(--brand);
+  padding:14px 18px;border-radius:13px;font-size:13px;z-index:900;
+  max-width:90vw;box-shadow:0 16px 40px rgba(0,0,0,.6);transition:.35s;
+}
+.toast.show{transform:translate(-50%,0)}
+.toast.err{border-left-color:var(--danger)}
+
+.view-title{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.view-title h2{font-size:19px;font-weight:800;color:var(--white)}
+.view-title .line{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+.footer-note{text-align:center;font-size:10.5px;color:#4b5878;padding:22px 10px 34px;letter-spacing:.5px;line-height:1.7}
+
+.reg-logo{
+  width:88px;height:88px;border-radius:50%;object-fit:cover;
+  margin:0 auto 14px;display:block;
+  border:2px solid rgba(43,140,255,.6);
+  box-shadow:0 0 40px rgba(43,140,255,.55),0 0 60px rgba(255,255,255,.12);
+  background:#0a1020;
+}
+
+/* ===================== BOTÃO FLUTUANTE ===================== */
+.fab{
+  position:fixed;right:18px;bottom:20px;z-index:120;
+  width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--brand),var(--brand2));
+  color:var(--white);display:grid;place-items:center;
+  box-shadow:0 12px 30px rgba(43,140,255,.55),0 0 0 0 rgba(43,140,255,.6);
+  transition:.25s;
+  animation:fabPulse 2.2s infinite;
+  overflow:hidden;
+}
+.fab:active{transform:scale(.93)}
+.fab .ico{width:26px;height:26px;stroke-width:2.1}
+.fab .fab-badge{
+  position:absolute;top:-3px;right:-3px;width:18px;height:18px;border-radius:50%;
+  background:var(--danger);border:2px solid var(--bg);
+  display:grid;place-items:center;font-size:10px;font-weight:800;color:#fff;
+}
+@keyframes fabPulse{
+  0%{box-shadow:0 12px 30px rgba(43,140,255,.55),0 0 0 0 rgba(43,140,255,.6)}
+  70%{box-shadow:0 12px 30px rgba(43,140,255,.55),0 0 0 16px rgba(43,140,255,0)}
+  100%{box-shadow:0 12px 30px rgba(43,140,255,.55),0 0 0 0 rgba(43,140,255,0)}
+}
+.fab.open{animation:none;transform:rotate(90deg)}
+
+.support-panel{
+  position:fixed;right:18px;bottom:92px;z-index:119;
+  width:min(380px, calc(100vw - 36px));max-height:min(78dvh,680px);
+  background:linear-gradient(165deg,#131c30,#0a1120);
+  border:1px solid var(--line);border-radius:20px;
+  box-shadow:0 30px 70px rgba(0,0,0,.65);
+  display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;visibility:hidden;transform:translateY(14px) scale(.96);
+  transition:.28s cubic-bezier(.4,0,.2,1);
+}
+.support-panel.open{opacity:1;visibility:visible;transform:none}
+.sp-head{
+  padding:16px 18px;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(120deg,rgba(43,140,255,.22),rgba(255,255,255,.08));
+  border-bottom:1px solid var(--line);flex-shrink:0;
+}
+.sp-head .av{
+  width:42px;height:42px;border-radius:12px;flex-shrink:0;overflow:hidden;
+  border:1px solid rgba(43,140,255,.55);background:#0a1020;
+  display:grid;place-items:center;
+}
+.sp-head .av img{width:100%;height:100%;object-fit:cover;display:block}
+.sp-head b{display:block;font-size:14px;color:var(--white)}
+.sp-head small{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.sp-head small::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);display:inline-block}
+.sp-close{
+  margin-left:auto;width:32px;height:32px;border-radius:9px;
+  border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);
+  display:grid;place-items:center;cursor:pointer;transition:.2s;
+  position:relative;overflow:hidden;
+}
+.sp-close:hover{color:var(--white);background:rgba(255,255,255,.1)}
+.sp-close .ico{width:16px;height:16px}
+
+.sp-body{overflow-y:auto;padding:14px 16px 18px;flex:1}
+.sp-sec{font-size:10.5px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;font-weight:700;margin:6px 0 10px}
+
+.faq{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:#0b1220;overflow:hidden;transition:.2s}
+.faq.open{border-color:rgba(43,140,255,.5);box-shadow:0 0 0 2px rgba(43,140,255,.08)}
+.faq-q{padding:12px 13px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:9px;color:var(--white)}
+.faq-q .ico{width:16px;height:16px;color:var(--brand)}
+.faq-q .arrow{margin-left:auto;transition:.25s;color:var(--muted)}
+.faq-q .arrow .ico{width:14px;height:14px;color:var(--muted)}
+.faq.open .faq-q .arrow{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;font-size:12.5px;line-height:1.6;color:#c9d6f0}
+.faq.open .faq-a{max-height:320px}
+.faq-a > div{padding:0 13px 13px}
+
+.faq-a-header{
+  display:flex;align-items:center;gap:8px;
+  font-size:10.5px;font-weight:800;letter-spacing:1.2px;
+  color:var(--brand);text-transform:uppercase;
+  margin-bottom:8px;
+}
+.faq-a-header .dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--brand);
+  box-shadow:0 0 10px var(--brand),0 0 18px rgba(43,140,255,.55);
+  animation:dotPulse 1.4s infinite;
+}
+@keyframes dotPulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.5;transform:scale(.85)}
+}
+.typing{display:flex;align-items:center;gap:5px;padding:6px 0 10px}
+.typing span{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--brand);
+  box-shadow:0 0 8px rgba(43,140,255,.7);
+  animation:typingDot 1.2s infinite ease-in-out;
+}
+.typing span:nth-child(2){animation-delay:.15s;background:var(--white);box-shadow:0 0 8px rgba(255,255,255,.7)}
+.typing span:nth-child(3){animation-delay:.3s;background:var(--brand2);box-shadow:0 0 8px rgba(0,198,255,.7)}
+.typing small{font-size:11px;color:var(--muted);font-style:italic;margin-left:6px;letter-spacing:.3px}
+@keyframes typingDot{
+  0%,60%,100%{opacity:.35;transform:translateY(0)}
+  30%{opacity:1;transform:translateY(-4px)}
+}
+
+.sp-actions{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+.sp-btn{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;border-radius:13px;border:1px solid var(--line);
+  background:#0b1220;color:var(--txt);text-decoration:none;cursor:pointer;
+  font-size:13.5px;font-weight:700;transition:.2s;font-family:inherit;
+  position:relative;overflow:hidden;
+}
+.sp-btn:hover{background:#121a30;border-color:rgba(43,140,255,.45)}
+.sp-btn .ic{width:38px;height:38px;border-radius:11px;flex-shrink:0;display:grid;place-items:center}
+.sp-btn .ic .ico{width:19px;height:19px;stroke-width:2.1}
+.sp-btn small{display:block;font-size:10.5px;color:var(--muted);font-weight:500;margin-top:2px;letter-spacing:.2px}
+.sp-btn.wa .ic{background:rgba(43,140,255,.2);color:var(--white)}
+.sp-btn.call .ic{background:rgba(0,198,255,.18);color:var(--white)}
+.sp-btn.sms .ic{background:rgba(43,140,255,.15);color:var(--brand2)}
+.sp-btn .go{margin-left:auto;color:var(--muted)}
+.sp-btn .go .ico{width:15px;height:15px}
+
+@media(min-width:900px){
+  .vcard{padding:30px}
+  .fab{right:26px;bottom:26px}
+  .support-panel{right:26px;bottom:100px}
+}
+@media(max-width:480px){
+  .fab{width:54px;height:54px;right:14px;bottom:16px}
+  .fab .ico{width:23px;height:23px}
+  .support-panel{right:10px;bottom:82px;width:calc(100vw - 20px);border-radius:18px}
 }
 </style>
 </head>
 <body>
 
-<div id="clickLoader"><i></i></div>
+<!-- ============== CHROME BAR ============== -->
+<div id="chrome-bar"><div class="progress"></div></div>
 
-<div id="loader" class="hidden">
-  <b>TUXANA MOLA</b>
-  <div id="spin"></div>
-  <p>A processar…</p>
+<!-- ============== LOADING UNIVERSAL ============== -->
+<div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+  <div class="loading-ring"><span class="core"></span></div>
+  <div class="loading-label">A processar<span class="dot-anim"></span></div>
+  <div class="loading-underline"></div>
 </div>
 
-<div id="modal" class="modal-bg hidden">
-  <div class="modal">
-    <h3 id="modalTitle">Verificação</h3>
-    <div id="modalBody"></div>
-    <div id="modalActions"></div>
+<!-- ============== LOADER INICIAL ============== -->
+<div class="loader-overlay" id="loader">
+  <div class="loader-logo-wrap">
+    <div class="orbit">
+      <span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <img class="loader-logo" id="loaderLogo" alt="Txuna Mola">
   </div>
+  <div class="loader-text">Txuna Mola</div>
+  <div class="loader-sub">A CARREGAR...</div>
 </div>
 
-<div id="auth" class="screen">
-  <div class="logo">
-    <div class="mark"><img id="logoAuth" src="" alt="Tuxana Mola"></div>
-    <h1>Tuxana <span>Mola</span></h1>
-    <p>Empréstimo rápido e seguro • Moçambique</p>
-  </div>
-
-  <div id="formReg" class="panel">
-    <div class="field">
-      <label>Nome do bilhete de identidade </label>
-      <div class="input-box">
-        <span class="fi"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/></svg></span>
-        <input id="f_nome" type="text" placeholder="Inserir o nome" autocomplete="name">
-      </div>
+<!-- ============== REGISTO ============== -->
+<section id="screen-register" class="hidden">
+  <div class="wrap" style="max-width:620px;padding-top:26px">
+    <div style="text-align:center;margin-bottom:24px">
+      <img class="reg-logo" id="regLogo" alt="Txuna Mola">
+      <div class="title-lg" style="letter-spacing:2px">TXUNA MOLA</div>
+      <div class="sub" style="margin-bottom:0">Crie a sua conta para solicitar empréstimos</div>
     </div>
 
-    <div class="field">
-      <label>Número do bilhete de identidade </label>
-      <div class="input-box">
-        <span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c0-1.5 1.3-2.5 3-2.5s3 1 3 2.5"/><path d="M15 10h4M15 13h4"/></svg></span>
-        <input id="f_bi" type="text" placeholder="Inserir número de documento" autocomplete="off">
-      </div>
-    </div>
-
-    <div class="field" id="telField">
-      <label>Número do telemóvel </label>
-      <div class="input-box">
-        <span class="fi"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7 12.8 12.8 0 0 0 .7 2.8 2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4 12.8 12.8 0 0 0 2.8.7 2 2 0 0 1 1.7 2z"/></svg></span>
-        <input id="f_tel" type="tel" inputmode="numeric" placeholder="84 000 0000 ou 85 000 0000" autocomplete="tel">
-      </div>
-      <div class="hint hidden" id="telHint">Apenas números que começam por <b>84</b> ou <b>85</b> são aceites. O usuário será aprovado se o número corresponder ao registado no documento de identificação.</div>
-    </div>
-
-    <div class="field">
-      <label>Província </label>
-      <div class="input-box">
-        <span class="fi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 4 5.7 4 9s-1.5 6-4 9M12 3c-2.5 3-4 5.7-4 9s1.5 6 4 9"/></svg></span>
-        <select id="f_prov" onchange="carregarDistritos()"><option value="">— Selecionar província —</option></select>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>Distrito </label>
-      <div class="input-box">
-        <span class="fi"><svg viewBox="0 0 24 24"><path d="M20 10c0 7-8 12-8 12s-8-5-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
-        <select id="f_dist" disabled><option value="">— Selecionar distrito —</option></select>
-      </div>
-    </div>
-
-    <div class="row2">
+    <form id="formRegisto" class="panel-card" novalidate>
       <div class="field">
-        <label>Género </label>
-        <div class="input-box">
-          <span class="fi"><svg viewBox="0 0 24 24"><circle cx="10" cy="13" r="5"/><path d="M14 9l7-7M15 2h6v6"/></svg></span>
-          <select id="f_gen"><option value="">— Selecionar —</option><option>Masculino</option><option>Feminino</option></select>
+        <label>Nome do Bilhete de Identidade <span class="req">*</span></label>
+        <input id="nomeBi" type="text" placeholder="Inserir o seu nome" autocomplete="off" spellcheck="false">
+        <div class="hint" id="hintNome">
+          Colocar seu nome, exactamente como aparece no seu
+          Bilhete de Identidade.
         </div>
       </div>
+
       <div class="field">
-        <label>Ocupação </label>
-        <div class="input-box">
-          <span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg></span>
-          <select id="f_ocu"><option value="">— Selecionar —</option><option>Desempregado</option><option>Comerciante</option><option>Trabalhador</option></select>
+        <label>Número do Bilhete de Identidade <span class="req">*</span></label>
+        <input id="numBi" type="text" placeholder="000000000000A" maxlength="13" autocomplete="off" spellcheck="false" style="text-transform:uppercase">
+        <div class="hint" id="hintNum">
+          O número deve conter <b>12 números</b> e <b>1 letra maiúscula</b>, totalizando
+          <b>13 caracteres</b>. Exemplo: 030100123456A
         </div>
       </div>
-    </div>
 
-    <div class="field">
-      <label>Quanto recebe (MT) </label>
-      <div class="input-box">
-        <span class="fi"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="17" cy="14" r="1.6" fill="currentColor" stroke="none"/></svg></span>
-        <input id="f_rend" type="number" min="0" step="50" placeholder="inserir o valor">
+      <div class="field">
+        <label>Número de Telefone <span class="req">*</span></label>
+        <input id="telefone" type="tel" placeholder="84xxxxxxx ou 85xxxxxxx" maxlength="9" inputmode="numeric" autocomplete="off">
+        <div class="hint" id="hintTel">
+          O número do cliente deve estar <b>registado em seu nome</b>, igual ao Bilhete de Identidade,
+          para aprovação do empréstimo. O número deve começar por <b>84</b> ou <b>85</b> e ter
+          <b>9 dígitos</b>.
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>Província <span class="req"></span></label>
+          <select id="provincia"><option value="">Selecione a província</option></select>
+          <div class="hint" id="hintProv">Selecione a província onde reside, conforme o Bilhete de Identidade.</div>
+        </div>
+        <div class="field">
+          <label>Distrito <span class="req"></span></label>
+          <select id="distrito" disabled><option value="">Selecione primeiro a província</option></select>
+          <div class="hint" id="hintDist">Selecione o distrito correspondente à província escolhida.</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Género <span class="req"></span></label>
+        <div class="radio-group">
+          <label><input type="radio" name="genero" value="Masculino"><span>Masculino</span></label>
+          <label><input type="radio" name="genero" value="Feminino"><span>Feminino</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Data de Nascimento <span class="req"></span></label>
+        <input id="dataNasc" type="date">
+        <div class="hint" id="hintData">Somente maiores de <b>18 anos</b> podem registar-se na Txuna Mola.</div>
+      </div>
+
+      <div class="field">
+        <label class="check">
+          <input type="checkbox" id="termos">
+          <span>Aceito os <a id="linkTermos">Termos e Condições</a> da Txuna Mola, declarando que os dados fornecidos são verdadeiros.</span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn" id="btnRegistar" disabled>CRIAR CONTA</button>
+    </form>
+
+    <div class="footer-note">TXUNA MOLA © 2026 — Todos os direitos reservados</div>
+  </div>
+</section>
+
+<!-- ============== PAINEL ============== -->
+<section id="screen-panel" class="hidden">
+  <header class="topbar">
+    <button class="menu-btn" id="menuBtn" aria-label="Menu">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <div class="brand">
+      <img class="brand-logo" id="topLogo" alt="Txuna Mola">
+      <div>TXUNA MOLA<small>CRÉDITO RÁPIDO</small></div>
+    </div>
+  </header>
+
+  <aside class="drawer" id="drawer">
+    <div class="user-mini">
+      <div class="avatar"><img id="drawerAvatar" alt="Avatar"></div>
+      <div style="min-width:0">
+        <b id="drawerNome">—</b>
+        <span id="drawerBi">—</span>
       </div>
     </div>
-
-    <button class="btn" onclick="registar()">CRIAR CONTA</button>
-    <div class="note">Ao registar-se, os seus dados são usados para avaliação de crédito.</div>
-  </div>
-</div>
-
-<div id="app" class="hidden">
-  <div class="topbar">
-    <div class="mini"><img id="logoTop" src="" alt="Tuxana Mola"></div>
-    <div class="tt"><h2>TUXANA MOLA</h2></div>
-    <div class="menubtn" id="menubtn" onclick="toggleMenu(event)"><i></i><i></i><i></i></div>
-  </div>
-
-  <div class="dropdown" id="dropdown">
-    <button data-v="painel" onclick="irPara('painel')">
-      <span class="ic"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></span>
-      Painel principal
-    </button>
-    <button data-v="historico" onclick="irPara('historico')">
-      <span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v16l-3-2-2 2-3-2-3 2-2-2-3 2z"/><path d="M8 9h8M8 13h6"/></svg></span>
-      Histórico de operações
-    </button>
-    <button data-v="cartao" onclick="irPara('cartao')">
-      <span class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h3"/></svg></span>
-      Cartão virtual de dívida
-    </button>
-  </div>
+    <h4>Menu</h4>
+    <nav>
+      <a data-view="painel" class="active">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V21h14V9.5"/></svg>
+        Painel
+      </a>
+      <a data-view="historico">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        Histórico
+      </a>
+      <a data-view="cartao">
+        <svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/></svg>
+        Cartão Virtual
+      </a>
+      <a data-view="emprestimo">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5c-.5-1-1.5-1.6-2.7-1.6-1.6 0-2.7.8-2.7 2s1 1.7 2.7 2c1.9.4 2.9 1 2.9 2.3 0 1.2-1.2 2.1-2.9 2.1-1.4 0-2.5-.6-3-1.6"/><path d="M12 6v12"/></svg>
+        Empréstimo
+      </a>
+    </nav>
+  </aside>
+  <div class="overlay" id="overlay"></div>
 
   <div class="wrap">
-    <div id="view-painel" class="view"></div>
-    <div id="view-historico" class="view hidden"></div>
-    <div id="view-cartao" class="view hidden"></div>
+    <div id="view-painel" class="view">
+      <div class="banner" id="bannerEl">
+        <div class="b-content">
+          <img class="banner-logo" id="bannerLogo" alt="Txuna Mola">
+          <h1>TXUNA <span>MOLA</span></h1>
+          <p>Txuna mola uma solução digital em sua mão.<br>Dinheiro na sua mão em pouco minutos.</p>
+          <div class="tag">Txuna Mola</div>
+        </div>
+      </div>
+      <div id="statusCard"></div>
+      <div class="panel-card">
+        <div class="view-title"><h2>Resumo da Conta</h2><div class="line"></div></div>
+        <div class="vcard-grid" style="grid-template-columns:1fr 1fr">
+          <div class="it"><small>Nome</small><b id="rNome">—</b></div>
+          <div class="it"><small>Número de BI</small><b id="rBi">—</b></div>
+          <div class="it"><small>Telefone</small><b id="rTel">—</b></div>
+          <div class="it"><small>Província</small><b id="rProv">—</b></div>
+          <div class="it"><small>Distrito</small><b id="rDist">—</b></div>
+          <div class="it"><small>Género</small><b id="rGen">—</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-historico" class="view hidden">
+      <div class="view-title">
+        <svg class="ico" viewBox="0 0 24 24" style="color:var(--brand)"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        <h2>Histórico</h2><div class="line"></div>
+      </div>
+      <div class="panel-card" id="histList"></div>
+    </div>
+
+    <div id="view-cartao" class="view hidden">
+      <div class="view-title">
+        <svg class="ico" viewBox="0 0 24 24" style="color:var(--brand)"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/></svg>
+        <h2>Cartão Virtual</h2><div class="line"></div>
+      </div>
+
+      <div class="vcard" id="vcardEl">
+        <div class="shine"></div>
+        <div class="vcard-top">
+          <div class="vcard-brand">
+            <div class="mark"><img id="vcardMark" alt="TM"></div>
+            <div>TXUNA MOLA<small>VIRTUAL CARD</small></div>
+          </div>
+          <div class="chip" aria-hidden="true">
+            <svg viewBox="0 0 62 48" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="chipG" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#fdf2c0"/>
+                  <stop offset="20%" stop-color="#e6c869"/>
+                  <stop offset="50%" stop-color="#b3901f"/>
+                  <stop offset="75%" stop-color="#e0bc4e"/>
+                  <stop offset="100%" stop-color="#8a6c14"/>
+                </linearGradient>
+                <linearGradient id="chipS" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity=".55"/>
+                  <stop offset="55%" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+                <linearGradient id="chipLine" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#6b5310"/>
+                  <stop offset="100%" stop-color="#9a7a1c"/>
+                </linearGradient>
+              </defs>
+              <rect x="0.5" y="0.5" width="61" height="47" rx="7" fill="url(#chipG)" stroke="#7c5f12" stroke-width="0.8"/>
+              <rect x="2.2" y="2.2" width="57.6" height="43.6" rx="5.4" fill="none" stroke="#8a6c14" stroke-width="0.5" opacity=".7"/>
+              <g stroke="url(#chipLine)" stroke-width="1" fill="none" stroke-linecap="round">
+                <path d="M2.5 12 H14"/><path d="M2.5 20 H14"/><path d="M2.5 28 H14"/><path d="M2.5 36 H14"/>
+                <path d="M48 12 H59.5"/><path d="M48 20 H59.5"/><path d="M48 28 H59.5"/><path d="M48 36 H59.5"/>
+                <rect x="16" y="6" width="30" height="9" rx="1.4"/>
+                <rect x="16" y="33" width="30" height="9" rx="1.4"/>
+                <rect x="22" y="18" width="18" height="12" rx="1.4"/>
+                <path d="M18 10.5 H44"/><path d="M18 37.5 H44"/>
+                <path d="M24 22 H38"/><path d="M24 26 H38"/>
+              </g>
+              <rect x="0.5" y="0.5" width="61" height="47" rx="7" fill="url(#chipS)" pointer-events="none"/>
+            </svg>
+          </div>
+        </div>
+        <div class="vcard-num" id="vcNum">0000 0000 0000 0000</div>
+        <div class="vcard-grid">
+          <div class="it"><small>Titular</small><b id="vcNome">—</b></div>
+          <div class="it"><small>Nº Documento</small><b id="vcBi">—</b></div>
+          <div class="it"><small>Data do Empréstimo</small><b id="vcData">—</b></div>
+          <div class="it"><small>Valor do Empréstimo</small><b id="vcValor">—</b></div>
+          <div class="it"><small>Dia de Pagamento</small><b id="vcPag">—</b></div>
+          <div class="it"><small>Estado</small><b id="vcEstado">—</b></div>
+        </div>
+      </div>
+
+      <div class="panel-card"><div id="payArea"></div></div>
+    </div>
+
+    <div id="view-emprestimo" class="view hidden">
+      <div class="view-title">
+        <svg class="ico" viewBox="0 0 24 24" style="color:var(--brand)"><circle cx="12" cy="12" r="9"/><path d="M14.5 9.5c-.5-1-1.5-1.6-2.7-1.6-1.6 0-2.7.8-2.7 2s1 1.7 2.7 2c1.9.4 2.9 1 2.9 2.3 0 1.2-1.2 2.1-2.9 2.1-1.4 0-2.5-.6-3-1.6"/><path d="M12 6v12"/></svg>
+        <h2>Empréstimos</h2><div class="line"></div>
+      </div>
+      <div id="avisoEmprestimo"></div>
+      <p class="sub" style="margin-top:-6px">Os níveis são desbloqueados progressivamente. Complete o nível anterior para abrir o próximo.</p>
+      <div id="niveisList"></div>
+    </div>
+
+    <div class="footer-note">TXUNA MOLA © 2026 — Todos os direitos reservados</div>
+  </div>
+</section>
+
+<!-- ============== BOTÃO FLUTUANTE ============== -->
+<button class="fab" id="fabBtn" aria-label="Assistência virtual">
+  <svg class="ico" viewBox="0 0 24 24" id="fabIcon">
+    <path d="M21 12a8.5 8.5 0 0 1-8.5 8.5H5l-2 2V12a8.5 8.5 0 0 1 8.5-8.5h1A8.5 8.5 0 0 1 21 12z"/>
+    <path d="M8 11h.01M12 11h.01M16 11h.01" stroke-linecap="round"/>
+  </svg>
+  <span class="fab-badge">1</span>
+</button>
+
+<!-- ============== PAINEL ASSISTÊNCIA ============== -->
+<div class="support-panel" id="supportPanel">
+  <div class="sp-head">
+    <div class="av"><img id="supportLogo" alt="Txuna Mola"></div>
+    <div>
+      <b>Assistência Virtual</b>
+      <small>Online agora</small>
+    </div>
+    <button class="sp-close" id="spClose" aria-label="Fechar">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <div class="sp-body">
+    <div class="sp-sec">Respostas Rápidas</div>
+
+    <div class="faq" data-faq>
+      <div class="faq-q">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 4.2 1.8c-.7.6-1.7 1.1-1.7 2.2"/><path d="M12 17h.01"/></svg>
+        Como solicitar um empréstimo?
+        <span class="arrow"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+      </div>
+      <div class="faq-a"><div>Abra o menu lateral, entre em <b>Empréstimo</b>, escolha o nível disponível e clique em <b>Solicitar Empréstimo</b>. Será pedido um código OTP válido e depois o pedido segue para o WhatsApp. <b>Nota:</b> só pode ter um empréstimo activo de cada vez — liquide o actual antes de pedir um novo.</div></div>
+    </div>
+
+    <div class="faq" data-faq>
+      <div class="faq-q">
+        <svg class="ico" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+        Como funciona o cartão virtual?
+        <span class="arrow"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+      </div>
+      <div class="faq-a"><div>O cartão virtual mostra o nome, número do BI, data do empréstimo, valor e dia de pagamento. Por baixo tem o botão <b>Fazer Pagamento</b> — no espaço vazio colar a mensagem do pagamento efetuado <b></b>.</div></div>
+    </div>
+
+    <div class="faq" data-faq>
+      <div class="faq-q">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 8v8M8 12h8"/><circle cx="12" cy="12" r="9"/></svg>
+        Qual é a multa por atraso?
+        <span class="arrow"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+      </div>
+      <div class="faq-a"><div>A multa diária varia conforme o nível (entre 1 MT e 700 MT por dia). Após 20 dias de atraso a conta é bloqueada e o acesso a novos empréstimos é suspenso.</div></div>
+    </div>
+
+    <div class="faq" data-faq>
+      <div class="faq-q">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Como desbloquear o próximo nível?
+        <span class="arrow"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+      </div>
+      <div class="faq-a"><div>Cada nível exige um número de empréstimos concluídos no nível anterior (14 a 28 vezes, dependendo do nível). Ao concluir o pagamento, o próximo nível abre automaticamente.</div></div>
+    </div>
+
+    <div class="faq" data-faq>
+      <div class="faq-q">
+        <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>
+        Porque preciso de OTP?
+        <span class="arrow"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
+      </div>
+      <div class="faq-a"><div>O OTP confirma que é realmente você a solicitar o empréstimo ou o pagamento. O código é renovado automaticamente a cada 5 minutos. Pedi ao atendente humano pelos canais oficiais da Txuna Mola.</div></div>
+    </div>
+
+    <div class="sp-sec" style="margin-top:16px">Falar com Atendimento Humano</div>
+    <div class="sp-actions">
+      <a class="sp-btn wa" id="spWhats" href="#" target="_blank" rel="noopener">
+        <div class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.1-4.3A8.5 8.5 0 1 1 20.5 12z"/><path d="M8.8 8.7c0 4 3 6.9 6.7 6.9.6 0 1.1-.5 1.1-1.1v-.7l-2-.9-1 1a5 5 0 0 1-2.9-2.9l1-1-.9-2h-.7c-.6 0-1.1.5-1.1 1.1z"/></svg></div>
+        <div>WhatsApp<small>Resposta em minutos</small></div>
+        <span class="go"><svg class="ico" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      </a>
+
+      <a class="sp-btn call" id="spCall" href="#">
+        <div class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M21 16.9v2.5a1.5 1.5 0 0 1-1.6 1.5c-8.5-.6-15.3-7.4-15.9-15.9A1.5 1.5 0 0 1 5 3.5h2.5c.7 0 1.3.5 1.5 1.2l.9 3.3a1.5 1.5 0 0 1-.4 1.4L8.1 10.8a13 13 0 0 0 5.1 5.1l1.4-1.4a1.5 1.5 0 0 1 1.4-.4l3.3.9c.7.2 1.2.8 1.2 1.5z"/></svg></div>
+        <div>Chamada Normal<small>Ligar para apoio</small></div>
+        <span class="go"><svg class="ico" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      </a>
+
+      <a class="sp-btn sms" id="spSms" href="#">
+        <div class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/><path d="M8 11h.01M12 11h.01M16 11h.01" stroke-linecap="round"/></svg></div>
+        <div>SMS<small>Enviar mensagem</small></div>
+        <span class="go"><svg class="ico" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>
+      </a>
+    </div>
   </div>
 </div>
 
-<div class="fab" id="fab" onclick="toggleChat()" title="Assistência Virtual">
-  <svg class="i-chat" viewBox="0 0 24 24"><path d="M21 12c0 4.4-4 8-9 8-1.2 0-2.4-.2-3.4-.6L3 21l1.5-4.5C3.6 15.2 3 13.6 3 12c0-4.4 4-8 9-8s9 3.6 9 8z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></svg>
-  <svg class="i-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
-</div>
+<!-- ============== MODAL OTP ============== -->
+<div class="modal" id="otpModal">
+  <div class="modal-box">
+    <h3>
+      <svg class="ico" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+      Verificação OTP
+    </h3>
+    <p id="otpTexto">Introduza o código OTP válido para continuar.</p>
 
-<div class="chat" id="chat">
-  <div class="chat-head">
-    <div class="avatar"><img id="logoChat" src="" alt="Tuxana Mola"></div>
-    <div class="info"><b>Assistência Tuxana Mola</b><small>Online agora</small></div>
+    <div class="otp-info" id="otpInfo">
+      <span class="otp-info-hour">Expira em: <b id="otpHora">--:--</b></span>
+      <span class="otp-info-code" id="otpInfoCodeWrap">Código: <b id="otpCodigo">------</b></span>
+    </div>
+
+    <input id="otpInput" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="off">
+    <div class="otp-erro" id="otpErro"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" id="otpCancel">Cancelar</button>
+      <button class="btn" id="otpConfirm">Confirmar</button>
+    </div>
   </div>
-  <div class="chat-body" id="chatBody"></div>
 </div>
 
-<div id="toast"></div>
+<!-- ============== MODAL TERMOS ============== -->
+<div class="modal" id="termosModal">
+  <div class="modal-box">
+    <h3>
+      <svg class="ico" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h6M9 16h6"/></svg>
+      Termos e Condições
+    </h3>
+    <p style="max-height:44vh;overflow:auto">
+      1. O cliente compromete-se a fornecer dados verdadeiros e correspondentes ao seu Bilhete de Identidade.<br><br>
+      2. O número de telefone indicado deve estar registado em nome do titular do Bilhete de Identidade.<br><br>
+      3. O não pagamento dentro do prazo implica multa diária conforme o nível contratado.<br><br>
+      4. Após 20 dias de atraso, a conta é bloqueada e o acesso a novos empréstimos é suspenso.<br><br>
+      5. Os níveis são desbloqueados progressivamente, mediante o cumprimento do nível anterior.<br><br>
+      6. Só é permitido <b>um empréstimo activo por cliente</b>. É obrigatório liquidar o empréstimo em curso antes de solicitar um novo.<br><br>
+      7. O registo é permanente e não pode ser cancelado pelo utilizador.
+    </p>
+    <div class="modal-actions">
+      <button class="btn" id="termosFechar">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-/* =========================================================
-   ⚙️ CONFIGURAÇÕES
-   ========================================================= */
-const LOGO_URL = "https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/3dd7ccb8-2bd4-4d6e-9f30-4932f934277c.png";
+/* ============================================================
+   CONFIGURAÇÕES
+   ============================================================ */
+const LOGO_URL   = "https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/cc488309-70ac-40c7-a779-30cb10131480.jpg";
+const BANNER_URL = "https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/b0ea7cf2-c731-4a28-931b-a8d6cd4fd7dd.png";
+
 const WHATSAPP_NUMBER = "258845193471";
-const PAY_ID_PREFIX = "DIE";
-const TX_PREFIX = "DIF";
-const TYPING_DELAY = 1200;
-const DIAS_BLOQUEIO = 10;
+const SUPPORT_PHONE   = "+258845193471";
+const SUPPORT_SMS     = "+258845193471";
 
-const NIVEIS = {
-  1: { valor:30,      pago:35,      juro:5,      dias:7,   multa:2,   requisito:14 },
-  2: { valor:54,      pago:70,      juro:16,     dias:7,   multa:5,   requisito:30 },
-  3: { valor:130,     pago:150,     juro:20,     dias:12,  multa:15,  requisito:30 },
-  4: { valor:210,     pago:240,     juro:30,     dias:12,  multa:23,  requisito:30 },
-  5: { valor:350,     pago:420,     juro:70,     dias:25,  multa:18,  requisito:30 },
-  6: { valor:650,     pago:800,     juro:150,    dias:25,  multa:25,  requisito:30 },
-  7: { valor:1200,    pago:1500,    juro:300,    dias:25,  multa:30,  requisito:30 },
-  8: { valor:150000,  pago:200000,  juro:50000,  dias:190, multa:235, requisito:40 },
-  9: { valor:500000,  pago:600000,  juro:100000, dias:260, multa:250, requisito:40 }
-};
-const NIVEL_MAX = 9;
+const LOADING_MS = 3000;
 
-const AGENTS = [
-  { nome:"Ancha",   cargo:"Atendimento Geral",  whatsapp:"258880393661", tel:"+258880393661", sms:"+258880393661" },
-  { nome:"Eugénio", cargo:"Suporte Financeiro", whatsapp:"258845193471", tel:"+258845193471", sms:"+258845193471" }
-];
+/* ============================================================
+   OTP ROTATIVO — 5 MINUTOS
+   ============================================================ */
+const OTP_INTERVAL_MS = 5 * 60 * 1000;
 
-const OTP_CODES = [
-  { hora:"00:00", codigo:"482913" },
-  { hora:"01:00", codigo:"759204" },
-  { hora:"02:00", codigo:"103847" },
-  { hora:"03:00", codigo:"625470" },
-  { hora:"04:00", codigo:"918326" },
-  { hora:"05:00", codigo:"374051" },
-  { hora:"06:00", codigo:"840165" },
-  { hora:"07:00", codigo:"297638" },
-  { hora:"08:00", codigo:"513284" },
-  { hora:"09:00", codigo:"679032" },
-  { hora:"10:00", codigo:"425816" },
-  { hora:"11:00", codigo:"961740" },
-  { hora:"12:00", codigo:"308592" },
-  { hora:"13:00", codigo:"746128" },
-  { hora:"14:00", codigo:"185473" },
-  { hora:"15:00", codigo:"632905" },
-  { hora:"16:00", codigo:"870341" },
-  { hora:"17:00", codigo:"254769" },
-  { hora:"18:00", codigo:"519083" },
-  { hora:"19:00", codigo:"398216" },
-  { hora:"20:00", codigo:"067425" },
-  { hora:"21:00", codigo:"724890" },
-  { hora:"22:00", codigo:"951367" },
-  { hora:"23:00", codigo:"283604" }
-];
-
-function otpComHora(){
-  const h = new Date().getHours() % OTP_CODES.length;
-  return OTP_CODES[h];
+function slotAtual(){ return Math.floor(Date.now() / OTP_INTERVAL_MS); }
+function otpDoSlot(slot){
+  let h = slot | 0;
+  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
+  h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
+  h = (h ^ (h >>> 16)) >>> 0;
+  return String(h % 1000000).padStart(6, "0");
 }
-function otpAtual(){ return otpComHora().codigo; }
+function otpAtual(){ return otpDoSlot(slotAtual()); }
+function msAteExpirar(){
+  const agora = Date.now();
+  const proximo = (slotAtual() + 1) * OTP_INTERVAL_MS;
+  return Math.max(0, proximo - agora);
+}
+function formatarContagem(ms){
+  const total = Math.ceil(ms / 1000);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
 
-const QUICK = [
-  { q:"Como pedir um empréstimo?",
-    a:"Vá ao Painel principal e clique em SOLICITAR EMPRÉSTIMO.\n\nSerá pedido um código OTP de 6 dígitos. Após verificação, o WhatsApp abrirá com todas as informações do seu pedido." },
-  { q:"Como pagar a minha dívida?",
-    a:"Abra o Cartão virtual ou o Painel e clique em PAGAR.\n\n1) Verifique o OTP\n2) Cole a mensagem da transação recebida\n3) Confirme no WhatsApp" },
-  { q:"Quais são os níveis e valores?",
-    a:"Nível 1 — 30 MT (paga 35 MT) • 7 dias • 2 MT/dia\nNível 2 — 54 MT (paga 70 MT) • 7 dias • 5 MT/dia\nNível 3 — 130 MT (paga 150 MT) • 12 dias • 15 MT/dia\nNível 4 — 210 MT (paga 240 MT) • 12 dias • 23 MT/dia\nNível 5 — 350 MT (paga 420 MT) • 25 dias • 18 MT/dia\nNível 6 — 650 MT (paga 800 MT) • 25 dias • 25 MT/dia\nNível 7 — 1 200 MT (paga 1 500 MT) • 25 dias • 30 MT/dia\nNível 8 — 150 000 MT (paga 200 000 MT) • 190 dias • 235 MT/dia\nNível 9 — 500 000 MT (paga 600 000 MT) • 260 dias • 250 MT/dia" },
-  { q:"Quanto tempo dura o empréstimo?",
-    a:"A duração varia por nível:\n• Níveis 1 e 2: 7 dias\n• Níveis 3 e 4: 12 dias\n• Níveis 5 a 7: 25 dias\n• Nível 8: 190 dias\n• Nível 9: 260 dias\n\nO vencimento é mostrado no seu cartão virtual." },
-  { q:"Multas e bloqueio de conta",
-    a:"Após o vencimento é cobrada uma multa diária que varia por nível:\n• Nível 1: 2 MT/dia\n• Nível 2: 5 MT/dia\n• Nível 3: 15 MT/dia\n• Nível 4: 23 MT/dia\n• Nível 5: 18 MT/dia\n• Nível 6: 25 MT/dia\n• Nível 7: 30 MT/dia\n• Nível 8: 235 MT/dia\n• Nível 9: 250 MT/dia\n\nAo atingir 10 dias de atraso, a conta é bloqueada." },
-  { q:"Como desbloquear a conta?",
-    a:"Quando a conta é bloqueada:\n1) Abra o Painel principal\n2) Clique em VERIFICAR E DESBLOQUEAR\n3) Insira o código OTP de 6 dígitos\n4) Será direcionado ao WhatsApp com o pedido de desbloqueio" },
-  { q:"Como subir de nível?",
-    a:"Complete o número de empréstimos pagos exigido pelo seu nível atual:\n• Nível 1 → 2: 14 empréstimos\n• Nível 2 → 3: 30 empréstimos\n• Nível 3 → 4: 30 empréstimos\n• Nível 4 → 5: 30 empréstimos\n• Nível 5 → 6: 30 empréstimos\n• Nível 6 → 7: 30 empréstimos\n• Nível 7 → 8: 30 empréstimos\n• Nível 8 → 9: 40 empréstimos" },
-  { q:"Porque me pedem OTP?",
-    a:"O OTP confirma que é o titular da conta.\n\nO código muda a cada 1 hora, garantindo segurança nas suas operações." },
-  { q:"Não recebi o código OTP",
-    a:"Verifique se o número de telemóvel que inseriu corresponde ao número registado no seu documento de identificação.\n\nSe o problema continuar, fale com um atendente humano." }
-];
-
-const BANNERS = [
-  { img:"https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/b0ea7cf2-c731-4a28-931b-a8d6cd4fd7dd.png", link:"https://tuxanamola.co.mz/promo-1" },
-  { img:"https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/8e120c05-b047-441f-aa97-016ca80cd6e2.png", link:"https://tuxanamola.co.mz/promo-2" }
-];
-const BANNER_INTERVALO = 10000;
-
+/* Províncias / Distritos */
 const PROVINCIAS = {
-  "Cabo Delgado":["Ancuabe","Balama","Chiúre","Ibo","Macomia","Mecúfi","Meluco","Metuge","Mocímboa da Praia","Montepuez","Mueda","Muidumbe","Namuno","Nangade","Palma","Pemba (Cidade)","Quissanga"],
-  "Gaza":["Bilene","Chibuto","Chicualacuala","Chigubo","Chókwè","Guijá","Limpopo","Mabalane","Manjacaze","Massangena","Massingir","Xai-Xai (Cidade)"],
-  "Inhambane":["Funhalouro","Govuro","Homoíne","Inhambane (Cidade)","Inharrime","Inhassoro","Jangamo","Mabote","Massinga","Maxixe","Morrumbene","Panda","Vilankulo","Zavala"],
-  "Manica":["Báruè","Chimoio (Cidade)","Gondola","Guro","Machaze","Macossa","Manica","Mossurize","Sussundenga","Tambara","Vanduzi"],
-  "Maputo Cidade":["KaMavota","KaMaxaquene","KaMpfumu","KaMubukwana","KaNyaka","KaTembe","Nlhamankulu"],
-  "Maputo Província":["Boane","Magude","Manhiça","Marracuene","Matola (Cidade)","Matutuíne","Moamba","Namaacha"],
-  "Nampula":["Angoche","Eráti","Ilha de Moçambique","Lalaua","Larde","Liúpo","Malema","Meconta","Mecubúri","Memba","Mogincual","Mogovolas","Moma","Monapo","Mossuril","Muecate","Murrupula","Nacala-a-Velha","Nacala Porto","Nacarôa","Nampula (Cidade)","Ribaué"],
-  "Niassa":["Cuamba","Lago","Lichinga (Cidade)","Majune","Mandimba","Marrupa","Maúa","Mavago","Mecanhelas","Mecula","Metarica","Muembe","N'gauma","Nipepe","Sanga"],
-  "Sofala":["Beira (Cidade)","Búzi","Caia","Chemba","Cheringoma","Chibabava","Dondo","Gorongosa","Machanga","Maringué","Marromeu","Muanza","Nhamatanda"],
-  "Tete":["Angónia","Cahora-Bassa","Changara","Chifunde","Chiuta","Doa","Macanga","Magoe","Marávia","Moatize","Mutarara","Tete (Cidade)","Tsangano","Zumbo"],
-  "Zambézia":["Alto Molócuè","Chinde","Derre","Gilé","Gurué","Ile","Inhassunge","Luabo","Maganja da Costa","Milange","Mocuba","Mopeia","Morrumbala","Namacurra","Namarroi","Nicoadala","Pebane","Quelimane (Cidade)"]
+  "Maputo Cidade": ["KaMpfumu","Nlhamankulu","KaMaxaquene","KaMavota","KaMubukwana","KaTembe","KaNyaka"],
+  "Maputo Província": ["Boane","Magude","Manhiça","Marracuene","Matutuíne","Moamba","Namaacha","Matola"],
+  "Gaza": ["Bilene","Chibuto","Chicualacuala","Chigubo","Chókwè","Guijá","Mabalane","Mandlakazi","Massangena","Massingir","Xai-Xai"],
+  "Inhambane": ["Funhalouro","Govuro","Homoíne","Inharrime","Inhassoro","Jangamo","Mabote","Massinga","Maxixe","Morrumbene","Panda","Vilanculos","Zavala","Inhambane"],
+  "Sofala": ["Beira","Búzi","Caia","Chemba","Cheringoma","Chibabava","Dondo","Gorongosa","Machanga","Maringué","Marromeu","Muanza","Nhamatanda"],
+  "Manica": ["Bárue","Chimoio","Gondola","Guro","Machaze","Macossa","Manica","Mossurize","Sussundenga","Tambara"],
+  "Tete": ["Angónia","Cahora-Bassa","Changara","Chifunde","Chiuta","Doa","Macanga","Mágoè","Marávia","Moatize","Mutarara","Tete","Tsangano","Zumbo"],
+  "Zambézia": ["Alto Molócuè","Chinde","Derre","Gilé","Gurué","Ile","Inhassunge","Luabo","Maganja da Costa","Milange","Mocuba","Mopeia","Morrumbala","Namacurra","Namarroi","Nicoadala","Pebane","Quelimane"],
+  "Nampula": ["Angoche","Eráti","Ilha de Moçambique","Lalaua","Malema","Meconta","Mecubúri","Memba","Mogincual","Mogovolas","Moma","Monapo","Mossuril","Muecate","Murrupula","Nacala-a-Velha","Nacala Porto","Nacarôa","Nampula","Ribaué"],
+  "Cabo Delgado": ["Ancuabe","Balama","Chiúre","Ibo","Macomia","Mecúfi","Meluco","Metuge","Mocímboa da Praia","Montepuez","Mueda","Muidumbe","Namuno","Nangade","Palma","Pemba","Quissanga"],
+  "Niassa": ["Cuamba","Lago","Lichinga","Majune","Mandimba","Marrupa","Maúa","Mavago","Mecanhelas","Mecula","Metarica","Muembe","N'gauma","Nipepe","Sanga"]
 };
 
-const LS = 'tuxana_mola_v1';
-let S = { user:null };
-let bloqueioAutoMostrado = false;
+/* Níveis */
+const NIVELES = [
+  {n:1,  valor:30,     pag:35,     juro:5,     dias:7,   multa:1,   req:14, dur:"7 dias"},
+  {n:2,  valor:54,     pag:70,     juro:16,    dias:7,   multa:2,   req:16, dur:"7 dias"},
+  {n:3,  valor:130,    pag:150,    juro:20,    dias:14,  multa:3,   req:16, dur:"14 dias"},
+  {n:4,  valor:200,    pag:225,    juro:25,    dias:18,  multa:4,   req:17, dur:"18 dias"},
+  {n:5,  valor:270,    pag:300,    juro:30,    dias:27,  multa:4,   req:20, dur:"27 dias"},
+  {n:6,  valor:400,    pag:500,    juro:100,   dias:31,  multa:15,  req:23, dur:"31 dias"},
+  {n:7,  valor:1000,   pag:1200,   juro:200,   dias:31,  multa:25,  req:23, dur:"31 dias"},
+  {n:8,  valor:2500,   pag:2800,   juro:300,   dias:31,  multa:30,  req:24, dur:"31 dias"},
+  {n:9,  valor:4000,   pag:4500,   juro:500,   dias:31,  multa:35,  req:24, dur:"31 dias"},
+  {n:10, valor:7000,   pag:8000,   juro:1000,  dias:31,  multa:35,  req:28, dur:"31 dias"},
+  {n:11, valor:14000,  pag:17000,  juro:3000,  dias:31,  multa:40,  req:28, dur:"31 dias"},
+  {n:12, valor:30000,  pag:34000,  juro:4000,  dias:65,  multa:405, req:28, dur:"65 dias"},
+  {n:13, valor:50000,  pag:56000,  juro:6000,  dias:65,  multa:350, req:28, dur:"65 dias"},
+  {n:14, valor:80000,  pag:87000,  juro:7000,  dias:365, multa:500, req:28, dur:"1 ano"},
+  {n:15, valor:100000, pag:150000, juro:50000, dias:365, multa:700, req:28, dur:"1 ano"}
+];
 
-function guardar(){
-  try { localStorage.setItem(LS, JSON.stringify(S)); } catch(e){}
+/* ============================================================
+   ESTADO
+   ============================================================ */
+const STORE_KEY = "txunamola_state_v1";
+let S = carregar();
+function carregar(){
+  try{ const r = localStorage.getItem(STORE_KEY); if(r) return JSON.parse(r); }catch(e){}
+  return { user:null, history:[], loan:null, completos:{} };
 }
-function carregarLS(){
-  try{
-    const d = JSON.parse(localStorage.getItem(LS));
-    if(d && d.user) S = d;
-  }catch(e){ S = { user:null }; }
-  if(S.user){
-    if(S.user.emprestimosNoNivel === undefined) S.user.emprestimosNoNivel = 0;
-    if(S.user.nivel > NIVEL_MAX) S.user.nivel = NIVEL_MAX;
-    if(S.user.nivel < 1) S.user.nivel = 1;
-  }
-}
+function guardar(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }catch(e){} }
 
-const $ = id => document.getElementById(id);
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
 
-function esc(s){
-  return String(s ?? '').replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
-}
-
-function toast(msg, ms=3000){
-  const t = $('toast');
+function toast(msg, erro){
+  const t = $("#toast");
   t.textContent = msg;
-  t.classList.add('on');
-  clearTimeout(t._t);
-  t._t = setTimeout(()=>t.classList.remove('on'), ms);
+  t.className = "toast show" + (erro ? " err" : "");
+  clearTimeout(t._tm);
+  t._tm = setTimeout(function(){ t.className = "toast"; }, 3400);
 }
-function loader(mostrar, texto){
-  const l = $('loader');
-  if(mostrar){ l.querySelector('p').textContent = texto || 'A processar…'; l.classList.remove('hidden'); }
-  else l.classList.add('hidden');
-}
-function fData(iso){
-  const d = new Date(iso), p = n => String(n).padStart(2,'0');
-  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
-}
-function fDia(iso){
-  const d = new Date(iso), p = n => String(n).padStart(2,'0');
-  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()}`;
-}
-function hoje0(){ const d = new Date(); d.setHours(0,0,0,0); return d; }
-function addDias(data, n){ const d = new Date(data); d.setDate(d.getDate()+n); return d; }
-function mt(v){ return Number(v).toLocaleString('pt-MZ') + ' MT'; }
-
-const ICONS = {
-  emprestimo:'<svg viewBox="0 0 24 24"><path d="M12 2v20"/><path d="M17 6.5c0-2-2.2-3.5-5-3.5s-5 1.5-5 3.5S9.2 10 12 10s5 1.5 5 3.5-2.2 3.5-5 3.5-5-1.5-5-3.5"/></svg>',
-  pagamento:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>',
-  conta:'<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3.5"/></svg>',
-  nivel:'<svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg>',
-  bloqueio:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg>',
-  desbloqueio:'<svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/><circle cx="12" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>',
-  vazio:'<svg viewBox="0 0 24 24"><path d="M4 4h16v16l-3-2-2 2-3-2-3 2-2-2-3 2z"/><path d="M8 9h8M8 13h6"/></svg>'
-};
-
-function abrirModal(titulo, corpoHTML, acoes){
-  $('modalTitle').textContent = titulo;
-  $('modalBody').innerHTML = corpoHTML;
-  const act = $('modalActions');
-  act.innerHTML = '';
-  acoes.forEach(a=>{
-    const b = document.createElement('button');
-    b.className = 'btn ' + (a.cls || '');
-    b.textContent = a.label;
-    b.onclick = a.onClick;
-    act.appendChild(b);
-  });
-  $('modal').classList.remove('hidden');
-}
-function fecharModal(){ $('modal').classList.add('hidden'); }
-$('modal').addEventListener('click', e=>{ if(e.target === $('modal')) fecharModal(); });
-
-/* =========================================================
-   🔄 PROCESSADOR DE LOADING GLOBAL
-   ========================================================= */
-(function instalarClickLoader(){
-  const el = document.getElementById('clickLoader');
-  const bar = el.querySelector('i');
-  let timerFim = null, timerReset = null;
-
-  function disparar(){
-    clearTimeout(timerFim);
-    clearTimeout(timerReset);
-    el.classList.remove('on');
-    bar.style.transition = 'none';
-    bar.style.width = '0';
-    void bar.offsetWidth;
-    bar.style.transition = 'width .35s cubic-bezier(.4,0,.2,1)';
-    el.classList.add('on');
-    requestAnimationFrame(()=>{ bar.style.width = '75%'; });
-
-    timerFim = setTimeout(()=>{
-      bar.style.width = '100%';
-      timerReset = setTimeout(()=>{
-        el.classList.remove('on');
-        setTimeout(()=>{
-          bar.style.transition = 'none';
-          bar.style.width = '0';
-        }, 250);
-      }, 250);
-    }, 600);
-  }
-
-  document.addEventListener('click', (e)=>{
-    const alvo = e.target.closest(
-      'button, a, .btn, .menubtn, .fab, .dropdown button, .chat-quick button'
-    );
-    if(alvo) disparar();
-  }, true);
-})();
-
-/* =========================================================
-   🔐 Modal de OTP
-   ========================================================= */
-function pedirOTP(titulo, onSucesso, subtituloExtra){
-  abrirModal(titulo, `
-    <p style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px;text-align:center">
-      ${subtituloExtra ? esc(subtituloExtra) + '<br>' : ''}Insira o código OTP de 6 dígitos enviado para o seu telemóvel.<br>
-      <b style="color:var(--primary)">Caso não tenha recebido fale com atendimento humano</b>
-    </p>
-    <div class="field" style="margin-bottom:6px">
-      <input id="otpInput" type="tel" inputmode="numeric" maxlength="6" placeholder="000000">
-    </div>
-    <div id="otpErro" style="color:var(--danger);font-size:12.5px;min-height:18px;text-align:center;font-weight:600"></div>
-  `, [
-    { label:'CANCELAR', cls:'ghost', onClick:fecharModal },
-    { label:'VERIFICAR CÓDIGO', cls:'', onClick:()=>{
-        const v = ($('otpInput').value || '').trim();
-        if(v.length !== 6){ $('otpErro').textContent = 'Insira os 6 dígitos do OTP.'; return; }
-        if(v === otpAtual()){ fecharModal(); onSucesso(); }
-        else { $('otpErro').textContent = 'Código OTP inválido ou expirado. Tente novamente.'; }
-    }}
-  ]);
-  setTimeout(()=>{ const i = $('otpInput'); if(i) i.focus(); }, 120);
-}
-
-function abrirWhatsApp(mensagem){
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
-  const w = window.open(url, '_blank');
-  if(!w || w.closed || typeof w.closed === 'undefined'){
-    location.href = url;
-  }
-}
-function gerarPayId(){
-  const rand = Math.floor(100000 + Math.random()*900000);
-  const ano = new Date().getFullYear().toString().slice(-2);
-  return `${PAY_ID_PREFIX}-${ano}${String(new Date().getMonth()+1).padStart(2,'0')}-${rand}`;
-}
-function gerarUnblockId(){
-  const rand = Math.floor(100000 + Math.random()*900000);
-  const ano = new Date().getFullYear().toString().slice(-2);
-  return `UNB-${ano}${String(new Date().getMonth()+1).padStart(2,'0')}-${rand}`;
-}
-
-/* ============ SPINNER ============ */
-(function criarSpinner(){
-  const sp = $('spin');
-  for(let i=0;i<12;i++){
-    const s = document.createElement('span');
-    s.style.setProperty('--rot', (i*30)+'deg');
-    s.style.animationDelay = (i*0.09)+'s';
-    sp.appendChild(s);
-  }
-})();
-
-(function aplicarLogo(){
-  $('logoAuth').src = LOGO_URL;
-  $('logoTop').src  = LOGO_URL;
-  $('logoChat').src = LOGO_URL;
-})();
-
-(function initProvincias(){
-  const sel = $('f_prov');
-  Object.keys(PROVINCIAS).forEach(p=>{
-    const o = document.createElement('option');
-    o.value = p; o.textContent = p;
-    sel.appendChild(o);
-  });
-})();
-
-function carregarDistritos(){
-  const prov = $('f_prov').value;
-  const dist = $('f_dist');
-  dist.innerHTML = '<option value="">— Selecionar distrito —</option>';
-  if(!prov){ dist.disabled = true; return; }
-  dist.disabled = false;
-  PROVINCIAS[prov].forEach(d=>{
-    const o = document.createElement('option');
-    o.value = d; o.textContent = d;
-    dist.appendChild(o);
-  });
-}
-
-$('telField').addEventListener('click', ()=>$('telHint').classList.remove('hidden'));
-$('f_tel').addEventListener('focus', ()=>$('telHint').classList.remove('hidden'));
-
-/* Máscara leve do telemóvel: 84 000 0000 */
-(function mascaraTelefone(){
-  const el = document.getElementById('f_tel');
-  if(!el) return;
-  el.addEventListener('input', ()=>{
-    let v = el.value.replace(/\D/g,'');
-    if(v.startsWith('258')) v = v.slice(3);
-    v = v.slice(0,9);
-    if(v.length > 5) v = v.slice(0,2) + ' ' + v.slice(2,5) + ' ' + v.slice(5);
-    else if(v.length > 2) v = v.slice(0,2) + ' ' + v.slice(2);
-    el.value = v;
-  });
-})();
-
-/* 🔒 VALIDAÇÃO: número tem de começar por 84 ou 85 */
-function numeroValido(tel){
-  const dig = String(tel||'').replace(/\D/g,'');
-  return dig.length === 9 && /^8[45]/.test(dig);
-}
-
-function registar(){
-  const nome = $('f_nome').value.trim();
-  const bi   = $('f_bi').value.trim().toUpperCase();
-  const tel  = $('f_tel').value.trim();
-  const prov = $('f_prov').value;
-  const dist = $('f_dist').value;
-  const gen  = $('f_gen').value;
-  const ocu  = $('f_ocu').value;
-  const rend = $('f_rend').value.trim();
-
-  if(!nome || nome.split(' ').length < 2) return toast('Insira o nome completo do bilhete de identidade.');
-  if(!bi || bi.length < 9)                return toast('Insira um número de bilhete de identidade válido.');
-  if(!tel || tel.replace(/\D/g,'').length < 9) return toast('Insira um número de telemóvel válido (9 dígitos).');
-  if(!numeroValido(tel))                  return toast('Número inválido. O telemóvel deve começar por 84 ou 85.');
-  if(!prov) return toast('Selecione a província.');
-  if(!dist) return toast('Selecione o distrito.');
-  if(!gen)  return toast('Selecione o género.');
-  if(!ocu)  return toast('Selecione a ocupação.');
-
-  const rendN = Number(rend);
-  if(!rend || !Number.isFinite(rendN) || rendN < 0) return toast('Insira um valor de rendimento válido.');
-
-  loader(true, 'A criar a sua conta…');
-  setTimeout(()=>{
-    S.user = {
-      nome, bi, tel, provincia:prov, distrito:dist, genero:gen,
-      ocupacao:ocu, rendimento:rendN,
-      nivel:1, emprestimos:0, emprestimosNoNivel:0, bloqueado:false,
-      divida:null, historico:[],
-      criadoEm:new Date().toISOString()
-    };
-    S.user.historico.unshift({ tipo:'Conta criada', valor:0, data:new Date().toISOString(), desc:'Registo concluído com sucesso' });
-    guardar();
-    loader(false);
-    abrirApp();
-    toast('Conta criada com sucesso! Bem-vindo à Tuxana Mola.', 4200);
-  }, 1800);
-}
-
-function abrirApp(){
-  $('auth').classList.add('hidden');
-  $('app').classList.remove('hidden');
-  aplicarEstadoDivida();
-  renderTudo();
-  irPara('painel');
-  verificarEstadoBloqueio();
-}
-
-function toggleMenu(e){
-  if(e) e.stopPropagation();
-  $('dropdown').classList.toggle('open');
-  $('menubtn').classList.toggle('open');
-}
-document.addEventListener('click', ()=>{
-  $('dropdown').classList.remove('open');
-  $('menubtn').classList.remove('open');
-});
-$('dropdown').addEventListener('click', e => e.stopPropagation());
-
-function irPara(v){
-  ['painel','historico','cartao'].forEach(x=>{
-    $('view-'+x).classList.toggle('hidden', x !== v);
-  });
-  document.querySelectorAll('#dropdown button[data-v]').forEach(b=>{
-    b.classList.toggle('on', b.dataset.v === v);
-  });
-  $('dropdown').classList.remove('open');
-  $('menubtn').classList.remove('open');
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-
-function estadoDivida(){
-  const u = S.user;
-  if(!u || !u.divida) return null;
-  const cfg = NIVEIS[u.divida.nivel] || NIVEIS[1];
-  const multaDia = cfg.multa;
-  const venc = new Date(u.divida.vencimento); venc.setHours(0,0,0,0);
-  const atraso = Math.max(0, Math.floor((hoje0() - venc) / 86400000));
-  const multa = atraso * multaDia;
-  return {
-    atraso,
-    multa,
-    multaDia,
-    total: u.divida.valorPagar + multa,
-    bloqueado: atraso >= DIAS_BLOQUEIO
-  };
-}
-function aplicarEstadoDivida(){
-  const e = estadoDivida();
-  if(e && e.bloqueado && !S.user.bloqueado){
-    S.user.bloqueado = true;
-    S.user.bloqueadoEm = new Date().toISOString();
-    S.user.historico.unshift({ tipo:'Conta bloqueada', valor:0, data:new Date().toISOString(), desc:'Bloqueado por ' + DIAS_BLOQUEIO + ' dias de atraso no pagamento' });
-    guardar();
-  }
-}
-
-function verificarEstadoBloqueio(){
-  if(!S.user || !S.user.bloqueado) return;
-  if(bloqueioAutoMostrado) return;
-  bloqueioAutoMostrado = true;
-
-  const e = estadoDivida();
-  const totalDevido = e ? e.total : 0;
-  const multa = e ? e.multa : 0;
-  const atraso = e ? e.atraso : 0;
-
-  abrirModal('Conta Bloqueada', `
-    <div style="text-align:center;margin-bottom:14px">
-      <div style="font-size:46px;line-height:1;margin-bottom:8px">🔒</div>
-      <div style="font-size:15px;font-weight:800;color:var(--primary)">A sua conta está BLOQUEADA</div>
-      <div style="font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.7">
-        Atingiu <b style="color:var(--primary)">${DIAS_BLOQUEIO} dias</b> de atraso.<br>
-        Para continuar a usar a plataforma, é necessário verificar o seu OTP e liquidar a dívida.
-      </div>
-    </div>
-    <div class="kv"><span>Dias de atraso</span><span style="color:var(--primary)">${atraso}</span></div>
-    <div class="kv"><span>Multa acumulada</span><span>${mt(multa)}</span></div>
-    <div class="kv"><span>Total em dívida</span><span style="color:var(--primary);font-weight:800">${mt(totalDevido)}</span></div>
-  `, [
-    { label:'VERIFICAR COM OTP', cls:'danger', onClick:()=>{
-        fecharModal();
-        pedirOTP('Verificação de Bloqueio',
-          () => mostrarDesbloqueioAposOTP(),
-          'Confirme a sua identidade para aceder às opções de desbloqueio.'
-        );
-    }},
-    { label:'MAIS TARDE', cls:'ghost', onClick:fecharModal }
-  ]);
-}
-
-function mostrarDesbloqueioAposOTP(){
-  const u = S.user;
-  const e = estadoDivida();
-  const totalDevido = e ? e.total : 0;
-  const multa = e ? e.multa : 0;
-  const atraso = e ? e.atraso : 0;
-  const unblockId = gerarUnblockId();
-
-  u.historico.unshift({
-    tipo:'Verificação de bloqueio', valor:0, data:new Date().toISOString(),
-    desc:`ID ${unblockId} • OTP verificado para desbloqueio`
-  });
+function fmt(v){ return new Intl.NumberFormat('pt-MZ').format(v) + " MT"; }
+function addHist(txt){
+  S.history.unshift({ t: new Date().toLocaleString('pt-MZ'), txt: txt });
+  if(S.history.length > 200) S.history.pop();
   guardar();
-  renderTudo();
-
-  abrirModal('Desbloqueio Verificado', `
-    <div style="text-align:center;margin-bottom:14px">
-      <div style="font-size:46px;line-height:1;margin-bottom:8px">🔓</div>
-      <div style="font-size:15px;font-weight:800;color:var(--green)">OTP verificado com sucesso</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:6px">ID de desbloqueio</div>
-      <div style="font-size:16px;font-weight:900;color:var(--primary);font-family:'Courier New',monospace;letter-spacing:1.5px;margin-top:2px">${esc(unblockId)}</div>
-    </div>
-    <div class="kv"><span>Dias de atraso</span><span style="color:var(--primary)">${atraso}</span></div>
-    <div class="kv"><span>Multa acumulada</span><span>${mt(multa)}</span></div>
-    <div class="kv"><span>Total em dívida</span><span style="color:var(--primary);font-weight:800">${mt(totalDevido)}</span></div>
-    <div class="note bad" style="margin-top:14px">
-      Escolha uma das opções abaixo. O pedido de desbloqueio será enviado por WhatsApp com todas as suas informações.
-    </div>
-  `, [
-    { label:'PAGAR AGORA COM OTP', cls:'alt', onClick:()=>{ fecharModal(); pagar(); }},
-    { label:'ENVIAR PEDIDO DE DESBLOQUEIO', cls:'', onClick:()=>{ fecharModal(); enviarPedidoDesbloqueio(unblockId); }},
-    { label:'FECHAR', cls:'ghost', onClick:fecharModal }
-  ]);
+}
+function abrirWhatsApp(texto){
+  const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(texto);
+  window.open(url, "_blank");
+}
+function esc(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
-function enviarPedidoDesbloqueio(unblockId){
-  const u = S.user;
-  const e = estadoDivida();
-  const totalDevido = e ? e.total : 0;
-  const multa = e ? e.multa : 0;
-  const atraso = e ? e.atraso : 0;
-  const cfg = (u.divida && NIVEIS[u.divida.nivel]) ? NIVEIS[u.divida.nivel] : NIVEIS[1];
-
-  const msg =
-`*TUXANA MOLA — PEDIDO DE DESBLOQUEIO*
-━━━━━━━━━━━━━━━━━━━━━
-
-*ID DE DESBLOQUEIO:* ${unblockId}
-
-*DADOS DO CLIENTE*
-• Nome (BI): ${u.nome}
-• Nº do BI: ${u.bi}
-• Telemóvel: ${u.tel}
-• Província: ${u.provincia}
-• Distrito: ${u.distrito}
-• Género: ${u.genero}
-• Ocupação: ${u.ocupacao}
-• Rendimento: ${mt(u.rendimento)}
-
-*DETALHES DO BLOQUEIO*
-• Nível: ${u.divida ? u.divida.nivel : '-'}
-• Valor recebido: ${u.divida ? mt(u.divida.valor) : '-'}
-• Juro: ${u.divida ? mt(u.divida.juro) : '-'}
-• Multa diária: ${mt(cfg.multa)}/dia
-• Dias de atraso: ${atraso}
-• Multa acumulada: ${mt(multa)}
-• *Total em dívida:* ${mt(totalDevido)}
-
-*Data do pedido:* ${fData(new Date().toISOString())}
-
-✅ OTP verificado com sucesso.
-Solicito o desbloqueio da minha conta para regularizar a situação.`;
-
-  toast('A abrir WhatsApp com o pedido de desbloqueio…', 3500);
-  setTimeout(()=>abrirWhatsApp(msg), 500);
+/* ============================================================
+   APLICAR IMAGENS
+   ============================================================ */
+function aplicarImagens(){
+  const imgFallback = function(){
+    this.onerror = null;
+    this.style.background = "linear-gradient(135deg,#2b8cff,#00c6ff)";
+  };
+  ["#loaderLogo","#regLogo","#topLogo","#bannerLogo","#vcardMark","#supportLogo","#drawerAvatar"]
+    .forEach(function(sel){
+      const el = $(sel);
+      if(el){ el.src = LOGO_URL; el.alt = "Txuna Mola"; el.onerror = imgFallback; }
+    });
+  const banner = $("#bannerEl");
+  if(banner){ banner.style.backgroundImage = "url('" + BANNER_URL + "')"; }
 }
 
-function desbloquearComOTP(){
-  const u = S.user;
-  if(!u || !u.bloqueado) return toast('A sua conta não está bloqueada.');
-  pedirOTP('Verificação de Bloqueio',
-    () => mostrarDesbloqueioAposOTP(),
-    'Confirme a sua identidade para aceder às opções de desbloqueio.'
-  );
+/* ============================================================
+   ARRANQUE
+   ============================================================ */
+window.addEventListener("load", function(){
+  aplicarImagens();
+
+  setTimeout(function(){
+    $("#loader").classList.add("hide");
+    if(S.user){
+      $("#screen-panel").classList.remove("hidden");
+      iniciarPainel();
+    }else{
+      $("#screen-register").classList.remove("hidden");
+      iniciarRegisto();
+    }
+    iniciarAssistencia();
+  }, 1500);
+});
+
+/* ============================================================
+   REGISTO
+   ============================================================ */
+function iniciarRegisto(){
+  const selProv = $("#provincia");
+  Object.keys(PROVINCIAS).forEach(function(p){
+    const o = document.createElement("option");
+    o.value = p; o.textContent = p; selProv.appendChild(o);
+  });
+
+  selProv.addEventListener("change", function(){
+    const selDist = $("#distrito");
+    selDist.innerHTML = "";
+    if(!this.value){
+      selDist.disabled = true;
+      selDist.innerHTML = '<option value="">Selecione primeiro a província</option>';
+      validar(); return;
+    }
+    selDist.disabled = false;
+    const first = document.createElement("option");
+    first.value = ""; first.textContent = "Selecione o distrito";
+    selDist.appendChild(first);
+    PROVINCIAS[this.value].forEach(function(d){
+      const o = document.createElement("option");
+      o.value = d; o.textContent = d; selDist.appendChild(o);
+    });
+    validar();
+  });
+
+  const dn = $("#dataNasc");
+  const limite = new Date(); limite.setFullYear(limite.getFullYear() - 18);
+  dn.max = limite.toISOString().split("T")[0];
+
+  const nome = $("#nomeBi");
+  nome.addEventListener("input", function(){
+    const pos = this.selectionStart;
+    this.value = this.value.toUpperCase();
+    this.setSelectionRange(pos, pos);
+    validar();
+  });
+  nome.addEventListener("focus", function(){ mostrarHint("hintNome", true); });
+  nome.addEventListener("blur",  function(){ mostrarHint("hintNome", !/^[A-ZÀ-ÝÑÇ\s'\-]{3,}$/.test(this.value.trim())); });
+
+  const nbi = $("#numBi");
+  nbi.addEventListener("input", function(){
+    this.value = this.value.toUpperCase().replace(/[^0-9A-Z]/g, "").slice(0,13);
+    validar();
+  });
+  nbi.addEventListener("focus", function(){ mostrarHint("hintNum", true); });
+  nbi.addEventListener("blur",  function(){ mostrarHint("hintNum", !/^[0-9]{12}[A-Z]$/.test(this.value.trim())); });
+
+  const tel = $("#telefone");
+  tel.addEventListener("input", function(){
+    this.value = this.value.replace(/[^0-9]/g, "").slice(0,9);
+    validar();
+  });
+  tel.addEventListener("focus", function(){ mostrarHint("hintTel", true); });
+  tel.addEventListener("blur",  function(){ mostrarHint("hintTel", !/^8[45][0-9]{7}$/.test(this.value.trim())); });
+
+  selProv.addEventListener("focus", function(){ mostrarHint("hintProv", true); });
+  $("#distrito").addEventListener("focus", function(){ mostrarHint("hintDist", true); });
+  dn.addEventListener("focus", function(){ mostrarHint("hintData", true); });
+
+  $$('input[name="genero"]').forEach(function(r){ r.addEventListener("change", validar); });
+  $("#termos").addEventListener("change", validar);
+  dn.addEventListener("change", validar);
+
+  $("#linkTermos").addEventListener("click", function(e){
+    e.preventDefault(); e.stopPropagation();
+    $("#termosModal").classList.add("open");
+  });
+  $("#termosFechar").addEventListener("click", function(){
+    $("#termosModal").classList.remove("open");
+  });
+
+  $("#formRegisto").addEventListener("submit", function(e){
+    e.preventDefault();
+    if(!formularioValido()){
+      toast("Preencha todos os campos  correctamente.", true);
+      return;
+    }
+
+    const dados = {
+      nome: nome.value.trim(),
+      bi: nbi.value.trim(),
+      telefone: tel.value.trim(),
+      provincia: selProv.value,
+      distrito: $("#distrito").value,
+      genero: ($$('input[name="genero"]').find(r => r.checked) || {}).value || "",
+      nascimento: dn.value,
+      criadoEm: new Date().toLocaleString('pt-MZ')
+    };
+
+    ChromeLoader.start();
+    LoadingOverlay.show(LOADING_MS);
+
+    setTimeout(function(){
+      S.user = dados;
+      S.history = [];
+      S.loan = null;
+      S.completos = {};
+      addHist("Conta criada com sucesso para " + dados.nome + " (BI " + dados.bi + ").");
+      addHist("Registo permanente efectuado. Sessão não pode ser encerrada.");
+      guardar();
+
+      $("#screen-register").classList.add("hidden");
+      $("#screen-panel").classList.remove("hidden");
+      window.scrollTo(0,0);
+      iniciarPainel();
+      ChromeLoader.done();
+      LoadingOverlay.hide();
+      toast("Conta criada com sucesso! Bem-vindo à Txuna Mola.");
+    }, LOADING_MS);
+  });
+
+  validar();
 }
 
-function solicitar(){
+function mostrarHint(id, mostrar){
+  const el = document.getElementById(id); if(!el) return;
+  el.classList.toggle("show", !!mostrar);
+}
+function formularioValido(){
+  const nome = $("#nomeBi").value.trim();
+  const bi   = $("#numBi").value.trim();
+  const tel  = $("#telefone").value.trim();
+  const prov = $("#provincia").value;
+  const dist = $("#distrito").value;
+  const gen  = $$('input[name="genero"]').some(r => r.checked);
+  const dn   = $("#dataNasc").value;
+  const termos = $("#termos").checked;
+
+  if(!/^[A-ZÀ-ÝÑÇ\s'\-]{3,}$/.test(nome)) return false;
+  if(!/^[0-9]{12}[A-Z]$/.test(bi)) return false;
+  if(!/^8[45][0-9]{7}$/.test(tel)) return false;
+  if(!prov || !dist) return false;
+  if(!gen) return false;
+  if(!dn || !maiorDe18(dn)) return false;
+  if(!termos) return false;
+  return true;
+}
+function maiorDe18(dataStr){
+  const nasc = new Date(dataStr + "T00:00:00");
+  const hj = new Date();
+  let idade = hj.getFullYear() - nasc.getFullYear();
+  const m = hj.getMonth() - nasc.getMonth();
+  if(m < 0 || (m === 0 && hj.getDate() < nasc.getDate())) idade--;
+  return idade >= 18;
+}
+function validar(){
+  const btn = $("#btnRegistar");
+  const ok = formularioValido();
+  btn.disabled = !ok;
+  btn.classList.toggle("ready", ok);
+
+  marcarErro("#nomeBi",  /^[A-ZÀ-ÝÑÇ\s'\-]{3,}$/.test($("#nomeBi").value.trim()));
+  marcarErro("#numBi",   /^[0-9]{12}[A-Z]$/.test($("#numBi").value.trim()));
+  marcarErro("#telefone",/^8[45][0-9]{7}$/.test($("#telefone").value.trim()));
+  const dn = $("#dataNasc").value;
+  if(dn) marcarErro("#dataNasc", maiorDe18(dn));
+  else { const el = $("#dataNasc"); if(el) el.classList.remove("err"); }
+}
+function marcarErro(sel, valido){
+  const el = $(sel); if(!el) return;
+  if(!el.value){ el.classList.remove("err"); return; }
+  el.classList.toggle("err", !valido);
+}
+
+/* ============================================================
+   PAINEL
+   ============================================================ */
+function iniciarPainel(){
   const u = S.user;
-  aplicarEstadoDivida();
-  if(u.bloqueado){
-    pedirOTP('Verificação de Bloqueio',
-      () => mostrarDesbloqueioAposOTP(),
-      'A sua conta está bloqueada. Verifique o OTP para ver as opções.'
-    );
+  $("#drawerNome").textContent = u.nome;
+  $("#drawerBi").textContent   = "BI: " + u.bi;
+
+  $("#rNome").textContent = u.nome;
+  $("#rBi").textContent   = u.bi;
+  $("#rTel").textContent  = u.telefone;
+  $("#rProv").textContent = u.provincia;
+  $("#rDist").textContent = u.distrito;
+  $("#rGen").textContent  = u.genero;
+
+  $("#menuBtn").onclick = function(){ abrirDrawer(true); };
+  $("#overlay").onclick = function(){ abrirDrawer(false); };
+  $$("#drawer nav a").forEach(function(a){
+    a.onclick = function(){
+      trocarVista(this.dataset.view);
+      abrirDrawer(false);
+    };
+  });
+
+  renderStatus();
+  renderNiveis();
+  renderCartao();
+  renderPagamento();
+  renderHistorico();
+}
+function abrirDrawer(v){
+  $("#drawer").classList.toggle("open", v);
+  $("#overlay").classList.toggle("open", v);
+}
+function trocarVista(v){
+  $$(".view").forEach(function(el){ el.classList.add("hidden"); });
+  const alvo = $("#view-" + v); if(alvo) alvo.classList.remove("hidden");
+  $$("#drawer nav a").forEach(function(a){
+    a.classList.toggle("active", a.dataset.view === v);
+  });
+  if(v === "historico") renderHistorico();
+  if(v === "cartao")    { renderCartao(); renderPagamento(); }
+  if(v === "emprestimo") renderNiveis();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function renderStatus(){
+  const box = $("#statusCard");
+  if(S.loan){
+    const l = S.loan;
+    box.innerHTML =
+      '<div class="status-card has">' +
+        '<div class="status-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+        '<div><b>Empréstimo Activo — Nível ' + l.nivel + '</b>' +
+        '<span>Valor: ' + fmt(l.valor) + ' • Pagamento: ' + fmt(l.pagamento) +
+        ' • Vencimento: ' + l.vencimento + '</span></div>' +
+      '</div>';
+  }else{
+    box.innerHTML =
+      '<div class="status-card">' +
+        '<div class="status-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 10h18"/></svg></div>' +
+        '<div><b>Sem empréstimo activo</b>' +
+        '<span>Não existe nenhum empréstimo em curso na sua conta. Vá ao menu <b>Empréstimo</b> para solicitar.</span></div>' +
+      '</div>';
+  }
+}
+
+function nivelDesbloqueado(n){
+  if(n === 1) return true;
+  const ant = NIVELES[n - 2];
+  return (S.completos[ant.n] || 0) >= ant.req;
+}
+
+function renderNiveis(){
+  const box = $("#niveisList");
+  const aviso = $("#avisoEmprestimo");
+  box.innerHTML = "";
+
+  /* Aviso de empréstimo activo no topo */
+  if(aviso){
+    if(S.loan){
+      const l = S.loan;
+      aviso.innerHTML =
+        '<div class="aviso-activo">' +
+          '<div class="ic">' +
+            '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>' +
+          '</div>' +
+          '<div>' +
+            '<b>Empréstimo em curso — não pode solicitar outro</b>' +
+            '<span>Você já tem um empréstimo activo do <b>Nível ' + l.nivel + '</b> no valor de <b>' + fmt(l.valor) + '</b>, com pagamento de <b>' + fmt(l.pagamento) + '</b> até <b>' + l.vencimento + '</b>. ' +
+            'Efectue o pagamento no menu <b>Cartão Virtual → Fazer Pagamento</b> para desbloquear novas solicitações.</span>' +
+          '</div>' +
+        '</div>';
+    }else{
+      aviso.innerHTML = "";
+    }
+  }
+
+  NIVELES.forEach(function(lv){
+    const aberto = nivelDesbloqueado(lv.n);
+    const temEmprestimoActivo = !!S.loan;
+    const feitos = S.completos[lv.n] || 0;
+    const div = document.createElement("div");
+    div.className = "nivel " + (aberto ? "aberto" : "bloq");
+
+    let btnHtml;
+    if(temEmprestimoActivo && aberto){
+      /* Empréstimo activo → botão bloqueado com aviso claro */
+      btnHtml =
+        '<button class="btn small" disabled>' +
+          '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>' +
+          'BLOQUEADO — JÁ TEM EMPRÉSTIMO ACTIVO' +
+        '</button>';
+    }else if(aberto){
+      btnHtml =
+        '<button class="btn small wa" data-nivel="' + lv.n + '">' +
+          '<svg class="ico" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.1-4.3A8.5 8.5 0 1 1 20.5 12z"/></svg>' +
+          'SOLICITAR EMPRÉSTIMO' +
+        '</button>';
+    }else{
+      const ant = NIVELES[lv.n - 2];
+      const falta = ant.req - (S.completos[ant.n] || 0);
+      btnHtml =
+        '<button class="btn small" disabled>' +
+          '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>' +
+          'BLOQUEADO — Faltam ' + falta + ' do Nível ' + ant.n +
+        '</button>';
+    }
+
+    div.innerHTML =
+      '<div class="nivel-head"><b>Nível ' + lv.n + '</b>' +
+        '<span class="badge ' + (aberto ? 'on' : 'off') + '">' + (aberto ? 'Desbloqueado' : 'Bloqueado') + '</span></div>' +
+      '<div class="nivel-vals">' +
+        '<div><small>Valor</small><b class="g">' + fmt(lv.valor) + '</b></div>' +
+        '<div><small>Pagamento</small><b>' + fmt(lv.pag) + '</b></div>' +
+        '<div><small>Juro</small><b>' + fmt(lv.juro) + '</b></div>' +
+        '<div><small>Duração</small><b>' + lv.dur + '</b></div>' +
+        '<div><small>Multa / dia</small><b>' + fmt(lv.multa) + '</b></div>' +
+        '<div><small>Bloqueio</small><b>20 dias</b></div>' +
+      '</div>' +
+      '<div style="font-size:11.5px;color:var(--muted);margin-bottom:12px;line-height:1.6">' +
+        'Após o atraso do pagamento é cobrado ' + fmt(lv.multa) + ' por dia. ' +
+        'Após 20 dias de atraso o cliente é bloqueado.<br>' +
+        'Para abrir este nível é necessário concluir <b>' + lv.req + ' vezes</b> o empréstimo do nível anterior.' +
+        (feitos ? '<br>Concluídos neste nível: <b>' + feitos + '</b>' : '') +
+      '</div>' + btnHtml;
+
+    box.appendChild(div);
+  });
+
+  box.querySelectorAll("button[data-nivel]").forEach(function(b){
+    b.onclick = function(){ solicitarEmprestimo(parseInt(this.dataset.nivel,10)); };
+  });
+}
+
+function solicitarEmprestimo(n){
+  /* Bloqueio de segurança — dupla verificação */
+  if(S.loan){
+    toast("Já tem um empréstimo activo. Efectue o pagamento antes de solicitar outro.", true);
+    renderNiveis();
     return;
   }
-  if(u.divida) return toast('Já tem um empréstimo ativo. Pague primeiro.');
 
-  pedirOTP('Verificação de Empréstimo', ()=>{
-    loader(true, 'A analisar o seu pedido…');
-    setTimeout(()=>{
-      const cfg = NIVEIS[u.nivel];
-      const inicio = new Date();
-      const venc = addDias(inicio, cfg.dias);
-
-      u.divida = {
-        valor: cfg.valor, valorPagar: cfg.pago, juro: cfg.juro,
-        nivel: u.nivel, inicio: inicio.toISOString(), vencimento: venc.toISOString()
-      };
-      u.historico.unshift({
-        tipo:'Empréstimo', valor:cfg.valor, data:inicio.toISOString(),
-        desc:`Nível ${u.nivel} • ${cfg.dias} dias • Juro ${mt(cfg.juro)}`
-      });
-      guardar();
-      loader(false);
-      renderTudo();
-      irPara('cartao');
-      toast('Empréstimo aprovado! Redirecionando para WhatsApp…', 3800);
-
-      const msg =
-`*TUXANA MOLA — PEDIDO DE EMPRÉSTIMO*
-━━━━━━━━━━━━━━━━━━━━━
-
-*DADOS DO CLIENTE*
-• Nome (BI): ${u.nome}
-• Nº do BI: ${u.bi}
-• Telemóvel: ${u.tel}
-• Província: ${u.provincia}
-• Distrito: ${u.distrito}
-• Género: ${u.genero}
-• Ocupação: ${u.ocupacao}
-• Rendimento: ${mt(u.rendimento)}
-
-*DETALHES DO EMPRÉSTIMO*
-• Nível: ${u.nivel}
-• Valor solicitado: ${mt(cfg.valor)}
-• Juro: ${mt(cfg.juro)}
-• Total a pagar: ${mt(cfg.pago)}
-• Duração: ${cfg.dias} dias
-• Vencimento: ${fDia(venc.toISOString())}
-• Multa por atraso: ${mt(cfg.multa)}/dia
-
-*Data do pedido:* ${fData(inicio.toISOString())}
-
-OTP verificado com sucesso.`;
-
-      setTimeout(()=>abrirWhatsApp(msg), 700);
-    }, 1600);
-  });
-}
-
-function pagar(){
-  const u = S.user;
-  if(!u.divida) return toast('Não tem empréstimo ativo.');
-
-  pedirOTP('Verificação de Pagamento', ()=>{
-    const e = estadoDivida();
-    if(!e){ toast('Não tem empréstimo ativo.'); return; }
-
-    const payId = gerarPayId();
-    abrirModal('Confirmar Pagamento', `
-      <div style="text-align:center;margin-bottom:16px">
-        <div style="font-size:10.5px;letter-spacing:2.5px;color:var(--muted);font-weight:700">ID DE PAGAMENTO</div>
-        <div style="font-size:23px;font-weight:900;color:var(--primary);font-family:'Courier New',monospace;letter-spacing:2px;margin-top:4px">${esc(payId)}</div>
-      </div>
-      <div class="kv"><span>Valor recebido</span><span>${mt(u.divida.valor)}</span></div>
-      <div class="kv"><span>Juro</span><span>${mt(u.divida.juro)}</span></div>
-      ${e.multa>0?`<div class="kv"><span>Multa (atraso)</span><span style="color:var(--primary)">${mt(e.multa)}</span></div>`:''}
-      <div class="kv"><span>Total a pagar</span><span style="color:var(--primary)">${mt(e.total)}</span></div>
-      <div class="field" style="margin-top:16px;margin-bottom:0">
-        <label>Cole aqui a mensagem da transação *</label>
-        <textarea id="txMsg" rows="4" placeholder="Cole aqui a mensagem"></textarea>
-      </div>
-      <div id="txErro" style="color:var(--danger);font-size:12.5px;min-height:18px;margin-top:6px;font-weight:600"></div>
-    `, [
-      { label:'Cancelar', cls:'ghost', onClick:fecharModal },
-      { label:'Confirmar', cls:'alt', onClick:()=>{
-          const tx = ($('txMsg').value || '').trim();
-          if(!tx.startsWith(TX_PREFIX)){
-            $('txErro').textContent = 'Mensagem de transação inválida. Tente novamente.';
-            return;
-          }
-          fecharModal();
-          processarPagamentoComOTP(payId, tx, e);
-      }}
-    ]);
-    setTimeout(()=>{ const t = $('txMsg'); if(t) t.focus(); }, 150);
-  });
-}
-
-function processarPagamentoComOTP(payId, txMensagem, estado){
-  const u = S.user;
-  loader(true, 'A processar o pagamento…');
-  setTimeout(()=>{
-    const total = estado.total;
-    const nivelAntes = u.nivel;
-    const dadosDivida = { ...u.divida };
-    const estavaBloqueado = u.bloqueado;
-
-    u.historico.unshift({
-      tipo:'Pagamento', valor:-total, data:new Date().toISOString(),
-      desc:`ID ${payId} • Nível ${dadosDivida.nivel} liquidado${estado.multa>0?' (multa '+mt(estado.multa)+')':''}`
-    });
-    u.divida = null;
-    u.emprestimos++;
-    u.emprestimosNoNivel = (u.emprestimosNoNivel || 0) + 1;
-    u.bloqueado = false;
-    u.bloqueadoEm = null;
-    bloqueioAutoMostrado = false;
-
-    if(estavaBloqueado){
-      u.historico.unshift({
-        tipo:'Conta desbloqueada', valor:0, data:new Date().toISOString(),
-        desc:'Desbloqueio após pagamento com OTP verificado'
-      });
+  const lv = NIVELES[n - 1];
+  pedirOTP("Para solicitar o empréstimo do Nível " + n + " introduza o código OTP válido.", function(){
+    /* Re-verificar após OTP (pode ter mudado noutro separador) */
+    if(S.loan){
+      toast("Já tem um empréstimo activo. Operação cancelada.", true);
+      renderNiveis();
+      return;
     }
 
-    const cfgAtual = NIVEIS[nivelAntes];
-    let subiuNivel = false;
-    if(u.nivel < NIVEL_MAX && u.emprestimosNoNivel >= cfgAtual.requisito){
-      u.nivel++;
-      u.emprestimosNoNivel = 0;
-      subiuNivel = true;
-      u.historico.unshift({ tipo:'Subida de nível', valor:0, data:new Date().toISOString(),
-        desc:`Parabéns! Passou do Nível ${nivelAntes} para o Nível ${u.nivel}` });
-    }
+    const hojeD = new Date();
+    const venc = new Date(); venc.setDate(venc.getDate() + lv.dias);
+
+    S.loan = {
+      nivel: lv.n, valor: lv.valor, pagamento: lv.pag, juro: lv.juro,
+      dias: lv.dias, multa: lv.multa, duracao: lv.dur,
+      data: hojeD.toLocaleDateString('pt-MZ'),
+      vencimento: venc.toLocaleDateString('pt-MZ'),
+      criadoEm: new Date().toLocaleString('pt-MZ')
+    };
+    addHist("Solicitou empréstimo Nível " + lv.n + " — " + fmt(lv.valor) + " (pagamento " + fmt(lv.pag) + " até " + S.loan.vencimento + ").");
     guardar();
-    loader(false);
-    renderTudo();
-    irPara('painel');
 
-    if(subiuNivel) toast('Parabéns! Subiu para o Nível ' + u.nivel, 4500);
-    else toast('Pagamento efetuado! Redirecionando para WhatsApp…', 3800);
+    renderStatus(); renderCartao(); renderPagamento(); renderNiveis();
 
     const msg =
-`*TUXANA MOLA — COMPROVATIVO DE PAGAMENTO*
-━━━━━━━━━━━━━━━━━━━━━
+      "*TXUNA MOLA — PEDIDO DE EMPRÉSTIMO*\n" +
+      "━━━━━━━━━━━━━━━━━━━━\n" +
+      "*Nome:* " + S.user.nome + "\n" +
+      "*Nº BI:* " + S.user.bi + "\n" +
+      "*Telefone:* " + S.user.telefone + "\n" +
+      "*Província:* " + S.user.provincia + "\n" +
+      "*Distrito:* " + S.user.distrito + "\n" +
+      "*Género:* " + S.user.genero + "\n" +
+      "*Nascimento:* " + S.user.nascimento + "\n" +
+      "━━━━━━━━━━━━━━━━━━━━\n" +
+      "*Nível:* " + lv.n + "\n" +
+      "*Valor solicitado:* " + fmt(lv.valor) + "\n" +
+      "*Valor a pagar:* " + fmt(lv.pag) + "\n" +
+      "*Juro:* " + fmt(lv.juro) + "\n" +
+      "*Duração:* " + lv.dur + "\n" +
+      "*Data do empréstimo:* " + S.loan.data + "\n" +
+      "*Dia de pagamento:* " + S.loan.vencimento + "\n" +
+      "*Multa por atraso:* " + fmt(lv.multa) + " por dia\n" +
+      "*Bloqueio após:* 20 dias de atraso\n" +
+      "━━━━━━━━━━━━━━━━━━━━\n" +
+      "Solicito a aprovação do empréstimo.";
 
-*ID DE PAGAMENTO:* ${payId}
-
-*DADOS DO CLIENTE*
-• Nome (BI): ${u.nome}
-• Nº do BI: ${u.bi}
-• Telemóvel: ${u.tel}
-• Província: ${u.provincia}
-• Distrito: ${u.distrito}
-• Género: ${u.genero}
-• Ocupação: ${u.ocupacao}
-• Rendimento: ${mt(u.rendimento)}
-
-*DETALHES DO PAGAMENTO*
-• Nível: ${dadosDivida.nivel}
-• Valor recebido: ${mt(dadosDivida.valor)}
-• Juro: ${mt(dadosDivida.juro)}
-${estado.multa>0?`• Multa (atraso): ${mt(estado.multa)}\n`:''}• Total pago: ${mt(total)}
-• Data: ${fData(new Date().toISOString())}
-${estavaBloqueado?`• Conta desbloqueada após este pagamento\n`:''}
-*MENSAGEM DE TRANSAÇÃO*
-${txMensagem}
-
-OTP verificado com sucesso.`;
-
-    setTimeout(()=>abrirWhatsApp(msg), 700);
-  }, 1800);
-}
-
-function renderPainel(){
-  const u = S.user;
-  const cfg = NIVEIS[u.nivel];
-  const e = estadoDivida();
-  const feitos = u.emprestimosNoNivel || 0;
-  const requisito = cfg.requisito;
-  const progresso = Math.min(100, (feitos / requisito) * 100);
-  const isMax = u.nivel >= NIVEL_MAX;
-
-  let estadoBadge, estadoClasse;
-  if(u.bloqueado){ estadoBadge = 'BLOQUEADO'; estadoClasse = 'bad'; }
-  else if(u.divida && e && e.atraso > 0){ estadoBadge = 'EM ATRASO'; estadoClasse = 'warn'; }
-  else if(u.divida){ estadoBadge = 'EMPRÉSTIMO ATIVO'; estadoClasse = 'ok'; }
-  else { estadoBadge = 'SEM DÍVIDA'; estadoClasse = 'ok'; }
-
-  let html = `
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <h3 style="margin:0">Painel principal</h3>
-        <span class="badge ${estadoClasse}">${estadoBadge}</span>
-      </div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Olá,</div>
-      <div style="font-size:20px;font-weight:800;margin-bottom:16px;color:var(--txt)">${esc(u.nome.split(' ')[0])}</div>
-
-      <div class="kv"><span>Nível atual</span><span style="color:var(--primary)">Nível ${u.nivel}${isMax?' (máx.)':''}</span></div>
-      <div class="kv"><span>Empréstimos totais</span><span>${u.emprestimos}</span></div>
-      <div class="kv"><span>Ocupação</span><span>${esc(u.ocupacao)}</span></div>
-      <div class="kv"><span>Rendimento declarado</span><span>${mt(u.rendimento)}</span></div>
-
-      <div style="margin-top:16px">
-        ${ isMax
-          ? `<div style="font-size:12px;color:var(--primary);font-weight:800;text-align:center;padding:10px 0">🏆 Nível máximo atingido</div>`
-          : `<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-weight:600">
-              <span>Progresso para o Nível ${u.nivel + 1}</span>
-              <span>${feitos}/${requisito}</span>
-             </div>
-             <div class="bar"><i style="width:${progresso}%"></i></div>`
-        }
-      </div>
-    </div>
-  `;
-
-  if(u.bloqueado){
-    html += `
-      <div class="card" style="border-color:rgba(239,68,68,.35)">
-        <h3 style="color:var(--danger)">Conta bloqueada</h3>
-        <p style="font-size:13.5px;line-height:1.7;color:var(--muted)">
-          A sua conta foi bloqueada por atingir <b style="color:var(--danger)">${DIAS_BLOQUEIO} dias</b> de atraso.
-          Para desbloquear, verifique o seu OTP e liquide o valor total em dívida.
-        </p>
-        ${u.divida && e ? `<div style="margin-top:14px" class="big">${mt(e.total)}</div>
-        <div style="font-size:12px;color:var(--muted)">Valor total com multa de ${mt(e.multa)}</div>
-        <button class="btn danger" style="margin-top:16px" onclick="desbloquearComOTP()">🔐 VERIFICAR E DESBLOQUEAR</button>
-        <button class="btn alt" style="margin-top:10px" onclick="pagar()">PAGAR E DESBLOQUEAR</button>` : ''}
-      </div>
-    `;
-  }
-  else if(u.divida && e){
-    html += `
-      <div class="card">
-        <h3>Empréstimo ativo — Nível ${u.divida.nivel}</h3>
-        <div class="big">${mt(e.total)} <small>a pagar</small></div>
-        <div class="kv" style="margin-top:14px"><span>Valor recebido</span><span>${mt(u.divida.valor)}</span></div>
-        <div class="kv"><span>Juro</span><span>${mt(u.divida.juro)}</span></div>
-        <div class="kv"><span>Data de vencimento</span><span>${fDia(u.divida.vencimento)}</span></div>
-        <div class="kv"><span>Dias de atraso</span><span style="color:${e.atraso>0?'var(--primary)':'var(--green)'}">${e.atraso} dia(s)</span></div>
-        <div class="kv"><span>Multa (${mt(e.multaDia)}/dia)</span><span>${mt(e.multa)}</span></div>
-        ${e.atraso > 0 ? `<div class="note bad">Atenção: está a ser cobrada uma multa de <b>${mt(e.multaDia)} por dia</b>. Aos <b>${DIAS_BLOQUEIO} dias</b> de atraso a conta será bloqueada.</div>` : ''}
-        <button class="btn alt" style="margin-top:16px" onclick="pagar()">PAGAR ${mt(e.total)}</button>
-        <button class="btn ghost" style="margin-top:10px" onclick="irPara('cartao')">Ver cartão virtual de dívida</button>
-      </div>
-    `;
-  }
-  else {
-    html += `
-      <div class="card">
-        <h3>Pedido de empréstimo — Nível ${u.nivel}</h3>
-        <div class="big">${mt(cfg.valor)}</div>
-        <div style="font-size:12.5px;color:var(--muted);margin-top:4px">Paga ${mt(cfg.pago)} em ${cfg.dias} dias</div>
-        <div class="kv" style="margin-top:14px"><span>Valor do empréstimo</span><span>${mt(cfg.valor)}</span></div>
-        <div class="kv"><span>Juro</span><span>${mt(cfg.juro)}</span></div>
-        <div class="kv"><span>Total a pagar</span><span style="color:var(--primary)">${mt(cfg.pago)}</span></div>
-        <div class="kv"><span>Duração</span><span>${cfg.dias} dias</span></div>
-        <div class="kv"><span>Multa por atraso</span><span>${mt(cfg.multa)}/dia</span></div>
-        <div class="kv"><span>Bloqueio</span><span>${DIAS_BLOQUEIO} dias de atraso</span></div>
-        ${ isMax
-          ? `<div class="note ok" style="margin-top:14px">Você está no <b>Nível máximo</b>. Continue a usar os empréstimos normalmente.</div>`
-          : `<div class="note">Complete <b>${requisito - feitos}</b> empréstimo(s) para passar ao Nível ${u.nivel + 1}. Total já feito neste nível: <b>${feitos}/${requisito}</b>.</div>`
-        }
-        <button class="btn" style="margin-top:16px" onclick="solicitar()">Pedir empréstimo</button>
-      </div>
-    `;
-  }
-
-  html += `<div id="bannerBox"></div>`;
-  $('view-painel').innerHTML = html;
-  montarBanner();
-}
-
-function renderHistorico(){
-  const u = S.user;
-  let html = `<div class="card"><h3>Histórico de operações</h3>`;
-  if(!u.historico.length){
-    html += `<div class="empty"><span class="e">${ICONS.vazio}</span>Nenhuma operação registada ainda.</div>`;
-  } else {
-    u.historico.forEach(h=>{
-      let icone = ICONS.conta, cls = '';
-      if(h.tipo === 'Empréstimo'){ icone = ICONS.emprestimo; cls = 'g'; }
-      if(h.tipo === 'Pagamento'){ icone = ICONS.pagamento; cls = 'p'; }
-      if(h.tipo === 'Subida de nível'){ icone = ICONS.nivel; cls = 'g'; }
-      if(h.tipo === 'Conta bloqueada'){ icone = ICONS.bloqueio; cls = 'p'; }
-      if(h.tipo === 'Conta desbloqueada'){ icone = ICONS.desbloqueio; cls = 'g'; }
-      if(h.tipo === 'Verificação de bloqueio'){ icone = ICONS.desbloqueio; cls = ''; }
-      const valorTxt = h.valor === 0
-        ? '—'
-        : (h.valor > 0 ? '+' : '-') + mt(Math.abs(h.valor));
-      html += `
-        <div class="hist">
-          <div class="ic ${cls}">${icone}</div>
-          <div class="tx"><b>${esc(h.tipo)}</b><small>${esc(h.desc)} • ${fData(h.data)}</small></div>
-          <div class="amt ${cls}">${valorTxt}</div>
-        </div>
-      `;
-    });
-  }
-  html += `</div>`;
-  $('view-historico').innerHTML = html;
-}
-
-function gerarNumeroCartao(seedStr){
-  let seed = 0;
-  const s = String(seedStr || 'x');
-  for(let i=0;i<s.length;i++) seed = (seed * 31 + s.charCodeAt(i)) % 2147483647;
-  if(seed <= 0) seed = 12345;
-  const rand = () => {
-    seed = (seed * 1103515245 + 12345) % 2147483648;
-    return seed / 2147483648;
-  };
-  const grupos = [];
-  for(let g=0; g<4; g++){
-    let bloco = '';
-    for(let i=0;i<4;i++) bloco += Math.floor(rand()*10);
-    grupos.push(bloco);
-  }
-  return grupos.join(' ');
+    abrirWhatsApp(msg);
+    toast("Empréstimo Nível " + lv.n + " solicitado! A redirecionar para WhatsApp...");
+  });
 }
 
 function renderCartao(){
   const u = S.user;
-  const e = estadoDivida();
-  const num = gerarNumeroCartao(u.bi + u.tel);
-  const validade = (() => {
-    const d = new Date(u.criadoEm || Date.now());
-    d.setFullYear(d.getFullYear() + 3);
-    return String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getFullYear()).slice(-2);
-  })();
-  const valorDivida = (u.divida && e) ? e.total : 0;
-  const estadoTxt = u.bloqueado ? 'BLOQUEADO'
-                   : u.divida ? (e && e.atraso > 0 ? 'EM ATRASO' : 'ATIVO')
-                   : 'SEM DÍVIDA';
+  $("#vcNome").textContent = u.nome;
+  $("#vcBi").textContent   = u.bi;
+  const digits = (u.bi.replace(/[^0-9]/g, "") + "000000000000").slice(0,16);
+  $("#vcNum").textContent = digits.replace(/(.{4})/g, "$1 ").trim();
 
-  let html = `
-    <div class="paidy">
-      <div class="ph">
-        <div class="brand">tuxana<em>.</em><small>MOLA • CRÉDITO</small></div>
-        <div class="chip"></div>
-      </div>
-      <div class="num">${esc(num)}</div>
-      <div class="debt">
-        <label>VALOR DA DÍVIDA</label>
-        <div class="v">${valorDivida.toLocaleString('pt-MZ')}<small> MT</small></div>
-        <div class="sub">${u.divida && e ? 'Vencimento: ' + fDia(u.divida.vencimento) + (e.multa>0 ? ' • Multa: ' + mt(e.multa) : '') : 'Sem empréstimo ativo'}</div>
-      </div>
-      <div class="foot">
-        <div><div class="lbl">TITULAR</div><div class="val">${esc(u.nome)}</div></div>
-        <div style="text-align:right"><div class="lbl">VALIDADE</div><div class="val">${validade}</div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Dados do titular</h3>
-      <div class="kv"><span>Nome (BI)</span><span>${esc(u.nome)}</span></div>
-      <div class="kv"><span>Número do BI</span><span>${esc(u.bi)}</span></div>
-      <div class="kv"><span>Telemóvel</span><span>${esc(u.tel)}</span></div>
-      <div class="kv"><span>Província</span><span>${esc(u.provincia)}</span></div>
-      <div class="kv"><span>Distrito</span><span>${esc(u.distrito)}</span></div>
-      <div class="kv"><span>Género</span><span>${esc(u.genero)}</span></div>
-      <div class="kv"><span>Ocupação</span><span>${esc(u.ocupacao)}</span></div>
-      <div class="kv"><span>Rendimento</span><span>${mt(u.rendimento)}</span></div>
-      <div class="kv"><span>Nível</span><span>Nível ${u.nivel}${u.nivel>=NIVEL_MAX?' (máx.)':''}</span></div>
-      <div class="kv"><span>Estado</span><span style="color:${u.bloqueado?'var(--danger)':(u.divida?'var(--warn)':'var(--green)')}">${estadoTxt}</span></div>
-      ${u.divida && e ? `
-        <div class="kv"><span>Valor recebido</span><span>${mt(u.divida.valor)}</span></div>
-        <div class="kv"><span>Juro</span><span>${mt(u.divida.juro)}</span></div>
-        <div class="kv"><span>Total a pagar</span><span style="color:var(--primary)">${mt(e.total)}</span></div>
-        <div class="kv"><span>Multa diária</span><span>${mt(e.multaDia)}/dia</span></div>
-        <div class="kv"><span>Dias de atraso</span><span style="color:${e.atraso>0?'var(--primary)':'var(--green)'}">${e.atraso}</span></div>
-      ` : ''}
-    </div>
-  `;
-  if(u.divida && e){
-    if(u.bloqueado){
-      html += `<button class="btn danger" onclick="desbloquearComOTP()">🔐 VERIFICAR E DESBLOQUEAR</button>`;
-      html += `<button class="btn alt" style="margin-top:10px" onclick="pagar()">PAGAR ${mt(e.total)}</button>`;
-    } else {
-      html += `<button class="btn alt" onclick="pagar()">Pagar ${mt(e.total)}</button>`;
-    }
-  } else {
-    html += `<button class="btn" onclick="irPara('painel')">Pedir empréstimo</button>`;
-  }
-  html += `<div class="note">Cartão virtual emitido pela Tuxana Mola. Apresente este cartão como comprovativo de dívida.</div>`;
-  $('view-cartao').innerHTML = html;
-}
-
-let bannerIdx = 0, bannerTimer = null;
-function montarBanner(){
-  const box = $('bannerBox');
-  if(!box) return;
-  let imgs = '', dots = '';
-  BANNERS.forEach((b, i)=>{
-    imgs += `<a href="${esc(b.link)}" target="_blank" rel="noopener"><img src="${esc(b.img)}" class="${i===0?'on':''}" data-i="${i}" alt="Promoção ${i+1}"></a>`;
-    dots += `<i class="${i===0?'on':''}" data-d="${i}"></i>`;
-  });
-  box.innerHTML = `<div class="banner">${imgs}<div class="bdots">${dots}</div></div>`;
-  bannerIdx = 0;
-  clearInterval(bannerTimer);
-  bannerTimer = setInterval(rodarBanner, BANNER_INTERVALO);
-}
-function rodarBanner(){
-  const box = $('bannerBox');
-  if(!box) return;
-  const imgs = box.querySelectorAll('.banner img');
-  const dots = box.querySelectorAll('.bdots i');
-  if(!imgs.length) return;
-  imgs[bannerIdx].classList.remove('on');
-  dots[bannerIdx].classList.remove('on');
-  bannerIdx = (bannerIdx + 1) % BANNERS.length;
-  imgs[bannerIdx].classList.add('on');
-  dots[bannerIdx].classList.add('on');
-}
-
-function renderTudo(){
-  if(!S.user) return;
-  aplicarEstadoDivida();
-  renderPainel();
-  renderHistorico();
-  renderCartao();
-}
-
-function toggleChat(){
-  $('chat').classList.toggle('open');
-  $('fab').classList.toggle('open');
-  if($('chat').classList.contains('open') && !$('chatBody').dataset.init){
-    $('chatBody').dataset.init = '1';
-    iniciarSaudacao();
+  if(S.loan){
+    $("#vcData").textContent   = S.loan.data;
+    $("#vcValor").textContent  = fmt(S.loan.valor);
+    $("#vcPag").textContent    = S.loan.vencimento;
+    $("#vcEstado").textContent = "ACTIVO";
+  }else{
+    $("#vcData").textContent   = "—";
+    $("#vcValor").textContent  = "—";
+    $("#vcPag").textContent    = "—";
+    $("#vcEstado").textContent = "SEM EMPRÉSTIMO";
   }
 }
 
-let typingTimer = null;
-function mostrarTyping(){
-  const body = $('chatBody');
-  removerTyping();
-  const t = document.createElement('div');
-  t.className = 'chat-typing';
-  t.id = 'typing';
-  t.innerHTML = '<span class="d"></span><span class="d"></span><span class="d"></span><span class="lbl">A escrever…</span>';
-  body.appendChild(t);
-  body.scrollTop = body.scrollHeight;
-}
-function removerTyping(){ const t = $('typing'); if(t) t.remove(); }
+function renderPagamento(){
+  const area = $("#payArea");
+  if(!area) return;
 
-function iniciarSaudacao(){
-  const body = $('chatBody');
-  body.innerHTML = '';
-  mostrarTyping();
-  typingTimer = setTimeout(()=>{
-    removerTyping();
-    renderChatHome();
-  }, TYPING_DELAY);
-}
+  const antigo = area.querySelector("#msgPag");
+  const textoAnterior = antigo ? antigo.value : "";
 
-function renderChatHome(){
-  const body = $('chatBody');
-  let html = `<div class="chat-msg bot">Olá! Sou a assistência virtual da Tuxana Mola. Escolha uma pergunta ou fale com um atendente humano.</div>`;
-  html += `<div class="chat-quick">`;
-  QUICK.forEach((q, i)=>{
-    html += `<button onclick="responderRapido(${i})">${esc(q.q)}</button>`;
-  });
-  html += `</div>`;
-  html += `<button class="btn ghost" style="margin-top:4px" onclick="mostrarAgentes()">Falar com atendente humano</button>`;
-  body.innerHTML = html;
-  body.scrollTop = 0;
-}
+  if(!S.loan){
+    area.innerHTML =
+      '<div class="empty">' +
+        '<div class="big"><svg viewBox="0 0 24 24" fill="none" stroke="#3a4a6b" stroke-width="1.4"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/></svg></div>' +
+        'Não existe nenhum empréstimo activo.<br>Solicite um empréstimo no menu <b>Empréstimo</b> para poder efectuar pagamentos.' +
+      '</div>';
+    return;
+  }
+  const l = S.loan;
 
-function responderRapido(i){
-  const q = QUICK[i];
-  if(!q) return;
-  const body = $('chatBody');
-  clearTimeout(typingTimer);
-  body.innerHTML = `<div class="chat-msg user">${esc(q.q)}</div>`;
-  mostrarTyping();
-  typingTimer = setTimeout(()=>{
-    removerTyping();
-    body.innerHTML += `
-      <div class="chat-msg bot">${esc(q.a)}</div>
-      <div class="chat-quick">
-        <button onclick="renderChatHome()">Voltar às perguntas</button>
-        <button onclick="mostrarAgentes()">Falar com humano</button>
-      </div>
-    `;
-    body.scrollTop = body.scrollHeight;
-  }, TYPING_DELAY);
-}
+  area.innerHTML =
+    '<div class="view-title"><h2>Efectuar Pagamento</h2><div class="line"></div></div>' +
+    '<div class="field"><label>Nome do Cliente</label>' +
+      '<input type="text" value="' + esc(S.user.nome) + '" readonly></div>' +
+    '<div class="row2">' +
+      '<div class="field"><label>Nº Bilhete de Identidade</label><input type="text" value="' + esc(S.user.bi) + '" readonly></div>' +
+      '<div class="field"><label>Telefone</label><input type="text" value="' + esc(S.user.telefone) + '" readonly></div>' +
+    '</div>' +
+    '<div class="row2">' +
+      '<div class="field"><label>Nível</label><input type="text" value="Nível ' + l.nivel + '" readonly></div>' +
+      '<div class="field"><label>Valor do Empréstimo</label><input type="text" value="' + fmt(l.valor) + '" readonly></div>' +
+    '</div>' +
+    '<div class="row2">' +
+      '<div class="field"><label>Valor a Pagar</label><input type="text" value="' + fmt(l.pagamento) + '" readonly></div>' +
+      '<div class="field"><label>Dia de Pagamento</label><input type="text" value="' + l.vencimento + '" readonly></div>' +
+    '</div>' +
+    '<div class="row2">' +
+      '<div class="field"><label>Data do Empréstimo</label><input type="text" value="' + l.data + '" readonly></div>' +
+      '<div class="field"><label>Juro</label><input type="text" value="' + fmt(l.juro) + '" readonly></div>' +
+    '</div>' +
+    '<div class="field">' +
+      '<label>Mensagem de Pagamento <span class="req"></span></label>' +
+      '<textarea id="msgPag" placeholder="Colar mensagem do pagamento"></textarea>' +
+      '<div class="hint show" style="background:rgba(255,92,122,.09);border-left-color:var(--danger);color:#ffb8c6">' +
+        'A mensagem <b></b>do<b></b> pagamento do nível ' + l.nivel + ' no valor de ' + fmt(l.pagamento) + '.' +
+      '</div>' +
+    '</div>' +
+    '<button class="btn wa" id="btnPagar">' +
+      '<svg class="ico" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.1-4.3A8.5 8.5 0 1 1 20.5 12z"/></svg>' +
+      'Fazer pagamento</button>';
 
-function mostrarAgentes(){
-  const body = $('chatBody');
-  clearTimeout(typingTimer);
-  body.innerHTML = `<div class="chat-msg user">Quero falar com um atendente humano</div>`;
-  mostrarTyping();
-  typingTimer = setTimeout(()=>{
-    removerTyping();
-    let html = `<div class="chat-msg bot">Escolha um atendente para falar por WhatsApp, chamada ou SMS:</div>`;
-    AGENTS.forEach(a=>{
-      const inicial = a.nome.charAt(0).toUpperCase();
-      const waMsg = encodeURIComponent(`Olá ${a.nome}, preciso de assistência na Tuxana Mola.`);
-      html += `
-        <div class="agent">
-          <div class="agent-avatar">${esc(inicial)}</div>
-          <div class="agent-info"><b>${esc(a.nome)}</b><small>${esc(a.cargo || 'Disponível agora')}</small></div>
-          <div class="agent-actions">
-            <a class="wa" href="https://wa.me/${esc(a.whatsapp)}?text=${waMsg}" target="_blank" rel="noopener" title="WhatsApp">
-              <svg viewBox="0 0 24 24"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2m0 18.15c-1.5 0-2.97-.4-4.25-1.16l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.24-8.24s8.24 3.7 8.24 8.24-3.7 8.24-8.18 8.24m4.52-6.16c-.25-.12-1.47-.72-1.69-.81s-.39-.12-.55.12c-.16.25-.63.81-.77.97-.14.16-.28.19-.53.06-.25-.12-1.05-.39-2-1.24-.74-.66-1.24-1.47-1.39-1.72-.14-.25-.02-.39.11-.51.11-.11.25-.28.37-.42.13-.14.17-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.42.06-.64.31-.22.25-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.1 3.62.57.25 1.02.39 1.37.5.57.18 1.09.16 1.5.1.46-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.47-.28z"/></svg>
-            </a>
-            <a class="call" href="tel:${esc(a.tel)}" title="Ligação">
-              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            </a>
-            <a class="sms" href="sms:${esc(a.sms)}" title="SMS">
-              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="8" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
-            </a>
-          </div>
-        </div>
-      `;
+  if(textoAnterior){
+    const novaMsg = area.querySelector("#msgPag");
+    if(novaMsg) novaMsg.value = textoAnterior;
+  }
+
+  $("#btnPagar").onclick = function(){
+    const msg = $("#msgPag").value.trim();
+    if(!msg){ toast("Colar a mensagem de pagamento.", true); $("#msgPag").classList.add("err"); return; }
+    if(!/^DIF/i.test(msg)){ toast("Preenche este campo vazio com a mensagem de pagamento.", true); $("#msgPag").classList.add("err"); return; }
+    $("#msgPag").classList.remove("err");
+
+    pedirOTP("Introduza o código OTP válido para confirmar o pagamento.", function(){
+      const texto =
+        "*TXUNA MOLA — PAGAMENTO*\n" +
+        "━━━━━━━━━━━━━━━━━━━━\n" +
+        "*Nome:* " + S.user.nome + "\n" +
+        "*Nº BI:* " + S.user.bi + "\n" +
+        "*Telefone:* " + S.user.telefone + "\n" +
+        "*Província:* " + S.user.provincia + "\n" +
+        "*Distrito:* " + S.user.distrito + "\n" +
+        "*Género:* " + S.user.genero + "\n" +
+        "━━━━━━━━━━━━━━━━━━━━\n" +
+        "*Nível:* " + l.nivel + "\n" +
+        "*Valor do empréstimo:* " + fmt(l.valor) + "\n" +
+        "*Valor a pagar:* " + fmt(l.pagamento) + "\n" +
+        "*Data do empréstimo:* " + l.data + "\n" +
+        "*Dia de pagamento:* " + l.vencimento + "\n" +
+        "*Juro:* " + fmt(l.juro) + "\n" +
+        "━━━━━━━━━━━━━━━━━━━━\n" +
+        "*MENSAGEM:* " + msg;
+
+      S.completos[l.nivel] = (S.completos[l.nivel] || 0) + 1;
+      addHist("Pagamento efectuado do Nível " + l.nivel + " — " + fmt(l.pagamento) + ". Mensagem: " + msg);
+      S.loan = null; guardar();
+
+      renderStatus(); renderCartao(); renderPagamento(); renderNiveis();
+      abrirWhatsApp(texto);
+      toast("Pagamento enviado! A referir o pedido. Níveis desbloqueados novamente.");
     });
-    html += `<button class="btn ghost" style="margin-top:4px" onclick="renderChatHome()">Voltar às perguntas</button>`;
-    body.innerHTML += html;
-    body.scrollTop = body.scrollHeight;
-  }, TYPING_DELAY);
+  };
 }
 
-(function iniciar(){
-  carregarLS();
-  loader(true, 'A carregar dados…');
-  setTimeout(()=>{
-    loader(false);
-    if(S.user){
-      abrirApp();
-    } else {
-      $('auth').classList.remove('hidden');
+function renderHistorico(){
+  const box = $("#histList");
+  if(!S.history.length){
+    box.innerHTML = '<div class="empty">' +
+      '<div class="big"><svg viewBox="0 0 24 24" fill="none" stroke="#3a4a6b" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>' +
+      'Ainda não existe nenhum registo de actividade nesta conta.</div>';
+    return;
+  }
+  box.innerHTML = S.history.map(function(h){
+    return '<div class="hist-item"><div class="hist-dot"></div>' +
+             '<div><p>' + esc(h.txt) + '</p><span>' + esc(h.t) + '</span></div>' +
+           '</div>';
+  }).join("");
+}
+
+/* ============================================================
+   MODAL OTP — ROTATIVO (5 MINUTOS)
+   ============================================================ */
+let otpCallback = null;
+let otpInfoTimer = null;
+let slotMostrado = null;
+
+function actualizarOtpInfo(){
+  const s = slotAtual();
+  const elH = $("#otpHora");
+  const elC = $("#otpCodigo");
+  const wrap = $("#otpInfoCodeWrap");
+
+  if(elH) elH.textContent = formatarContagem(msAteExpirar());
+  if(elC) elC.textContent = otpDoSlot(s);
+
+  if(slotMostrado !== null && slotMostrado !== s){
+    if(wrap) wrap.classList.add("expira");
+  } else {
+    if(wrap) wrap.classList.remove("expira");
+  }
+  slotMostrado = s;
+}
+
+function pedirOTP(texto, cb){
+  otpCallback = cb;
+  $("#otpTexto").textContent = texto || "Introduza o código OTP válido para continuar.";
+  $("#otpErro").textContent = "";
+  $("#otpInput").value = "";
+  slotMostrado = null;
+
+  actualizarOtpInfo();
+  clearInterval(otpInfoTimer);
+  otpInfoTimer = setInterval(actualizarOtpInfo, 500);
+
+  $("#otpModal").classList.add("open");
+  setTimeout(function(){ $("#otpInput").focus(); }, 250);
+}
+function fecharOTP(){
+  clearInterval(otpInfoTimer);
+  otpInfoTimer = null;
+  slotMostrado = null;
+  $("#otpModal").classList.remove("open");
+  otpCallback = null;
+}
+$("#otpCancel").onclick = function(){
+  fecharOTP();
+  toast("Operação cancelada.", true);
+};
+$("#otpConfirm").onclick = function(){
+  const val = $("#otpInput").value.trim();
+  if(val.length !== 6){ $("#otpErro").textContent = "O código OTP deve ter 6 dígitos."; return; }
+  if(val !== otpAtual()){
+    $("#otpErro").textContent = "Código OTP inválido ou já expirou. Verifique o código actual.";
+    $("#otpInput").value = ""; return;
+  }
+  clearInterval(otpInfoTimer);
+  otpInfoTimer = null;
+  slotMostrado = null;
+  $("#otpModal").classList.remove("open");
+  $("#otpErro").textContent = "";
+  const cb = otpCallback; otpCallback = null;
+  if(cb) cb();
+};
+$("#otpInput").addEventListener("keydown", function(e){
+  if(e.key === "Enter"){ e.preventDefault(); $("#otpConfirm").click(); }
+});
+$("#otpInput").addEventListener("input", function(){
+  this.value = this.value.replace(/[^0-9]/g,"").slice(0,6);
+});
+$("#otpModal").addEventListener("click", function(e){
+  if(e.target === this){ fecharOTP(); toast("Operação cancelada.", true); }
+});
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape" && $("#otpModal").classList.contains("open")){
+    fecharOTP(); toast("Operação cancelada.", true);
+  }
+  if(e.key === "Escape" && $("#termosModal").classList.contains("open")){
+    $("#termosModal").classList.remove("open");
+  }
+});
+
+/* ============================================================
+   ASSISTÊNCIA VIRTUAL
+   ============================================================ */
+function iniciarAssistencia(){
+  const fab = $("#fabBtn");
+  const panel = $("#supportPanel");
+  const fabIcon = $("#fabIcon");
+
+  const ICON_CHAT = '<path d="M21 12a8.5 8.5 0 0 1-8.5 8.5H5l-2 2V12a8.5 8.5 0 0 1 8.5-8.5h1A8.5 8.5 0 0 1 21 12z"/><path d="M8 11h.01M12 11h.01M16 11h.01" stroke-linecap="round"/>';
+  const ICON_CLOSE = '<path d="M6 6l12 12M18 6L6 18"/>';
+
+  function toggle(open){
+    panel.classList.toggle("open", open);
+    fab.classList.toggle("open", open);
+    if(open){
+      fabIcon.innerHTML = ICON_CLOSE;
+      const b = fab.querySelector(".fab-badge"); if(b) b.style.display = "none";
+    }else{
+      fabIcon.innerHTML = ICON_CHAT;
     }
-  }, 2200);
+  }
+
+  fab.addEventListener("click", function(){
+    toggle(!panel.classList.contains("open"));
+  });
+  $("#spClose").addEventListener("click", function(){ toggle(false); });
+
+  function construirTexto(){
+    const nome = S.user ? S.user.nome : "Cliente";
+    const bi   = S.user ? S.user.bi   : "";
+    const tel  = S.user ? S.user.telefone : "";
+    return "Olá, sou " + nome + " (BI " + bi + ", Tel " + tel + "). Preciso de assistência da Txuna Mola.";
+  }
+  const spWhats = $("#spWhats");
+  const spCall  = $("#spCall");
+  const spSms   = $("#spSms");
+
+  spWhats.addEventListener("click", function(e){
+    e.preventDefault();
+    const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(construirTexto());
+    window.open(url, "_blank");
+  });
+  spCall.addEventListener("click", function(e){
+    e.preventDefault();
+    window.location.href = "tel:" + SUPPORT_PHONE;
+  });
+  spSms.addEventListener("click", function(e){
+    e.preventDefault();
+    window.location.href = "sms:" + SUPPORT_SMS + "?body=" + encodeURIComponent(construirTexto());
+  });
+
+  $$("[data-faq]").forEach(function(faq){
+    const q     = faq.querySelector(".faq-q");
+    const inner = faq.querySelector(".faq-a > div");
+
+    if(inner && !inner.dataset.original){
+      inner.dataset.original = inner.innerHTML;
+    }
+
+    q.addEventListener("click", function(){
+      const isOpen = faq.classList.contains("open");
+
+      $$("[data-faq]").forEach(function(f){
+        f.classList.remove("open");
+        const i = f.querySelector(".faq-a > div");
+        if(i && i.dataset.original) i.innerHTML = i.dataset.original;
+      });
+
+      if(isOpen) return;
+
+      if(inner){
+        inner.innerHTML =
+          '<div class="typing">' +
+            '<span></span><span></span><span></span>' +
+            '<small>Assistente a escrever…</small>' +
+          '</div>';
+      }
+      faq.classList.add("open");
+
+      setTimeout(function(){
+        if(!inner) return;
+        const respostaOriginal = inner.dataset.original || "";
+        inner.innerHTML =
+          '<div class="faq-a-header">' +
+            '<span class="dot"></span>Assistente Txuna Mola' +
+          '</div>' +
+          respostaOriginal;
+      }, 800);
+    });
+  });
+}
+
+/* ============================================================
+   CHROME BAR
+   ============================================================ */
+const ChromeLoader = (function(){
+  const bar  = document.getElementById("chrome-bar");
+  const fill = bar.querySelector(".progress");
+  let timer = null, hideTimer = null, doneTimer = null, running = false;
+
+  function start(){
+    clearTimeout(timer);
+    clearTimeout(hideTimer);
+    clearTimeout(doneTimer);
+    bar.classList.remove("done");
+    bar.classList.add("active");
+    fill.style.width = "0%";
+    running = true;
+
+    const steps = [8, 22, 38, 52, 66, 78, 86, 92, 96];
+    let i = 0;
+    const total = LOADING_MS / (steps.length + 1);
+    (function tick(){
+      if(!running) return;
+      if(i < steps.length){
+        fill.style.width = steps[i] + "%";
+        i++;
+        timer = setTimeout(tick, total + Math.random()*80);
+      }
+    })();
+
+    doneTimer = setTimeout(done, LOADING_MS);
+  }
+
+  function done(){
+    if(!running) return;
+    running = false;
+    clearTimeout(timer);
+    clearTimeout(doneTimer);
+    fill.style.width = "100%";
+    bar.classList.add("done");
+    hideTimer = setTimeout(function(){
+      bar.classList.remove("active","done");
+      fill.style.width = "0%";
+    }, 800);
+  }
+
+  return { start: start, done: done };
 })();
+
+/* ============================================================
+   LOADING UNIVERSAL
+   ============================================================ */
+const LoadingOverlay = (function(){
+  const el = document.getElementById("loadingOverlay");
+  let hideTimer = null;
+
+  function show(duration){
+    duration = duration || LOADING_MS;
+    clearTimeout(hideTimer);
+    el.classList.add("active");
+    el.setAttribute("aria-hidden", "false");
+    hideTimer = setTimeout(hide, duration);
+  }
+
+  function hide(){
+    clearTimeout(hideTimer);
+    el.classList.remove("active");
+    el.setAttribute("aria-hidden", "true");
+  }
+
+  return { show: show, hide: hide };
+})();
+
+/* ============================================================
+   HANDLER GLOBAL DE CLIQUE
+   ============================================================ */
+document.addEventListener("click", function(e){
+
+  const rippleHost = e.target.closest(".btn, .menu-btn, .sp-btn, .fab, .sp-close");
+  if(rippleHost && !rippleHost.hasAttribute("data-no-ripple")){
+    const r = rippleHost.getBoundingClientRect();
+    const size = Math.max(r.width, r.height);
+    const span = document.createElement("span");
+    span.className = "ripple";
+    span.style.width = span.style.height = size + "px";
+    span.style.left = (e.clientX - r.left - size/2) + "px";
+    span.style.top  = (e.clientY - r.top  - size/2) + "px";
+    if(getComputedStyle(rippleHost).position === "static"){
+      rippleHost.style.position = "relative";
+    }
+    rippleHost.style.overflow = "hidden";
+    rippleHost.appendChild(span);
+    setTimeout(function(){ span.remove(); }, 600);
+  }
+
+  const el = e.target.closest("[data-loading]");
+  if(!el || el.disabled) return;
+
+  ChromeLoader.start();
+  LoadingOverlay.show(LOADING_MS);
+}, true);
+
+/* ============================================================
+   SINCRONIZAR TOAST COM LOADING
+   ============================================================ */
+const _origToast = toast;
+toast = function(msg, erro){
+  _origToast(msg, erro);
+  ChromeLoader.done();
+  LoadingOverlay.hide();
+};
+
+/* Segurança */
+window.addEventListener("error", function(){
+  ChromeLoader.done();
+  LoadingOverlay.hide();
+});
+window.addEventListener("beforeunload", function(){
+  guardar();
+});
 </script>
 </body>
 </html>
