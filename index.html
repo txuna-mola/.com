@@ -315,84 +315,107 @@ svg{display:block}
 .btn.wa{background:linear-gradient(135deg,#2b8cff,#00c6ff);color:var(--white)}
 .btn.wa .ico{stroke:var(--white)}
 
-/* ===================== BANNER ===================== */
-.banner{
-  width:100%;max-width:min(100%,420px);
-  aspect-ratio:904/1280;
+/* ===================== BANNER SLIDER ===================== */
+.banner-wrap{
+  width:100%;
+  max-width:min(100%, 460px);
   margin:0 auto 18px;
-  border-radius:20px;border:1px solid var(--line);
-  overflow:hidden;position:relative;
+  position:relative;
+}
+
+.banner-track{
+  position:relative;
+  width:100%;
+  border-radius:20px;
+  border:1px solid var(--line);
+  overflow:hidden;
+  background:#0f1b33;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);
+  transition:height .45s cubic-bezier(.4,0,.2,1);
+}
+
+.banner-slide{
+  position:absolute;inset:0;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .7s ease, visibility .7s ease, transform .7s ease;
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
-  background-color:#0f1b33;
-  box-shadow:0 24px 60px rgba(0,0,0,.55);
   display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
   padding:26px;
+  transform:scale(1.02);
 }
-.banner::before{
+.banner-slide.active{
+  opacity:1;
+  visibility:visible;
+  transform:scale(1);
+  position:relative;
+}
+.banner-slide::before{
   content:"";position:absolute;inset:0;
   background:linear-gradient(180deg,
-    rgba(5,10,22,.15) 0%,
+    rgba(5,10,22,.10) 0%,
     rgba(5,10,22,.35) 45%,
-    rgba(5,10,22,.85) 100%);
+    rgba(5,10,22,.88) 100%);
   z-index:1;pointer-events:none;
 }
-.banner::after{
+.banner-slide::after{
   content:"";position:absolute;inset:0;
-  background:repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0 2px,transparent 2px 14px);
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 2px,transparent 2px 14px);
   pointer-events:none;z-index:1;
 }
-.banner .b-content{
+.banner-slide .b-content{
   position:relative;z-index:2;
   width:100%;text-align:center;
   display:flex;flex-direction:column;align-items:center;
 }
 .banner-logo{
-  width:88px;height:88px;border-radius:50%;object-fit:cover;
+  width:80px;height:80px;border-radius:50%;object-fit:cover;
   border:2px solid rgba(43,140,255,.65);
   box-shadow:0 0 40px rgba(43,140,255,.65),0 0 80px rgba(255,255,255,.15);
   background:#0a1020;
-  margin-bottom:16px;
+  margin-bottom:14px;
+  animation:logoFloat 3.5s ease-in-out infinite;
 }
-.banner h1{
-  font-size:clamp(26px,7vw,40px);font-weight:900;letter-spacing:3px;
+@keyframes logoFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-6px)}
+}
+.banner-slide h1{
+  font-size:clamp(24px,6.5vw,38px);font-weight:900;letter-spacing:3px;
   line-height:1.1;color:var(--white);
-  text-shadow:0 2px 18px rgba(0,0,0,.7);
+  text-shadow:0 2px 18px rgba(0,0,0,.75);
 }
-.banner h1 span{color:var(--brand2)}
-.banner p{
-  color:#e6eeff;font-size:13px;margin-top:10px;letter-spacing:.6px;
-  line-height:1.7;text-shadow:0 2px 12px rgba(0,0,0,.65);
+.banner-slide h1 span{color:var(--brand2)}
+.banner-slide p{
+  color:#e6eeff;font-size:12.5px;margin-top:9px;letter-spacing:.6px;
+  line-height:1.65;text-shadow:0 2px 12px rgba(0,0,0,.7);
+  max-width:340px;
 }
-.banner .tag{
-  margin-top:20px;padding:8px 16px;border-radius:30px;
+.banner-slide .tag{
+  margin-top:16px;padding:7px 15px;border-radius:30px;
   border:1px solid rgba(43,140,255,.6);color:var(--white);
-  font-size:11px;letter-spacing:2px;font-weight:700;
-  background:rgba(43,140,255,.15);backdrop-filter:blur(6px);
+  font-size:10.5px;letter-spacing:2px;font-weight:700;
+  background:rgba(43,140,255,.18);backdrop-filter:blur(6px);
 }
 
-/* ===================== STATUS ===================== */
-.status-card{
-  border-radius:var(--radius);padding:18px;margin-bottom:16px;
-  border:1px solid var(--line);
-  background:linear-gradient(150deg,var(--card),#0d1424);
-  display:flex;align-items:center;gap:14px;
+/* Indicadores */
+.banner-dots{
+  display:flex;justify-content:center;gap:7px;
+  margin-top:12px;
 }
-.status-card.has{
-  border-color:rgba(43,140,255,.55);
-  background:linear-gradient(150deg,rgba(43,140,255,.15),rgba(255,255,255,.05));
+.banner-dots span{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(147,160,189,.4);
+  cursor:pointer;
+  transition:.3s;
 }
-.status-ico{
-  width:52px;height:52px;border-radius:14px;flex-shrink:0;
-  display:grid;place-items:center;
-  background:rgba(255,255,255,.05);border:1px solid var(--line);
-  color:var(--muted);
+.banner-dots span.active{
+  width:22px;border-radius:6px;
+  background:linear-gradient(90deg,var(--brand),var(--brand2));
+  box-shadow:0 0 10px rgba(43,140,255,.7);
 }
-.status-card.has .status-ico{background:rgba(43,140,255,.2);border-color:rgba(43,140,255,.5);color:var(--white)}
-.status-ico .ico{width:24px;height:24px}
-.status-card b{display:block;font-size:15px;margin-bottom:4px;color:var(--white)}
-.status-card span{font-size:12.5px;color:var(--muted);line-height:1.5}
 
 /* ===================== CARTÃO VIRTUAL ===================== */
 .vcard{
@@ -489,6 +512,81 @@ svg{display:block}
 .aviso-activo .ic .ico{width:22px;height:22px}
 .aviso-activo b{display:block;font-size:14px;color:#ffd0d9;margin-bottom:5px;letter-spacing:.3px}
 .aviso-activo span{font-size:12.5px;color:#ffb8c6;line-height:1.55}
+
+/* ===================== ATRASO ===================== */
+.late-alert{
+  display:flex;align-items:flex-start;gap:13px;
+  border:1px solid rgba(255,92,122,.55);
+  background:linear-gradient(150deg,rgba(255,92,122,.16),rgba(255,92,122,.05));
+  border-radius:15px;padding:16px;margin-bottom:16px;
+  animation:latePulse 2s ease-in-out infinite;
+}
+@keyframes latePulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,92,122,.3)}
+  50%{box-shadow:0 0 0 8px rgba(255,92,122,0)}
+}
+.late-alert .ic{
+  width:46px;height:46px;flex-shrink:0;border-radius:12px;
+  display:grid;place-items:center;
+  background:rgba(255,92,122,.25);color:#ffb8c6;
+  border:1px solid rgba(255,92,122,.6);
+}
+.late-alert .ic .ico{width:24px;height:24px}
+.late-alert b{display:block;font-size:14.5px;color:#ffd0d9;margin-bottom:5px;letter-spacing:.3px}
+.late-alert span{font-size:12.5px;color:#ffb8c6;line-height:1.55;display:block}
+.late-alert .multa-box{
+  margin-top:10px;padding:10px 12px;border-radius:10px;
+  background:rgba(0,0,0,.28);
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  font-size:12px;
+}
+.late-alert .multa-box b{color:#ff5c7a;font-size:16px;font-weight:800;font-family:'Courier New',monospace}
+
+/* Contador de progresso do nível */
+.nivel-progress{
+  margin-top:11px;padding:10px 12px;
+  background:#0a1120;border:1px solid var(--line);border-radius:10px;
+}
+.nivel-progress .lbl{
+  display:flex;justify-content:space-between;
+  font-size:10.5px;color:var(--muted);
+  margin-bottom:6px;letter-spacing:.4px;
+}
+.nivel-progress .lbl b{color:var(--brand2);font-weight:800}
+.nivel-progress .bar{
+  height:6px;border-radius:6px;
+  background:#1a2338;overflow:hidden;position:relative;
+}
+.nivel-progress .bar > i{
+  display:block;height:100%;border-radius:6px;
+  background:linear-gradient(90deg,var(--brand),var(--brand2));
+  transition:width .6s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 10px rgba(43,140,255,.6);
+}
+
+/* Estado ACTIVO / EM ATRASO / LIQUIDADO */
+.estado-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:800;letter-spacing:1px;
+  padding:5px 11px;border-radius:20px;text-transform:uppercase;
+}
+.estado-pill.ativo{
+  background:rgba(37,208,122,.18);color:#7affb1;
+  border:1px solid rgba(37,208,122,.5);
+}
+.estado-pill.atraso{
+  background:rgba(255,92,122,.18);color:#ffb8c6;
+  border:1px solid rgba(255,92,122,.55);
+  animation:estadoBlink 1.2s ease-in-out infinite;
+}
+@keyframes estadoBlink{
+  0%,100%{opacity:1}
+  50%{opacity:.55}
+}
+.estado-pill.sem{
+  background:rgba(147,160,189,.14);color:var(--muted);
+  border:1px solid var(--line);
+}
 
 /* ===================== HISTÓRICO ===================== */
 .hist-item{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
@@ -864,12 +962,28 @@ svg{display:block}
 
   <div class="wrap">
     <div id="view-painel" class="view">
-      <div class="banner" id="bannerEl">
-        <div class="b-content">
-          <img class="banner-logo" id="bannerLogo" alt="Txuna Mola">
-          <h1>TXUNA <span>MOLA</span></h1>
-          <p>Txuna mola uma solução digital em sua mão.<br>Dinheiro na sua mão em pouco minutos.</p>
-          <div class="tag">Txuna Mola</div>
+      <div class="banner-wrap">
+        <div class="banner-track" id="bannerTrack">
+          <div class="banner-slide active" data-slide="0">
+            <div class="b-content">
+              <img class="banner-logo" id="bannerLogo1" alt="Txuna Mola">
+              <h1>TXUNA <span>MOLA</span></h1>
+              <p>Txuna mola uma solução digital em sua mão.<br>Dinheiro na sua mão em pouco minutos.</p>
+              <div class="tag">TXUNA MOLA</div>
+            </div>
+          </div>
+          <div class="banner-slide" data-slide="1">
+            <div class="b-content">
+              <img class="banner-logo" id="bannerLogo2" alt="Txuna Mola">
+              <h1>CRÉDITO <span>RÁPIDO</span></h1>
+              <p>Sem burocracia, sem filas.<br>Solicite agora e receba em minutos.</p>
+              <div class="tag">SIMPLES • RÁPIDO • SEGURO</div>
+            </div>
+          </div>
+        </div>
+        <div class="banner-dots" id="bannerDots">
+          <span class="active" data-go="0"></span>
+          <span data-go="1"></span>
         </div>
       </div>
       <div id="statusCard"></div>
@@ -1009,7 +1123,7 @@ svg{display:block}
         Como funciona o cartão virtual?
         <span class="arrow"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
       </div>
-      <div class="faq-a"><div>O cartão virtual mostra o nome, número do BI, data do empréstimo, valor e dia de pagamento. Por baixo tem o botão <b>Fazer Pagamento</b> — no espaço vazio colar a mensagem do pagamento efetuado <b></b>.</div></div>
+      <div class="faq-a"><div>O cartão virtual mostra o nome, número do BI, data do empréstimo, valor e dia de pagamento. Por baixo tem o botão <b>Fazer Pagamento</b> — no espaço vazio colar a mensagem do pagamento efectuado.</div></div>
     </div>
 
     <div class="faq" data-faq>
@@ -1036,7 +1150,7 @@ svg{display:block}
         Porque preciso de OTP?
         <span class="arrow"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span>
       </div>
-      <div class="faq-a"><div>O OTP confirma que é realmente você a solicitar o empréstimo ou o pagamento. O código é renovado automaticamente a cada 5 minutos. Pedi ao atendente humano pelos canais oficiais da Txuna Mola.</div></div>
+      <div class="faq-a"><div>O OTP confirma que é realmente você a solicitar o empréstimo ou o pagamento. O código é renovado automaticamente a cada 5 minutos. Peça ao atendente humano pelos canais oficiais da Txuna Mola.</div></div>
     </div>
 
     <div class="sp-sec" style="margin-top:16px">Falar com Atendimento Humano</div>
@@ -1114,7 +1228,9 @@ svg{display:block}
    CONFIGURAÇÕES
    ============================================================ */
 const LOGO_URL   = "https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/cc488309-70ac-40c7-a779-30cb10131480.jpg";
-const BANNER_URL = "https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/b0ea7cf2-c731-4a28-931b-a8d6cd4fd7dd.png";
+const BANNER_1   = "https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/c31b657d-c573-4c3b-8d92-fae5657e4b06.jpg";
+const BANNER_2   = "https://i.supaimg.com/31caa345-0fb5-4fea-8558-144aeec4da1f/b3ccfae8-8614-45a6-92fc-ae30a9640d3f.png";
+const BANNER_INTERVAL = 15000;
 
 const WHATSAPP_NUMBER = "258845193471";
 const SUPPORT_PHONE   = "+258845193471";
@@ -1199,12 +1315,16 @@ function guardar(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(S)); }ca
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 
+let _toastOriginal;
 function toast(msg, erro){
   const t = $("#toast");
+  if(!t) return;
   t.textContent = msg;
   t.className = "toast show" + (erro ? " err" : "");
   clearTimeout(t._tm);
   t._tm = setTimeout(function(){ t.className = "toast"; }, 3400);
+  if(typeof ChromeLoader !== "undefined") ChromeLoader.done();
+  if(typeof LoadingOverlay !== "undefined") LoadingOverlay.hide();
 }
 function fmt(v){ return new Intl.NumberFormat('pt-MZ').format(v) + " MT"; }
 function addHist(txt){
@@ -1220,6 +1340,13 @@ function esc(s){
   return String(s == null ? "" : s)
     .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
+function toISO(d){
+  const dt = new Date(d);
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth()+1).padStart(2,"0");
+  const dd = String(dt.getDate()).padStart(2,"0");
+  return y + "-" + m + "-" + dd;
+}
 
 /* ============================================================
    APLICAR IMAGENS
@@ -1229,14 +1356,90 @@ function aplicarImagens(){
     this.onerror = null;
     this.style.background = "linear-gradient(135deg,#2b8cff,#00c6ff)";
   };
-  ["#loaderLogo","#regLogo","#topLogo","#bannerLogo","#vcardMark","#supportLogo","#drawerAvatar"]
+  ["#loaderLogo","#regLogo","#topLogo","#vcardMark","#supportLogo","#drawerAvatar",
+   "#bannerLogo1","#bannerLogo2"]
     .forEach(function(sel){
       const el = $(sel);
       if(el){ el.src = LOGO_URL; el.alt = "Txuna Mola"; el.onerror = imgFallback; }
     });
-  const banner = $("#bannerEl");
-  if(banner){ banner.style.backgroundImage = "url('" + BANNER_URL + "')"; }
 }
+
+/* ============================================================
+   BANNER SLIDER — 15 SEGUNDOS
+   ============================================================ */
+const BannerSlider = (function(){
+  let idx = 0;
+  let timer = null;
+  const IMGS = [BANNER_1, BANNER_2];
+
+  function ajustarAltura(){
+    const track = $("#bannerTrack");
+    if(!track) return;
+    const slides = track.querySelectorAll(".banner-slide");
+    slides.forEach(function(s, i){
+      if(i === 0){
+        s.style.aspectRatio = "904 / 1231";
+      }else{
+        s.style.aspectRatio = "1370 / 1073";
+      }
+      s.style.backgroundImage = "url('" + IMGS[i] + "')";
+    });
+  }
+
+  function irPara(n){
+    const slides = $$(".banner-slide");
+    const dots   = $$("#bannerDots span");
+    if(!slides.length) return;
+    idx = ((n % slides.length) + slides.length) % slides.length;
+    slides.forEach(function(s, i){ s.classList.toggle("active", i === idx); });
+    dots.forEach(function(d, i){ d.classList.toggle("active", i === idx); });
+  }
+
+  function proximo(){ irPara(idx + 1); }
+  function anterior(){ irPara(idx - 1); }
+
+  function reiniciar(){
+    clearInterval(timer);
+    timer = setInterval(proximo, BANNER_INTERVAL);
+  }
+
+  function start(){
+    ajustarAltura();
+    const dots = $$("#bannerDots span");
+    dots.forEach(function(d){
+      d.onclick = function(){
+        irPara(parseInt(this.dataset.go, 10));
+        reiniciar();
+      };
+    });
+
+    const track = $("#bannerTrack");
+    if(track){
+      let x0 = null;
+      track.addEventListener("touchstart", function(e){
+        x0 = e.touches[0].clientX;
+      }, {passive:true});
+      track.addEventListener("touchend", function(e){
+        if(x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0;
+        if(Math.abs(dx) > 40){
+          dx < 0 ? proximo() : anterior();
+          reiniciar();
+        }
+        x0 = null;
+      }, {passive:true});
+    }
+
+    reiniciar();
+  }
+
+  function parar(){
+    clearInterval(timer);
+    timer = null;
+  }
+
+  return { start: start, irPara: irPara, reiniciar: reiniciar, parar: parar };
+})();
 
 /* ============================================================
    ARRANQUE
@@ -1288,7 +1491,7 @@ function iniciarRegisto(){
 
   const dn = $("#dataNasc");
   const limite = new Date(); limite.setFullYear(limite.getFullYear() - 18);
-  dn.max = limite.toISOString().split("T")[0];
+  dn.max = toISO(limite);
 
   const nome = $("#nomeBi");
   nome.addEventListener("input", function(){
@@ -1335,7 +1538,7 @@ function iniciarRegisto(){
   $("#formRegisto").addEventListener("submit", function(e){
     e.preventDefault();
     if(!formularioValido()){
-      toast("Preencha todos os campos  correctamente.", true);
+      toast("Preencha todos os campos correctamente.", true);
       return;
     }
 
@@ -1406,6 +1609,11 @@ function maiorDe18(dataStr){
   if(m < 0 || (m === 0 && hj.getDate() < nasc.getDate())) idade--;
   return idade >= 18;
 }
+function marcarErro(sel, valido){
+  const el = $(sel); if(!el) return;
+  if(!el.value){ el.classList.remove("err"); return; }
+  el.classList.toggle("err", !valido);
+}
 function validar(){
   const btn = $("#btnRegistar");
   const ok = formularioValido();
@@ -1419,10 +1627,46 @@ function validar(){
   if(dn) marcarErro("#dataNasc", maiorDe18(dn));
   else { const el = $("#dataNasc"); if(el) el.classList.remove("err"); }
 }
-function marcarErro(sel, valido){
-  const el = $(sel); if(!el) return;
-  if(!el.value){ el.classList.remove("err"); return; }
-  el.classList.toggle("err", !valido);
+
+/* ============================================================
+   CÁLCULO DE ATRASO E MULTA
+   ============================================================ */
+function calcularAtraso(loan){
+  if(!loan || !loan.vencimentoISO) return null;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const venc = new Date(loan.vencimentoISO + "T00:00:00");
+  venc.setHours(0,0,0,0);
+
+  const diffMs = hoje - venc;
+  const diasAtraso = Math.max(0, Math.floor(diffMs / 86400000));
+
+  const multaPorDia = loan.multa || 0;
+  const multaTotal  = diasAtraso * multaPorDia;
+  const valorBase   = loan.pagamento || 0;
+  const totalDevido = valorBase + multaTotal;
+
+  const bloqueado = diasAtraso >= 20;
+  const diasParaBloquear = Math.max(0, 20 - diasAtraso);
+
+  return {
+    diasAtraso,
+    multaPorDia,
+    multaTotal,
+    valorBase,
+    totalDevido,
+    bloqueado,
+    diasParaBloquear,
+    emAtraso: diasAtraso > 0
+  };
+}
+
+function statusCliente(){
+  if(!S.loan) return { estado: "sem", info: null };
+  const at = calcularAtraso(S.loan);
+  if(!at) return { estado: "ativo", info: null };
+  if(at.bloqueado) return { estado: "bloqueado", info: at };
+  if(at.emAtraso)  return { estado: "atraso",    info: at };
+  return { estado: "ativo", info: at };
 }
 
 /* ============================================================
@@ -1454,6 +1698,8 @@ function iniciarPainel(){
   renderCartao();
   renderPagamento();
   renderHistorico();
+
+  BannerSlider.start();
 }
 function abrirDrawer(v){
   $("#drawer").classList.toggle("open", v);
@@ -1468,45 +1714,109 @@ function trocarVista(v){
   if(v === "historico") renderHistorico();
   if(v === "cartao")    { renderCartao(); renderPagamento(); }
   if(v === "emprestimo") renderNiveis();
+  if(v === "painel")    renderStatus();
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
 function renderStatus(){
   const box = $("#statusCard");
-  if(S.loan){
-    const l = S.loan;
-    box.innerHTML =
-      '<div class="status-card has">' +
-        '<div class="status-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>' +
-        '<div><b>Empréstimo Activo — Nível ' + l.nivel + '</b>' +
-        '<span>Valor: ' + fmt(l.valor) + ' • Pagamento: ' + fmt(l.pagamento) +
-        ' • Vencimento: ' + l.vencimento + '</span></div>' +
-      '</div>';
-  }else{
+  if(!box) return;
+  const st = statusCliente();
+
+  if(!S.loan){
     box.innerHTML =
       '<div class="status-card">' +
         '<div class="status-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 10h18"/></svg></div>' +
         '<div><b>Sem empréstimo activo</b>' +
-        '<span>Não existe nenhum empréstimo em curso na sua conta. Vá ao menu <b>Empréstimo</b> para solicitar.</span></div>' +
+        '<span>Não existe nenhum empréstimo em curso. Vá ao menu <b>Empréstimo</b> para solicitar.</span></div>' +
       '</div>';
+    return;
   }
+
+  if(st.estado === "bloqueado"){
+    box.innerHTML =
+      '<div class="status-card has" style="border-color:rgba(255,92,122,.6);background:linear-gradient(150deg,rgba(255,92,122,.16),rgba(255,255,255,.05))">' +
+        '<div class="status-ico" style="background:rgba(255,92,122,.25);color:#ffb8c6;border-color:rgba(255,92,122,.55)">' +
+          '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>' +
+        '</div>' +
+        '<div><b>Conta BLOQUEADA — ' + st.info.diasAtraso + ' dias em atraso</b>' +
+        '<span>Total devido: <b>' + fmt(st.info.totalDevido) + '</b>. Regularize para desbloquear.</span></div>' +
+      '</div>';
+    return;
+  }
+
+  if(st.estado === "atraso"){
+    box.innerHTML =
+      '<div class="status-card has" style="border-color:rgba(255,92,122,.55);background:linear-gradient(150deg,rgba(255,92,122,.13),rgba(255,255,255,.05))">' +
+        '<div class="status-ico" style="background:rgba(255,92,122,.22);color:#ffb8c6;border-color:rgba(255,92,122,.5)">' +
+          '<svg class="ico" viewBox="0 0 24 24"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>' +
+        '</div>' +
+        '<div><b>Empréstimo em ATRASO — ' + st.info.diasAtraso + ' dia(s)</b>' +
+        '<span>Multa acumulada: <b>' + fmt(st.info.multaTotal) + '</b> • Total: <b>' + fmt(st.info.totalDevido) + '</b></span></div>' +
+      '</div>';
+    return;
+  }
+
+  box.innerHTML =
+    '<div class="status-card has">' +
+      '<div class="status-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+      '<div><b>Empréstimo Activo — Nível ' + S.loan.nivel + '</b>' +
+      '<span>Valor: ' + fmt(S.loan.valor) + ' • Pagamento: ' + fmt(S.loan.pagamento) +
+      ' • Vencimento: ' + S.loan.vencimento + '</span></div>' +
+    '</div>';
 }
 
 function nivelDesbloqueado(n){
+  if(S.loan) return false;
+  const st = statusCliente();
+  if(st.estado === "bloqueado") return false;
   if(n === 1) return true;
   const ant = NIVELES[n - 2];
+  if(!ant) return false;
   return (S.completos[ant.n] || 0) >= ant.req;
 }
 
 function renderNiveis(){
   const box = $("#niveisList");
   const aviso = $("#avisoEmprestimo");
+  if(!box) return;
   box.innerHTML = "";
 
-  /* Aviso de empréstimo activo no topo */
+  const st = statusCliente();
+
   if(aviso){
-    if(S.loan){
-      const l = S.loan;
+    if(st.estado === "bloqueado"){
+      aviso.innerHTML =
+        '<div class="late-alert">' +
+          '<div class="ic">' +
+            '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>' +
+          '</div>' +
+          '<div>' +
+            '<b>CONTA BLOQUEADA — ' + st.info.diasAtraso + ' dias de atraso</b>' +
+            '<span>Ultrapassou o limite de 20 dias de atraso. Todas as solicitações estão suspensas. Efectue o pagamento total para regularizar.</span>' +
+            '<div class="multa-box">' +
+              '<span>Total devido (com multa):</span>' +
+              '<b>' + fmt(st.info.totalDevido) + '</b>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }else if(st.estado === "atraso"){
+      aviso.innerHTML =
+        '<div class="late-alert">' +
+          '<div class="ic">' +
+            '<svg class="ico" viewBox="0 0 24 24"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>' +
+          '</div>' +
+          '<div>' +
+            '<b>Empréstimo em ATRASO há ' + st.info.diasAtraso + ' dia(s)</b>' +
+            '<span>Multa acumulada: <b>' + fmt(st.info.multaTotal) + '</b> (' + fmt(st.info.multaPorDia) + ' × ' + st.info.diasAtraso + ' dia' + (st.info.diasAtraso>1?'s':'') + '). ' +
+            'Bloqueio automático em <b>' + st.info.diasParaBloquear + ' dia' + (st.info.diasParaBloquear!==1?'s':'') + '</b>.</span>' +
+            '<div class="multa-box">' +
+              '<span>Total devido:</span>' +
+              '<b>' + fmt(st.info.totalDevido) + '</b>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }else if(st.estado === "ativo" && S.loan){
       aviso.innerHTML =
         '<div class="aviso-activo">' +
           '<div class="ic">' +
@@ -1514,8 +1824,9 @@ function renderNiveis(){
           '</div>' +
           '<div>' +
             '<b>Empréstimo em curso — não pode solicitar outro</b>' +
-            '<span>Você já tem um empréstimo activo do <b>Nível ' + l.nivel + '</b> no valor de <b>' + fmt(l.valor) + '</b>, com pagamento de <b>' + fmt(l.pagamento) + '</b> até <b>' + l.vencimento + '</b>. ' +
-            'Efectue o pagamento no menu <b>Cartão Virtual → Fazer Pagamento</b> para desbloquear novas solicitações.</span>' +
+            '<span>Você já tem um empréstimo activo do <b>Nível ' + S.loan.nivel + '</b> — ' + fmt(S.loan.valor) + '. ' +
+            'Pagamento de <b>' + fmt(S.loan.pagamento) + '</b> até <b>' + S.loan.vencimento + '</b>. ' +
+            'Efectue o pagamento em <b>Cartão Virtual → Fazer Pagamento</b>.</span>' +
           '</div>' +
         '</div>';
     }else{
@@ -1525,18 +1836,22 @@ function renderNiveis(){
 
   NIVELES.forEach(function(lv){
     const aberto = nivelDesbloqueado(lv.n);
-    const temEmprestimoActivo = !!S.loan;
     const feitos = S.completos[lv.n] || 0;
     const div = document.createElement("div");
     div.className = "nivel " + (aberto ? "aberto" : "bloq");
 
     let btnHtml;
-    if(temEmprestimoActivo && aberto){
-      /* Empréstimo activo → botão bloqueado com aviso claro */
+    if(S.loan){
       btnHtml =
         '<button class="btn small" disabled>' +
           '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>' +
-          'BLOQUEADO — JÁ TEM EMPRÉSTIMO ACTIVO' +
+          'BLOQUEADO — EMPRÉSTIMO ACTIVO' +
+        '</button>';
+    }else if(st.estado === "bloqueado"){
+      btnHtml =
+        '<button class="btn small" disabled>' +
+          '<svg class="ico" viewBox="0 0 24 24"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>' +
+          'CONTA BLOQUEADA — REGULARIZE' +
         '</button>';
     }else if(aberto){
       btnHtml =
@@ -1546,12 +1861,30 @@ function renderNiveis(){
         '</button>';
     }else{
       const ant = NIVELES[lv.n - 2];
-      const falta = ant.req - (S.completos[ant.n] || 0);
-      btnHtml =
-        '<button class="btn small" disabled>' +
-          '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>' +
-          'BLOQUEADO — Faltam ' + falta + ' do Nível ' + ant.n +
-        '</button>';
+      if(ant){
+        const falta = Math.max(0, ant.req - (S.completos[ant.n] || 0));
+        btnHtml =
+          '<button class="btn small" disabled>' +
+            '<svg class="ico" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>' +
+            'FALTAM ' + falta + ' × NÍVEL ' + ant.n +
+          '</button>';
+      }else{
+        btnHtml = '<button class="btn small" disabled>INDISPONÍVEL</button>';
+      }
+    }
+
+    const ant = NIVELES[lv.n - 2];
+    let progressoHtml = "";
+    if(ant){
+      const pct = Math.min(100, (feitos / ant.req) * 100);
+      progressoHtml =
+        '<div class="nivel-progress">' +
+          '<div class="lbl">' +
+            '<span>Progresso para desbloquear Nível ' + (lv.n + 1) + '</span>' +
+            '<b>' + feitos + ' / ' + ant.req + '</b>' +
+          '</div>' +
+          '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+        '</div>';
     }
 
     div.innerHTML =
@@ -1565,12 +1898,13 @@ function renderNiveis(){
         '<div><small>Multa / dia</small><b>' + fmt(lv.multa) + '</b></div>' +
         '<div><small>Bloqueio</small><b>20 dias</b></div>' +
       '</div>' +
-      '<div style="font-size:11.5px;color:var(--muted);margin-bottom:12px;line-height:1.6">' +
-        'Após o atraso do pagamento é cobrado ' + fmt(lv.multa) + ' por dia. ' +
-        'Após 20 dias de atraso o cliente é bloqueado.<br>' +
-        'Para abrir este nível é necessário concluir <b>' + lv.req + ' vezes</b> o empréstimo do nível anterior.' +
-        (feitos ? '<br>Concluídos neste nível: <b>' + feitos + '</b>' : '') +
-      '</div>' + btnHtml;
+      '<div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;line-height:1.6">' +
+        'Após o atraso é cobrado <b>' + fmt(lv.multa) + '</b> por dia. ' +
+        'Bloqueio automático após <b>20 dias</b> de atraso.<br>' +
+        'Para abrir o nível ' + (lv.n + 1) + ' é necessário concluir <b>' + lv.req + ' ×</b> o Nível ' + lv.n + '.' +
+      '</div>' +
+      progressoHtml +
+      '<div style="margin-top:12px">' + btnHtml + '</div>';
 
     box.appendChild(div);
   });
@@ -1581,30 +1915,42 @@ function renderNiveis(){
 }
 
 function solicitarEmprestimo(n){
-  /* Bloqueio de segurança — dupla verificação */
   if(S.loan){
     toast("Já tem um empréstimo activo. Efectue o pagamento antes de solicitar outro.", true);
     renderNiveis();
     return;
   }
 
+  const st = statusCliente();
+  if(st.estado === "bloqueado"){
+    toast("Conta bloqueada por atraso. Regularize primeiro.", true);
+    return;
+  }
+
   const lv = NIVELES[n - 1];
+  if(!lv) return;
+
   pedirOTP("Para solicitar o empréstimo do Nível " + n + " introduza o código OTP válido.", function(){
-    /* Re-verificar após OTP (pode ter mudado noutro separador) */
     if(S.loan){
       toast("Já tem um empréstimo activo. Operação cancelada.", true);
       renderNiveis();
       return;
     }
+    const st2 = statusCliente();
+    if(st2.estado === "bloqueado"){
+      toast("Conta bloqueada por atraso. Operação cancelada.", true);
+      return;
+    }
 
     const hojeD = new Date();
-    const venc = new Date(); venc.setDate(venc.getDate() + lv.dias);
+    const venc  = new Date(); venc.setDate(venc.getDate() + lv.dias);
 
     S.loan = {
       nivel: lv.n, valor: lv.valor, pagamento: lv.pag, juro: lv.juro,
       dias: lv.dias, multa: lv.multa, duracao: lv.dur,
       data: hojeD.toLocaleDateString('pt-MZ'),
       vencimento: venc.toLocaleDateString('pt-MZ'),
+      vencimentoISO: toISO(venc),
       criadoEm: new Date().toLocaleString('pt-MZ')
     };
     addHist("Solicitou empréstimo Nível " + lv.n + " — " + fmt(lv.valor) + " (pagamento " + fmt(lv.pag) + " até " + S.loan.vencimento + ").");
@@ -1642,21 +1988,50 @@ function solicitarEmprestimo(n){
 
 function renderCartao(){
   const u = S.user;
-  $("#vcNome").textContent = u.nome;
-  $("#vcBi").textContent   = u.bi;
-  const digits = (u.bi.replace(/[^0-9]/g, "") + "000000000000").slice(0,16);
-  $("#vcNum").textContent = digits.replace(/(.{4})/g, "$1 ").trim();
+  if(!u) return;
+  const elNome = $("#vcNome");
+  const elBi = $("#vcBi");
+  const elNum = $("#vcNum");
+  const elEstado = $("#vcEstado");
+  if(elNome) elNome.textContent = u.nome;
+  if(elBi) elBi.textContent = u.bi;
+  if(elNum){
+    const digits = (u.bi.replace(/[^0-9]/g, "") + "000000000000").slice(0,16);
+    elNum.textContent = digits.replace(/(.{4})/g, "$1 ").trim();
+  }
 
   if(S.loan){
-    $("#vcData").textContent   = S.loan.data;
-    $("#vcValor").textContent  = fmt(S.loan.valor);
-    $("#vcPag").textContent    = S.loan.vencimento;
-    $("#vcEstado").textContent = "ACTIVO";
+    const st = statusCliente();
+    const elData = $("#vcData");
+    const elValor = $("#vcValor");
+    const elPag = $("#vcPag");
+    if(elData) elData.textContent = S.loan.data;
+    if(elValor) elValor.textContent = fmt(S.loan.valor);
+    if(elPag) elPag.textContent = S.loan.vencimento;
+
+    if(elEstado){
+      if(st.estado === "bloqueado"){
+        elEstado.textContent = "BLOQUEADO";
+        elEstado.style.color = "#ff5c7a";
+      }else if(st.estado === "atraso"){
+        elEstado.textContent = "EM ATRASO (" + st.info.diasAtraso + "d)";
+        elEstado.style.color = "#ffb8c6";
+      }else{
+        elEstado.textContent = "ACTIVO";
+        elEstado.style.color = "#7affb1";
+      }
+    }
   }else{
-    $("#vcData").textContent   = "—";
-    $("#vcValor").textContent  = "—";
-    $("#vcPag").textContent    = "—";
-    $("#vcEstado").textContent = "SEM EMPRÉSTIMO";
+    const elData = $("#vcData");
+    const elValor = $("#vcValor");
+    const elPag = $("#vcPag");
+    if(elData) elData.textContent = "—";
+    if(elValor) elValor.textContent = "—";
+    if(elPag) elPag.textContent = "—";
+    if(elEstado){
+      elEstado.textContent = "SEM EMPRÉSTIMO";
+      elEstado.style.color = "";
+    }
   }
 }
 
@@ -1675,9 +2050,33 @@ function renderPagamento(){
       '</div>';
     return;
   }
+
   const l = S.loan;
+  const st = statusCliente();
+  const info = st.info;
+  const emAtraso = st.estado === "atraso" || st.estado === "bloqueado";
+  const totalDevido = emAtraso && info ? info.totalDevido : l.pagamento;
+
+  const alertaAtraso = (emAtraso && info) ?
+    '<div class="late-alert" style="margin-bottom:14px">' +
+      '<div class="ic"><svg class="ico" viewBox="0 0 24 24"><path d="M12 8v5M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg></div>' +
+      '<div>' +
+        '<b>' + (st.estado === "bloqueado" ? "CONTA BLOQUEADA" : "PAGAMENTO EM ATRASO") + '</b>' +
+        '<span>' + info.diasAtraso + ' dia(s) de atraso × ' + fmt(info.multaPorDia) + ' = <b>' + fmt(info.multaTotal) + '</b> de multa.</span>' +
+        '<div class="multa-box">' +
+          '<span>Valor base:</span><b>' + fmt(l.pagamento) + '</b>' +
+        '</div>' +
+        '<div class="multa-box" style="margin-top:6px">' +
+          '<span>MULTA ACUMULADA:</span><b>+' + fmt(info.multaTotal) + '</b>' +
+        '</div>' +
+        '<div class="multa-box" style="margin-top:6px;background:rgba(255,92,122,.18);border:1px solid rgba(255,92,122,.4)">' +
+          '<span><b>TOTAL A PAGAR:</b></span><b>' + fmt(totalDevido) + '</b>' +
+        '</div>' +
+      '</div>' +
+    '</div>' : '';
 
   area.innerHTML =
+    alertaAtraso +
     '<div class="view-title"><h2>Efectuar Pagamento</h2><div class="line"></div></div>' +
     '<div class="field"><label>Nome do Cliente</label>' +
       '<input type="text" value="' + esc(S.user.nome) + '" readonly></div>' +
@@ -1690,68 +2089,95 @@ function renderPagamento(){
       '<div class="field"><label>Valor do Empréstimo</label><input type="text" value="' + fmt(l.valor) + '" readonly></div>' +
     '</div>' +
     '<div class="row2">' +
-      '<div class="field"><label>Valor a Pagar</label><input type="text" value="' + fmt(l.pagamento) + '" readonly></div>' +
+      '<div class="field"><label>Valor a Pagar</label><input type="text" value="' + fmt(totalDevido) + '" readonly style="color:' + (emAtraso ? '#ff5c7a' : 'var(--white)') + ';font-weight:800"></div>' +
       '<div class="field"><label>Dia de Pagamento</label><input type="text" value="' + l.vencimento + '" readonly></div>' +
     '</div>' +
+    (emAtraso && info ?
+      '<div class="row2">' +
+        '<div class="field"><label>Dias de Atraso</label><input type="text" value="' + info.diasAtraso + ' dias" readonly style="color:#ff5c7a"></div>' +
+        '<div class="field"><label>Multa Acumulada</label><input type="text" value="' + fmt(info.multaTotal) + '" readonly style="color:#ff5c7a"></div>' +
+      '</div>' : '') +
     '<div class="row2">' +
       '<div class="field"><label>Data do Empréstimo</label><input type="text" value="' + l.data + '" readonly></div>' +
       '<div class="field"><label>Juro</label><input type="text" value="' + fmt(l.juro) + '" readonly></div>' +
     '</div>' +
     '<div class="field">' +
-      '<label>Mensagem de Pagamento <span class="req"></span></label>' +
-      '<textarea id="msgPag" placeholder="Colar mensagem do pagamento"></textarea>' +
-      '<div class="hint show" style="background:rgba(255,92,122,.09);border-left-color:var(--danger);color:#ffb8c6">' +
-        'A mensagem <b></b>do<b></b> pagamento do nível ' + l.nivel + ' no valor de ' + fmt(l.pagamento) + '.' +
+      '<label>Mensagem de Pagamento <span class="req">*</span></label>' +
+      '<textarea id="msgPag" placeholder="Colar aqui a mensagem do pagamento efectuado (ex: DIF... )"></textarea>' +
+      '<div class="hint show">' +
+        'Cole a mensagem de confirmação do pagamento de <b>' + fmt(totalDevido) + '</b>' +
+        (emAtraso && info ? ' (inclui ' + fmt(info.multaTotal) + ' de multa)' : '') + '.' +
       '</div>' +
     '</div>' +
     '<button class="btn wa" id="btnPagar">' +
       '<svg class="ico" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 0 1-12.6 7.4L3.5 20.5l1.1-4.3A8.5 8.5 0 1 1 20.5 12z"/></svg>' +
-      'Fazer pagamento</button>';
+      'Fazer pagamento — ' + fmt(totalDevido) + '</button>';
 
   if(textoAnterior){
     const novaMsg = area.querySelector("#msgPag");
     if(novaMsg) novaMsg.value = textoAnterior;
   }
 
-  $("#btnPagar").onclick = function(){
-    const msg = $("#msgPag").value.trim();
-    if(!msg){ toast("Colar a mensagem de pagamento.", true); $("#msgPag").classList.add("err"); return; }
-    if(!/^DIF/i.test(msg)){ toast("Preenche este campo vazio com a mensagem de pagamento.", true); $("#msgPag").classList.add("err"); return; }
-    $("#msgPag").classList.remove("err");
+  const btn = $("#btnPagar");
+  if(btn){
+    btn.onclick = function(){
+      const msgEl = $("#msgPag");
+      const msg = msgEl.value.trim();
+      if(!msg){
+        toast("Cole a mensagem de pagamento efectuado.", true);
+        msgEl.classList.add("err");
+        return;
+      }
+      msgEl.classList.remove("err");
 
-    pedirOTP("Introduza o código OTP válido para confirmar o pagamento.", function(){
-      const texto =
-        "*TXUNA MOLA — PAGAMENTO*\n" +
-        "━━━━━━━━━━━━━━━━━━━━\n" +
-        "*Nome:* " + S.user.nome + "\n" +
-        "*Nº BI:* " + S.user.bi + "\n" +
-        "*Telefone:* " + S.user.telefone + "\n" +
-        "*Província:* " + S.user.provincia + "\n" +
-        "*Distrito:* " + S.user.distrito + "\n" +
-        "*Género:* " + S.user.genero + "\n" +
-        "━━━━━━━━━━━━━━━━━━━━\n" +
-        "*Nível:* " + l.nivel + "\n" +
-        "*Valor do empréstimo:* " + fmt(l.valor) + "\n" +
-        "*Valor a pagar:* " + fmt(l.pagamento) + "\n" +
-        "*Data do empréstimo:* " + l.data + "\n" +
-        "*Dia de pagamento:* " + l.vencimento + "\n" +
-        "*Juro:* " + fmt(l.juro) + "\n" +
-        "━━━━━━━━━━━━━━━━━━━━\n" +
-        "*MENSAGEM:* " + msg;
+      pedirOTP("Introduza o código OTP válido para confirmar o pagamento de " + fmt(totalDevido) + ".", function(){
+        const at = calcularAtraso(l);
+        const pagouTotal = at ? at.totalDevido : l.pagamento;
 
-      S.completos[l.nivel] = (S.completos[l.nivel] || 0) + 1;
-      addHist("Pagamento efectuado do Nível " + l.nivel + " — " + fmt(l.pagamento) + ". Mensagem: " + msg);
-      S.loan = null; guardar();
+        const texto =
+          "*TXUNA MOLA — PAGAMENTO*\n" +
+          "━━━━━━━━━━━━━━━━━━━━\n" +
+          "*Nome:* " + S.user.nome + "\n" +
+          "*Nº BI:* " + S.user.bi + "\n" +
+          "*Telefone:* " + S.user.telefone + "\n" +
+          "*Província:* " + S.user.provincia + "\n" +
+          "*Distrito:* " + S.user.distrito + "\n" +
+          "*Género:* " + S.user.genero + "\n" +
+          "━━━━━━━━━━━━━━━━━━━━\n" +
+          "*Nível:* " + l.nivel + "\n" +
+          "*Valor do empréstimo:* " + fmt(l.valor) + "\n" +
+          "*Valor base a pagar:* " + fmt(l.pagamento) + "\n" +
+          (at && at.emAtraso ?
+            "*Dias de atraso:* " + at.diasAtraso + "\n" +
+            "*Multa por dia:* " + fmt(at.multaPorDia) + "\n" +
+            "*Multa acumulada:* " + fmt(at.multaTotal) + "\n" +
+            "*TOTAL PAGO:* " + fmt(pagouTotal) + "\n" : '') +
+          "*Data do empréstimo:* " + l.data + "\n" +
+          "*Dia de pagamento:* " + l.vencimento + "\n" +
+          "*Juro:* " + fmt(l.juro) + "\n" +
+          "━━━━━━━━━━━━━━━━━━━━\n" +
+          "*MENSAGEM:* " + msg;
 
-      renderStatus(); renderCartao(); renderPagamento(); renderNiveis();
-      abrirWhatsApp(texto);
-      toast("Pagamento enviado! A referir o pedido. Níveis desbloqueados novamente.");
-    });
-  };
+        S.completos[l.nivel] = (S.completos[l.nivel] || 0) + 1;
+        addHist(
+          "Pagamento do Nível " + l.nivel + " — Total: " + fmt(pagouTotal) +
+          (at && at.emAtraso ? " (multa " + fmt(at.multaTotal) + " / " + at.diasAtraso + " dias)" : "") +
+          ". Mensagem: " + msg
+        );
+        S.loan = null;
+        guardar();
+
+        renderStatus(); renderCartao(); renderPagamento(); renderNiveis();
+        abrirWhatsApp(texto);
+        toast("Pagamento enviado! Níveis desbloqueados novamente.");
+      });
+    };
+  }
 }
 
 function renderHistorico(){
   const box = $("#histList");
+  if(!box) return;
   if(!S.history.length){
     box.innerHTML = '<div class="empty">' +
       '<div class="big"><svg viewBox="0 0 24 24" fill="none" stroke="#3a4a6b" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>' +
@@ -1854,6 +2280,7 @@ function iniciarAssistencia(){
   const fab = $("#fabBtn");
   const panel = $("#supportPanel");
   const fabIcon = $("#fabIcon");
+  if(!fab || !panel) return;
 
   const ICON_CHAT = '<path d="M21 12a8.5 8.5 0 0 1-8.5 8.5H5l-2 2V12a8.5 8.5 0 0 1 8.5-8.5h1A8.5 8.5 0 0 1 21 12z"/><path d="M8 11h.01M12 11h.01M16 11h.01" stroke-linecap="round"/>';
   const ICON_CLOSE = '<path d="M6 6l12 12M18 6L6 18"/>';
@@ -1884,16 +2311,16 @@ function iniciarAssistencia(){
   const spCall  = $("#spCall");
   const spSms   = $("#spSms");
 
-  spWhats.addEventListener("click", function(e){
+  if(spWhats) spWhats.addEventListener("click", function(e){
     e.preventDefault();
     const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(construirTexto());
     window.open(url, "_blank");
   });
-  spCall.addEventListener("click", function(e){
+  if(spCall) spCall.addEventListener("click", function(e){
     e.preventDefault();
     window.location.href = "tel:" + SUPPORT_PHONE;
   });
-  spSms.addEventListener("click", function(e){
+  if(spSms) spSms.addEventListener("click", function(e){
     e.preventDefault();
     window.location.href = "sms:" + SUPPORT_SMS + "?body=" + encodeURIComponent(construirTexto());
   });
@@ -2012,10 +2439,9 @@ const LoadingOverlay = (function(){
 })();
 
 /* ============================================================
-   HANDLER GLOBAL DE CLIQUE
+   RIPPLE GLOBAL
    ============================================================ */
 document.addEventListener("click", function(e){
-
   const rippleHost = e.target.closest(".btn, .menu-btn, .sp-btn, .fab, .sp-close");
   if(rippleHost && !rippleHost.hasAttribute("data-no-ripple")){
     const r = rippleHost.getBoundingClientRect();
@@ -2032,28 +2458,31 @@ document.addEventListener("click", function(e){
     rippleHost.appendChild(span);
     setTimeout(function(){ span.remove(); }, 600);
   }
-
-  const el = e.target.closest("[data-loading]");
-  if(!el || el.disabled) return;
-
-  ChromeLoader.start();
-  LoadingOverlay.show(LOADING_MS);
 }, true);
 
 /* ============================================================
-   SINCRONIZAR TOAST COM LOADING
+   ACTUALIZAÇÃO EM TEMPO REAL DO ATRASO
    ============================================================ */
-const _origToast = toast;
-toast = function(msg, erro){
-  _origToast(msg, erro);
-  ChromeLoader.done();
-  LoadingOverlay.hide();
-};
+setInterval(function(){
+  if(!S.user || !S.loan) return;
+  const painelEl = $("#view-painel");
+  const emprestEl = $("#view-emprestimo");
+  const cartaoEl = $("#view-cartao");
+  if(!painelEl || !emprestEl || !cartaoEl) return;
+
+  const painelVisivel = !painelEl.classList.contains("hidden");
+  const emprestVisivel = !emprestEl.classList.contains("hidden");
+  const cartaoVisivel  = !cartaoEl.classList.contains("hidden");
+
+  if(painelVisivel)   renderStatus();
+  if(emprestVisivel)  renderNiveis();
+  if(cartaoVisivel){ renderCartao(); renderPagamento(); }
+}, 60000);
 
 /* Segurança */
 window.addEventListener("error", function(){
-  ChromeLoader.done();
-  LoadingOverlay.hide();
+  if(typeof ChromeLoader !== "undefined") ChromeLoader.done();
+  if(typeof LoadingOverlay !== "undefined") LoadingOverlay.hide();
 });
 window.addEventListener("beforeunload", function(){
   guardar();
